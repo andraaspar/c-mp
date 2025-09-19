@@ -1,0 +1,20 @@
+{
+	"name": "c-mp",
+	"private": true,
+	"version": "1.0.0",
+	"type": "module",
+	"scripts": {
+		"dev": "vite",
+		"build": "tsc && vite build",
+		"preview": "vite preview",
+		"deploy": "gh-pages -d dist"
+	},
+	"devDependencies": {
+		"typescript": "~5.8.3",
+		"vite": "^7.1.6"
+	},
+	"exports": {
+		"./jsx-dev-runtime": "./src/c-mp/jsx-dev-runtime.js",
+		"./jsx-runtime": "./src/c-mp/jsx-runtime.js"
+	}
+}
