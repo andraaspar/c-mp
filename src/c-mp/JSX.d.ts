@@ -3,14 +3,10 @@ declare module JSX {
 		// debugName?: string
 	}
 
-	type TFns<T> = {
-		[P in keyof T]: T[P] extends Function ? T[P] : T[P] | (() => T[P])
-	}
-
 	export type IntrinsicElements = {
 		[P in keyof HTMLElementTagNameMap]: Partial<
 			Omit<
-				TFns<HTMLElementTagNameMap[P]>,
+				import('./model/TFns').TFns<HTMLElementTagNameMap[P]>,
 				'children' | 'className' | 'classList'
 			>
 		> &

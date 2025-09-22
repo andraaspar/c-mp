@@ -3,6 +3,7 @@ import { Comp, defineComponent, useComponent } from '../fun/useComponent'
 import { untrack, useEffect } from '../fun/useEffect'
 import { useState } from '../fun/useState'
 import { IProps } from '../model/IProps'
+import { TChildrenIn } from '../model/TChildrenIn'
 
 export type TKey = string | number | bigint | symbol | boolean
 
@@ -17,8 +18,8 @@ export interface IForElemProps<T> extends IProps {
 export interface IForProps<T> extends IProps {
 	each: () => T[] | undefined
 	getKey?: (item: T, index: number) => TKey
-	render: (state: IForState<T>) => JSX.Element | string
-	empty?: () => JSX.Element | string
+	render: (state: IForState<T>) => TChildrenIn
+	empty?: () => TChildrenIn
 }
 
 export interface IForItemData<T> {
@@ -130,21 +131,30 @@ export const For = defineComponent(
 
 export interface IForItemProps<T> extends IProps {
 	state: IForState<T>
-	render: (state: IForState<T>) => JSX.Element | string
+	render: (state: IForState<T>) => TChildrenIn
 }
 
 const ForItem = defineComponent(
 	'ForItem',
 	<T>({ state, render }: IForItemProps<T>, $: Comp<IForItemProps<T>>) => {
-		$.append(render(state))
+		const el = render(state)
+		if (Array.isArray(el)) {
+			$.append(...el)
+		} else {
+			$.append(el)
+		}
 		return $
 	},
 )
 
-const ForEmpty = defineComponent<{ empty: () => JSX.Element | string }>(
-	'ForEmpty',
-	(props, $) => {
-		$.append(props.empty())
-		return $
-	},
-)
+const ForEmpty = defineComponent<{
+	empty: () => TChildrenIn
+}>('ForEmpty', (props, $) => {
+	const el = props.empty()
+	if (Array.isArray(el)) {
+		$.append(...el)
+	} else {
+		$.append(el)
+	}
+	return $
+})

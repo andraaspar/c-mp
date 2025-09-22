@@ -4,6 +4,7 @@ import { defineComponent } from '../c-mp/fun/useComponent'
 import { useEffect } from '../c-mp/fun/useEffect'
 import { useState } from '../c-mp/fun/useState'
 import { ForTestComp } from './ForTestComp'
+import { HyperscriptTestComp } from './HyperscriptTestComp'
 import { ShowTestComp } from './ShowTestComp'
 import { SlotTestComp } from './SlotTestComp'
 
@@ -12,7 +13,7 @@ export const TestsComp = defineComponent<{}>('TestsComp', (props, $) => {
 		<>
 			<div>
 				<a href='#slot'>Slot</a> | <a href='#for'>For</a> |{' '}
-				<a href='#show'>Show</a>
+				<a href='#show'>Show</a> | <a href='#hyperscript'>Hyperscript</a>
 			</div>
 			<div>
 				<ErrorBoundary
@@ -39,6 +40,9 @@ export const TestsComp = defineComponent<{}>('TestsComp', (props, $) => {
 					break
 				case '#show':
 					state.test = <ShowTestComp />
+					break
+				case '#hyperscript':
+					state.test = <HyperscriptTestComp />
 					break
 				default:
 					state.test = undefined

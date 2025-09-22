@@ -1,3 +1,5 @@
+import { TChildrenIn } from './TChildrenIn'
+
 export interface IAttributes<T> {
 	className?:
 		| string[]
@@ -5,7 +7,7 @@ export interface IAttributes<T> {
 		| null
 		| undefined
 		| ((
-				elem: T
+				elem: T,
 		  ) =>
 				| (string | null | undefined | boolean | number | bigint)[]
 				| string
@@ -13,5 +15,5 @@ export interface IAttributes<T> {
 				| undefined)
 	bindElement?: (elem: T) => void
 	[k: string]: unknown
-	children?: (JSX.Element | string) | (JSX.Element | string)[]
+	children?: TChildrenIn
 }

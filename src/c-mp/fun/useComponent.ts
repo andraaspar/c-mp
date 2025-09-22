@@ -10,6 +10,8 @@ const debugNameByInit = new Map<IComponentInit<any>, string>()
 
 /**
  * Declares the shape of an init function to be passed to a c-mp web component.
+ * Returning a JSX.Element is a requirement for JSX support. The returned value
+ * itself is not used in any way.
  */
 export interface IComponentInit<P extends IProps = IProps> {
 	(props: P, $: Comp<P>): JSX.Element

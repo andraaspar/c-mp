@@ -2,6 +2,7 @@ import { log3 } from '../fun/log'
 import { Comp, defineComponent, useComponent } from '../fun/useComponent'
 import { useEffect } from '../fun/useEffect'
 import { IProps } from '../model/IProps'
+import { TChildrenIn } from '../model/TChildrenIn'
 
 export type TThenValue<T> = Exclude<T, false | null | undefined | 0 | '' | 0n>
 export type TThenValueGetter<T> = () => TThenValue<T>
@@ -12,8 +13,8 @@ const NEVER = Symbol('NEVER')
 
 export interface IShowProps<T> extends IProps {
 	when: (() => T) | undefined
-	then?: (get: TThenValueGetter<T>) => JSX.Element | string
-	else?: () => JSX.Element | string
+	then?: (get: TThenValueGetter<T>) => TChildrenIn
+	else?: () => TChildrenIn
 }
 
 export const Show = defineComponent(
@@ -59,21 +60,23 @@ export const Show = defineComponent(
 )
 
 interface IShowInnerProps<T> extends IProps {
-	fn: () => JSX.Element | string | undefined
+	fn: () => TChildrenIn | undefined
 }
 const ShowThen = defineComponent(
 	'ShowThen',
 	<T>(props: IShowInnerProps<T>, $: Comp<IShowInnerProps<T>>) => {
-		const elems = props.fn()
-		if (elems) $.append(elems)
+		const el = props.fn()
+		if (Array.isArray(el)) $.append(...el)
+		else if (el) $.append(el)
 		return $
 	},
 )
 const ShowElse = defineComponent(
 	'ShowElse',
 	<T>(props: IShowInnerProps<T>, $: Comp<IShowInnerProps<T>>) => {
-		const elems = props.fn()
-		if (elems) $.append(elems)
+		const el = props.fn()
+		if (Array.isArray(el)) $.append(...el)
+		else if (el) $.append(el)
 		return $
 	},
 )

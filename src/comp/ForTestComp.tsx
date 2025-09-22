@@ -4,15 +4,18 @@ import { defineComponent } from '../c-mp/fun/useComponent'
 import { useState } from '../c-mp/fun/useState'
 
 export const ForTestComp = defineComponent<{}>('ForTestComp', (props, $) => {
-	const state = useState('state', { arr: ['foo', 'bar', 'baz'] })
+	const state = useState('state', { arr: ['foo', 'bar', 'baz', 'quux'] })
 
 	$.append(
 		<>
+			<h1>For</h1>
 			<For
 				each={() => state.arr}
 				render={(it) => (
 					<div>
-						<Slot get={() => it.item} />
+						<span>
+							<Slot get={() => it.item} />
+						</span>{' '}
 						<button
 							onclick={() => {
 								state.arr.splice(it.index, 1)
@@ -28,7 +31,7 @@ export const ForTestComp = defineComponent<{}>('ForTestComp', (props, $) => {
 					state.arr.push(Date.now().toString(36))
 				}}
 			>
-				Add item
+				<b>Add</b> <i>item</i>
 			</button>
 		</>,
 	)

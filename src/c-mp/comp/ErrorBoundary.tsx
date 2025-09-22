@@ -1,6 +1,7 @@
 import { stripStack } from '../fun/stripStack'
 import { Comp, defineComponent, useComponent } from '../fun/useComponent'
 import { IProps } from '../model/IProps'
+import { TChildrenIn } from '../model/TChildrenIn'
 
 export interface IErrorBoundaryCatchProps extends IProps {
 	error: string
@@ -8,8 +9,8 @@ export interface IErrorBoundaryCatchProps extends IProps {
 }
 
 export interface IErrorBoundaryProps extends IProps {
-	try: () => JSX.Element
-	catch: (p: IErrorBoundaryCatchProps) => JSX.Element
+	try: () => TChildrenIn
+	catch: (p: IErrorBoundaryCatchProps) => TChildrenIn
 }
 
 export const ErrorBoundary = defineComponent<IErrorBoundaryProps>(
@@ -56,10 +57,14 @@ export const ErrorBoundary = defineComponent<IErrorBoundaryProps>(
 	},
 )
 
-const ErrorBoundaryInner = defineComponent<{ fn: () => JSX.Element }>(
-	'ErrorBoundaryInner',
-	(props, $) => {
-		$.append(props.fn())
-		return $
-	},
-)
+const ErrorBoundaryInner = defineComponent<{
+	fn: () => TChildrenIn
+}>('ErrorBoundaryInner', (props, $) => {
+	const el = props.fn()
+	if (Array.isArray(el)) {
+		$.append(...el)
+	} else {
+		$.append(el)
+	}
+	return $
+})

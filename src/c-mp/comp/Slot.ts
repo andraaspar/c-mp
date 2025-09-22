@@ -1,13 +1,14 @@
 import { defineComponent } from '../fun/useComponent'
 import { useEffect } from '../fun/useEffect'
+import { TChildrenIn } from '../model/TChildrenIn'
 
 /**
  * The types of values a Slot can display.
  */
-export type TSlotValue = JSX.Element | string | null | undefined
+export type TSlotValue = TChildrenIn | null | undefined
 
 /**
- * Displays JSX or a string. If the string is trusted, it can show it unescaped.
+ * Displays JSX or a string. If the string is trusted, shows it unescaped.
  */
 export const Slot = defineComponent<{
 	/**
@@ -32,8 +33,11 @@ export const Slot = defineComponent<{
 			if (props.isTrustedHtml && typeof value === 'string') {
 				// Display the new content unescaped.
 				$.innerHTML = value
+			} else if (Array.isArray(value)) {
+				// Display the new content array normally.
+				$.append(...value)
 			} else {
-				// Escape and display the new content.
+				// Display the new single content normally.
 				$.append(value)
 			}
 		}
