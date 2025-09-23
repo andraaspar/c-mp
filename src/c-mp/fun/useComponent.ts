@@ -27,14 +27,16 @@ export const activeComps: Comp<any>[] = []
  */
 export class Comp<P extends IProps> extends HTMLElement {
 	/**
-	 * The props passed to this instance at init time.
+	 * The props passed to this instance at init time. This field is set directly
+	 * on the instance after it is constructed.
 	 */
-	readonly props: P | undefined
+	props: P | undefined
 
 	/**
-	 * The init function used to set up this component.
+	 * The init function used to set up this component. This field is set directly
+	 * on the instance after it is constructed.
 	 */
-	readonly init: IComponentInit<P> | undefined
+	init: IComponentInit<P> | undefined
 
 	/**
 	 * The name of this component as used in debug messages.

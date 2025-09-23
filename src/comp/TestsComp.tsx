@@ -17,7 +17,7 @@ export const TestsComp = defineComponent<{}>('TestsComp', (props, $) => {
 			</div>
 			<div>
 				<ErrorBoundary
-					debugName='[t2ua2s]'
+					debugName='t2ua2s'
 					catch={(it) => <div>{it.error}</div>}
 					try={() => <Slot get={() => state.test} />}
 				/>

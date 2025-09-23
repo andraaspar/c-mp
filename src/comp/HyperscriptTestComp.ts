@@ -38,6 +38,7 @@ export const HyperscriptTestComp = defineComponent<{}>(
 					h('i', { children: 'item' }),
 				],
 			}),
+			' ',
 			h(Show<boolean>, {
 				when: () => state.arr.length % 2 === 0,
 				then: () => [
