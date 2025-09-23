@@ -32,7 +32,7 @@ export const Show = defineComponent(
 			const lastFlag = flag
 			flag = !!props.when?.()
 			log3(`💫 ${$.debugName} value:`, lastFlag, `→`, flag)
-			if (!flag === !lastFlag) return
+			if (!flag === !lastFlag && lastFlag !== NEVER) return
 
 			lastComp?.remove()
 			lastComp = undefined
