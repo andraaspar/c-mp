@@ -35,17 +35,22 @@ export const ErrorBoundary = defineComponent<IErrorBoundaryProps>(
 			innerComponent?.remove()
 
 			// Create ad-hoc component for try & catch callbacks.
-			innerComponent = useComponent(ErrorBoundaryInner, {
-				debugName: props.debugName,
-				fn: error
-					? () =>
-							props.catch({
-								debugName: $.debugName,
-								error,
-								reset,
-							})
-					: props.try,
-			})
+			if (error) {
+				innerComponent = useComponent(ErrorBoundaryCatch, {
+					debugName: props.debugName,
+					fn: () =>
+						props.catch({
+							debugName: $.debugName,
+							error,
+							reset,
+						}),
+				})
+			} else {
+				innerComponent = useComponent(ErrorBoundaryTry, {
+					debugName: props.debugName,
+					fn: props.try,
+				})
+			}
 
 			$.append(innerComponent)
 		}
@@ -57,9 +62,20 @@ export const ErrorBoundary = defineComponent<IErrorBoundaryProps>(
 	},
 )
 
-const ErrorBoundaryInner = defineComponent<{
+const ErrorBoundaryTry = defineComponent<{
 	fn: () => TChildrenIn
-}>('ErrorBoundaryInner', (props, $) => {
+}>('ErrorBoundaryTry', (props, $) => {
+	const el = props.fn()
+	if (Array.isArray(el)) {
+		$.append(...el)
+	} else {
+		$.append(el)
+	}
+	return $
+})
+const ErrorBoundaryCatch = defineComponent<{
+	fn: () => TChildrenIn
+}>('ErrorBoundaryCatch', (props, $) => {
 	const el = props.fn()
 	if (Array.isArray(el)) {
 		$.append(...el)
