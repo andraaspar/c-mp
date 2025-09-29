@@ -7,13 +7,17 @@ import { ForTestComp } from './ForTestComp'
 import { HyperscriptTestComp } from './HyperscriptTestComp'
 import { ShowTestComp } from './ShowTestComp'
 import { SlotTestComp } from './SlotTestComp'
+import { UseLoadableTest2Comp } from './UseLoadableTest2Comp'
+import { UseLoadableTestComp } from './UseLoadableTestComp'
 
 export const TestsComp = defineComponent<{}>('TestsComp', (props, $) => {
 	$.append(
 		<>
 			<div>
 				<a href='#slot'>Slot</a> | <a href='#for'>For</a> |{' '}
-				<a href='#show'>Show</a> | <a href='#hyperscript'>Hyperscript</a>
+				<a href='#show'>Show</a> | <a href='#hyperscript'>Hyperscript</a> |{' '}
+				<a href='#use-loadable'>useLoadable</a> |{' '}
+				<a href='#use-loadable-2'>useLoadable 2</a>
 			</div>
 			<div>
 				<ErrorBoundary
@@ -43,6 +47,12 @@ export const TestsComp = defineComponent<{}>('TestsComp', (props, $) => {
 					break
 				case '#hyperscript':
 					state.test = <HyperscriptTestComp />
+					break
+				case '#use-loadable':
+					state.test = <UseLoadableTestComp />
+					break
+				case '#use-loadable-2':
+					state.test = <UseLoadableTest2Comp />
 					break
 				default:
 					state.test = undefined
