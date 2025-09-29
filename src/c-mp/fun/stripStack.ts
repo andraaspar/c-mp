@@ -6,6 +6,6 @@ export function stripStack(e: unknown) {
 		e.stack = e.stack
 			.split(LINE_ENDING_RE)
 			.filter((line) => !line.match(STRIP_RE))
-			.join("\n")
+			.join('\n')
 	}
 }

@@ -1,6 +1,7 @@
 import { IAttributes } from '../model/IAttributes'
 import { IProps } from '../model/IProps'
 import { TFns } from '../model/TFns'
+import { childToBasicItem } from './childToBasicItem'
 import { activeComps, Comp, IComponentInit, useComponent } from './useComponent'
 import { useEffect } from './useEffect'
 
@@ -61,6 +62,7 @@ export function h(
 				// Save bindElement for when the element is ready.
 				bindElement = v as (it: typeof elem) => void
 			} else if (
+				k !== 'children' &&
 				typeof v === 'function' &&
 				!k.startsWith('on') &&
 				!name.includes('-')
@@ -79,9 +81,9 @@ export function h(
 		}
 		// Handle children.
 		if (Array.isArray(attrs.children)) {
-			elem.append(...attrs.children)
+			elem.append(...attrs.children.map(childToBasicItem))
 		} else if (attrs.children) {
-			elem.append(attrs.children)
+			elem.append(childToBasicItem(attrs.children))
 		}
 		// Pass the completed element to the bindElement function, if provided.
 		if (bindElement) {

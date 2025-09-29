@@ -1,5 +1,4 @@
 import { For } from '../c-mp/comp/For'
-import { Slot } from '../c-mp/comp/Slot'
 import { defineComponent } from '../c-mp/fun/useComponent'
 import { useState } from '../c-mp/fun/useState'
 
@@ -13,9 +12,7 @@ export const ForTestComp = defineComponent<{}>('ForTestComp', (props, $) => {
 				each={() => state.arr}
 				render={(it) => (
 					<div>
-						<span>
-							<Slot get={() => it.item} />
-						</span>{' '}
+						<span>{() => it.item}</span>{' '}
 						<button
 							onclick={() => {
 								state.arr.splice(it.index, 1)

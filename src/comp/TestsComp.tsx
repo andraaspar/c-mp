@@ -1,8 +1,8 @@
 import { ErrorBoundary } from '../c-mp/comp/ErrorBoundary'
-import { Slot, TSlotValue } from '../c-mp/comp/Slot'
 import { defineComponent } from '../c-mp/fun/useComponent'
 import { useEffect } from '../c-mp/fun/useEffect'
 import { useState } from '../c-mp/fun/useState'
+import { TSlotValue } from '../c-mp/model/TChildrenIn'
 import { ForTestComp } from './ForTestComp'
 import { HyperscriptTestComp } from './HyperscriptTestComp'
 import { ShowTestComp } from './ShowTestComp'
@@ -23,7 +23,7 @@ export const TestsComp = defineComponent<{}>('TestsComp', (props, $) => {
 				<ErrorBoundary
 					debugName='t2ua2s'
 					catch={(it) => <div>{it.error}</div>}
-					try={() => <Slot get={() => state.test} />}
+					try={() => [() => state.test]}
 				/>
 			</div>
 		</>,

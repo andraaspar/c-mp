@@ -1,6 +1,5 @@
 import { For } from '../c-mp/comp/For'
 import { Show } from '../c-mp/comp/Show'
-import { Slot } from '../c-mp/comp/Slot'
 import { h } from '../c-mp/fun/h'
 import { defineComponent } from '../c-mp/fun/useComponent'
 import { useState } from '../c-mp/fun/useState'
@@ -17,7 +16,7 @@ export const HyperscriptTestComp = defineComponent<{}>(
 				render: (it) =>
 					h('div', {
 						children: [
-							h('span', { children: h(Slot, { get: () => it.item }) }),
+							h('span', { children: () => it.item }),
 							' ',
 							h('button', {
 								onclick: () => {

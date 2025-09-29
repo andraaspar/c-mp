@@ -1,11 +1,7 @@
+import { childToBasicItem } from '../fun/childToBasicItem'
 import { defineComponent } from '../fun/useComponent'
 import { useEffect } from '../fun/useEffect'
-import { TChildrenIn } from '../model/TChildrenIn'
-
-/**
- * The types of values a Slot can display.
- */
-export type TSlotValue = TChildrenIn | null | undefined
+import { TSlotValue } from '../model/TChildrenIn'
 
 /**
  * Displays JSX or a string. If the string is trusted, shows it unescaped.
@@ -35,10 +31,10 @@ export const Slot = defineComponent<{
 				$.innerHTML = value
 			} else if (Array.isArray(value)) {
 				// Display the new content array normally.
-				$.append(...value)
+				$.append(...value.map(childToBasicItem))
 			} else {
 				// Display the new single content normally.
-				$.append(value)
+				$.append(childToBasicItem(value))
 			}
 		}
 	})

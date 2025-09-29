@@ -1,5 +1,4 @@
 import { Show } from '../c-mp/comp/Show'
-import { Slot } from '../c-mp/comp/Slot'
 import { seconds } from '../c-mp/fun/seconds'
 import { defineComponent } from '../c-mp/fun/useComponent'
 import { reloadLoadables, useLoadable } from '../c-mp/fun/useLoadable'
@@ -28,14 +27,14 @@ export const UseLoadableTestComp = defineComponent<{}>(
 						state.showOne = !state.showOne
 					}}
 				>
-					<Slot get={() => (state.showOne ? 'Hide' : 'Show')} /> One
+					{() => (state.showOne ? 'Hide' : 'Show')} One
 				</button>
 				<button
 					onclick={() => {
 						state.showTwo = !state.showTwo
 					}}
 				>
-					<Slot get={() => (state.showTwo ? 'Hide' : 'Show')} /> Two
+					{() => (state.showTwo ? 'Hide' : 'Show')} Two
 				</button>
 				<button
 					onclick={() => {
@@ -69,31 +68,23 @@ const UseLoadableTestInnerComp = defineComponent<{
 	$.append(
 		<fieldset>
 			<legend>{props.debugName}</legend>
-			<div>
-				Status: <Slot get={() => loadable.status} />
-			</div>
-			<div>
-				Data: <Slot get={() => JSON.stringify(loadable.data)} />
-			</div>
-			<div>
-				Error: <Slot get={() => loadable.error} />
-			</div>
+			<div>Status: {() => loadable.status}</div>
+			<div>Data: {() => JSON.stringify(loadable.data)}</div>
+			<div>Error: {() => loadable.error}</div>
 			<div>
 				Loaded at:{' '}
-				<Slot
-					get={() =>
-						loadable.loadedAt == null
-							? ''
-							: new Date(loadable.loadedAt).toLocaleString('hu')
-					}
-				/>
+				{() =>
+					loadable.loadedAt == null
+						? ''
+						: new Date(loadable.loadedAt).toLocaleString('hu')
+				}
 			</div>
 			<button
 				onclick={() => {
 					state.isEnabled = !state.isEnabled
 				}}
 			>
-				<Slot get={() => (state.isEnabled ? 'Disable' : 'Enable')} />
+				{() => (state.isEnabled ? 'Disable' : 'Enable')}
 			</button>
 		</fieldset>,
 	)

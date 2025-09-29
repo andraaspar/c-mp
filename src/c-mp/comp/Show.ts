@@ -1,8 +1,9 @@
+import { childToBasicItem } from '../fun/childToBasicItem'
 import { log3 } from '../fun/log'
 import { Comp, defineComponent, useComponent } from '../fun/useComponent'
 import { useEffect } from '../fun/useEffect'
 import { IProps } from '../model/IProps'
-import { TChildrenIn } from '../model/TChildrenIn'
+import { TChildrenIn, TChildrenInResult } from '../model/TChildrenIn'
 
 export type TThenValue<T> = Exclude<T, false | null | undefined | 0 | '' | 0n>
 export type TThenValueGetter<T> = () => TThenValue<T>
@@ -13,8 +14,8 @@ const NEVER = Symbol('NEVER')
 
 export interface IShowProps<T> extends IProps {
 	when: (() => T) | undefined
-	then?: (get: TThenValueGetter<T>) => TChildrenIn
-	else?: () => TChildrenIn
+	then?: (get: TThenValueGetter<T>) => TChildrenInResult
+	else?: () => TChildrenInResult
 }
 
 export const Show = defineComponent(
@@ -66,8 +67,8 @@ const ShowThen = defineComponent(
 	'ShowThen',
 	<T>(props: IShowInnerProps<T>, $: Comp<IShowInnerProps<T>>) => {
 		const el = props.fn()
-		if (Array.isArray(el)) $.append(...el)
-		else if (el) $.append(el)
+		if (Array.isArray(el)) $.append(...el.map(childToBasicItem))
+		else if (el) $.append(childToBasicItem(el))
 		return $
 	},
 )
@@ -75,8 +76,8 @@ const ShowElse = defineComponent(
 	'ShowElse',
 	<T>(props: IShowInnerProps<T>, $: Comp<IShowInnerProps<T>>) => {
 		const el = props.fn()
-		if (Array.isArray(el)) $.append(...el)
-		else if (el) $.append(el)
+		if (Array.isArray(el)) $.append(...el.map(childToBasicItem))
+		else if (el) $.append(childToBasicItem(el))
 		return $
 	},
 )

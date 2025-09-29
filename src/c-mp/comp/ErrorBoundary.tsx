@@ -1,7 +1,8 @@
+import { childToBasicItem } from '../fun/childToBasicItem'
 import { stripStack } from '../fun/stripStack'
 import { Comp, defineComponent, useComponent } from '../fun/useComponent'
 import { IProps } from '../model/IProps'
-import { TChildrenIn } from '../model/TChildrenIn'
+import { TChildrenIn, TChildrenInResult } from '../model/TChildrenIn'
 
 export interface IErrorBoundaryCatchProps extends IProps {
 	error: string
@@ -9,8 +10,8 @@ export interface IErrorBoundaryCatchProps extends IProps {
 }
 
 export interface IErrorBoundaryProps extends IProps {
-	try: () => TChildrenIn
-	catch: (p: IErrorBoundaryCatchProps) => TChildrenIn
+	try: () => TChildrenInResult
+	catch: (p: IErrorBoundaryCatchProps) => TChildrenInResult
 }
 
 export const ErrorBoundary = defineComponent<IErrorBoundaryProps>(
@@ -67,9 +68,9 @@ const ErrorBoundaryTry = defineComponent<{
 }>('ErrorBoundaryTry', (props, $) => {
 	const el = props.fn()
 	if (Array.isArray(el)) {
-		$.append(...el)
+		$.append(...el.map(childToBasicItem))
 	} else {
-		$.append(el)
+		$.append(childToBasicItem(el))
 	}
 	return $
 })
@@ -78,9 +79,9 @@ const ErrorBoundaryCatch = defineComponent<{
 }>('ErrorBoundaryCatch', (props, $) => {
 	const el = props.fn()
 	if (Array.isArray(el)) {
-		$.append(...el)
+		$.append(...el.map(childToBasicItem))
 	} else {
-		$.append(el)
+		$.append(childToBasicItem(el))
 	}
 	return $
 })
