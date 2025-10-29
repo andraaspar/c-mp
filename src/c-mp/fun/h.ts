@@ -48,7 +48,7 @@ export function h(
 		for (const [k, v] of Object.entries(attrs)) {
 			if (k === 'className' && typeof v === 'function') {
 				// className set to a function: set up an effect with the return value.
-				useEffect(`${activeComponent?.debugName}.${name}.${k}`, () => {
+				useEffect(`${activeComponent?.debugName}→${name}→${k}`, () => {
 					const it = v(elem)
 					if (Array.isArray(it)) elem.className = it.filter(Boolean).join(' ')
 					else if (typeof it === 'string') elem.className = it
@@ -71,7 +71,7 @@ export function h(
 				// the value. Web components are excluded from this functionality to
 				// make it possible to pass functions to them (see the init function of
 				// c-mp).
-				useEffect(`${activeComponent?.debugName}.${name}.${k}`, () => {
+				useEffect(`${activeComponent?.debugName}→${name}→${k}`, () => {
 					;(elem as any)[k] = v()
 				})
 			} else if (k !== 'children') {

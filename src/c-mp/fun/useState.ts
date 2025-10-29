@@ -75,5 +75,5 @@ const CBS: IProxifyCallbacks = {
 
 export function useState<T>(name: string, o: T): T {
 	const debugName = activeComps.at(-1)?.debugName ?? '-'
-	return proxify(`${debugName}.${name}`, o, CBS)
+	return proxify(`${debugName}→${name}`, o, CBS)
 }

@@ -1,14 +1,16 @@
+import { getGlobalCmp } from './getGlobalCmp'
 import { getNoError } from './getNoError'
 
 let logLevel = getNoError<number>(0, () =>
 	JSON.parse(sessionStorage['LOG_LEVEL']),
 )
 
-;(globalThis as any).setLogLevel = (it: number) => {
+const c_mp = getGlobalCmp()
+c_mp.setLogLevel = (it: number) => {
 	sessionStorage['LOG_LEVEL'] = JSON.stringify(it)
 	logLevel = it
 }
-;(globalThis as any).getLogLevel = () => logLevel
+c_mp.getLogLevel = () => logLevel
 
 export function log0(...rest: unknown[]) {
 	if (logLevel >= 0) {

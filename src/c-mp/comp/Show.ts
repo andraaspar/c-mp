@@ -1,9 +1,9 @@
 import { childToBasicItem } from '../fun/childToBasicItem'
 import { log3 } from '../fun/log'
 import { Comp, defineComponent, useComponent } from '../fun/useComponent'
-import { useEffect } from '../fun/useEffect'
+import { untrack, useEffect } from '../fun/useEffect'
 import { IProps } from '../model/IProps'
-import { TChildrenIn, TChildrenInResult } from '../model/TChildrenIn'
+import { TChildrenIn } from '../model/TChildrenIn'
 
 export type TThenValue<T> = Exclude<T, false | null | undefined | 0 | '' | 0n>
 export type TThenValueGetter<T> = () => TThenValue<T>
@@ -14,8 +14,8 @@ const NEVER = Symbol('NEVER')
 
 export interface IShowProps<T> extends IProps {
 	when: (() => T) | undefined
-	then?: (get: TThenValueGetter<T>) => TChildrenInResult
-	else?: () => TChildrenInResult
+	then?: (get: TThenValueGetter<T>) => TChildrenIn
+	else?: () => TChildrenIn
 }
 
 export const Show = defineComponent(
@@ -35,25 +35,27 @@ export const Show = defineComponent(
 			log3(`💫 ${$.debugName} value:`, lastFlag, `→`, flag)
 			if (!flag === !lastFlag && lastFlag !== NEVER) return
 
-			lastComp?.remove()
-			lastComp = undefined
+			untrack($.debugName, () => {
+				lastComp?.remove()
+				lastComp = undefined
 
-			// Create a component, so inner effects will be cleaned up properly, when
-			// the shown branch changes.
-			if (!!flag) {
-				if (props.then) {
-					lastComp = useComponent<IShowInnerProps<T>>(ShowThen, {
-						fn: () => props.then!(props.when as TThenValueGetter<T>),
-					})
+				// Create a component, so inner effects will be cleaned up properly, when
+				// the shown branch changes.
+				if (!!flag) {
+					if (props.then) {
+						lastComp = useComponent<IShowInnerProps<T>>(ShowThen, {
+							fn: () => props.then!(props.when as TThenValueGetter<T>),
+						})
+					}
+				} else {
+					if (props.else) {
+						lastComp = useComponent<IShowInnerProps<T>>(ShowElse, {
+							fn: props.else,
+						})
+					}
 				}
-			} else {
-				if (props.else) {
-					lastComp = useComponent<IShowInnerProps<T>>(ShowElse, {
-						fn: props.else,
-					})
-				}
-			}
-			if (lastComp) $.append(lastComp)
+				if (lastComp) $.append(lastComp)
+			})
 		})
 
 		return $

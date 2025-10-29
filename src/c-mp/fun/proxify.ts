@@ -22,7 +22,7 @@ export function proxify<T>(name: string, o: T, cbs?: IProxifyCallbacks): T {
 	}
 
 	// Always wrap the source object or array, and never a proxy.
-	o = unproxify(o)
+	// o = unproxify(o)
 
 	return new Proxy(o as any, {
 		// 'foo' in proxy
@@ -53,7 +53,7 @@ export function proxify<T>(name: string, o: T, cbs?: IProxifyCallbacks): T {
 			let result = true
 			let hadKey = p in target
 			let oldValue = (target as any)[p]
-			newValue = unproxify(newValue)
+			// newValue = unproxify(newValue)
 
 			if (!Object.is(oldValue, newValue)) {
 				// Value changed.
@@ -99,7 +99,7 @@ export function isProxifyable(o: unknown): boolean {
  * is not a proxy.
  */
 export function unproxify<T>(o: T): T {
-	if (o != null && typeof o === 'object' && unwrapped in o) {
+	while (o != null && typeof o === 'object' && unwrapped in o) {
 		o = o[unwrapped] as T
 	}
 	return o

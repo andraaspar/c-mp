@@ -162,9 +162,11 @@ export class Comp<P extends IProps> extends HTMLElement {
 
 		this.parentComp = undefined
 
-		// Execute kill callbacks. This ends effects.
+		// Execute kill callbacks. This ends effects. They are executed in reverse
+		// order, as the end is where the kill functions begin to seek to remove
+		// themselves.
 		while (this.kills.length) {
-			this.kills.shift()?.()
+			this.kills.pop()!()
 		}
 
 		// Remove all children.

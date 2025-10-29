@@ -15,9 +15,3 @@ export type TChildrenIn = TChildrenInBasicItem | TSlotGetter | TChildrenInArray
  * The types of values a Slot can display.
  */
 export type TSlotValue = TChildrenIn | null | undefined
-
-/**
- * Recommended return type for functions returning markup. Avoids the confusing
- * appearance of nested functions.
- */
-export type TChildrenInResult = TChildrenInBasicItem | TChildrenInArray

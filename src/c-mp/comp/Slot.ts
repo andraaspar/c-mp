@@ -1,6 +1,6 @@
 import { childToBasicItem } from '../fun/childToBasicItem'
 import { defineComponent } from '../fun/useComponent'
-import { useEffect } from '../fun/useEffect'
+import { untrack, useEffect } from '../fun/useEffect'
 import { TSlotValue } from '../model/TChildrenIn'
 
 /**
@@ -22,21 +22,23 @@ export const Slot = defineComponent<{
 		// Get the new value.
 		let value = props.get?.()
 
-		// Remove the old content.
-		$.innerHTML = ''
+		untrack($.debugName, () => {
+			// Remove the old content.
+			$.innerHTML = ''
 
-		if (value) {
-			if (props.isTrustedHtml && typeof value === 'string') {
-				// Display the new content unescaped.
-				$.innerHTML = value
-			} else if (Array.isArray(value)) {
-				// Display the new content array normally.
-				$.append(...value.map(childToBasicItem))
-			} else {
-				// Display the new single content normally.
-				$.append(childToBasicItem(value))
+			if (value) {
+				if (props.isTrustedHtml && typeof value === 'string') {
+					// Display the new content unescaped.
+					$.innerHTML = value
+				} else if (Array.isArray(value)) {
+					// Display the new content array normally.
+					$.append(...value.map(childToBasicItem))
+				} else {
+					// Display the new single content normally.
+					$.append(childToBasicItem(value))
+				}
 			}
-		}
+		})
 	})
 
 	return $

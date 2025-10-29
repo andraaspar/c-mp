@@ -2,7 +2,7 @@ import { childToBasicItem } from '../fun/childToBasicItem'
 import { stripStack } from '../fun/stripStack'
 import { Comp, defineComponent, useComponent } from '../fun/useComponent'
 import { IProps } from '../model/IProps'
-import { TChildrenIn, TChildrenInResult } from '../model/TChildrenIn'
+import { TChildrenIn } from '../model/TChildrenIn'
 
 export interface IErrorBoundaryCatchProps extends IProps {
 	error: string
@@ -10,8 +10,8 @@ export interface IErrorBoundaryCatchProps extends IProps {
 }
 
 export interface IErrorBoundaryProps extends IProps {
-	try: () => TChildrenInResult
-	catch: (p: IErrorBoundaryCatchProps) => TChildrenInResult
+	try: () => TChildrenIn
+	catch: (p: IErrorBoundaryCatchProps) => TChildrenIn
 }
 
 export const ErrorBoundary = defineComponent<IErrorBoundaryProps>(

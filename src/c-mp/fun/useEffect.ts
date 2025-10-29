@@ -86,7 +86,7 @@ export function useEffect(name: string, fn: () => (() => void) | void) {
 		throw e
 	}
 
-	return run
+	return kill
 }
 
 function getChain() {

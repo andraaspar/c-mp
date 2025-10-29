@@ -2,7 +2,7 @@ import { AbortError } from '../model/AbortError'
 import { errorToMessage } from './errorToMessage'
 import { jsonClone } from './jsonClone'
 import { jsonStringify } from './jsonStringify'
-import { log2Group, log2GroupEnd } from './log'
+import { log1, log2Group, log2GroupEnd } from './log'
 import { minutes } from './minutes'
 import { mirror } from './mirror'
 import { seconds } from './seconds'
@@ -183,12 +183,15 @@ export class CacheEntry<T, P> {
 		this.abortWaitForDelete = undefined
 
 		if (
-			isEnabled &&
-			(this.status === Status.Error ||
-				this.status === Status.Stale ||
-				this.status === Status.Never)
+			this.status === Status.Error ||
+			this.status === Status.Stale ||
+			this.status === Status.Never
 		) {
-			this.setStatus(Status.Loading, this.data, this.loadedAt)
+			if (isEnabled) {
+				this.setStatus(Status.Loading, this.data, this.loadedAt)
+			} else {
+				log1(`⛔`, this.name, `observed.`)
+			}
 		}
 	}
 
@@ -269,7 +272,7 @@ export function useLoadable<T, P>(
 	})
 
 	// Declare effect to keep track of changes in dependencies.
-	useEffect(name + '.optionsEffect', () => {
+	useEffect(name + '→optionsEffect', () => {
 		// Create the options in the effect to track dependencies.
 		const options = createOptions()
 
@@ -296,7 +299,7 @@ export function useLoadable<T, P>(
 		})
 	})
 
-	useEffect(name + '.entryEffect', () => {
+	useEffect(name + '→entryEffect', () => {
 		const entry = innerState.entryRef
 		if (entry != null) {
 			entry.addState(state, innerState.isEnabled)
