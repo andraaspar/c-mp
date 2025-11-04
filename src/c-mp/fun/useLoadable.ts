@@ -14,7 +14,7 @@ import { useState } from './useState'
 export type TLoadFn<T, P> = (params: P) => Promise<T>
 
 export interface IUseLoadableOptions<T, PLoad, PIn = PLoad> {
-	/** Key to identify this load operation. */
+	/** Key to identify this loadable. */
 	key: string
 	/** Parameters to pass to the load function. */
 	params: PIn
@@ -26,8 +26,8 @@ export interface IUseLoadableOptions<T, PLoad, PIn = PLoad> {
 	staleAfter?: number
 	/** How long before stale off-screen data should be deleted. */
 	deleteAfter?: number
-	/** Page index for infinite loaded data. */
-	pageIndex?: number
+	/** Skip reloading when visibility changes. */
+	noReloadOnVisible?: boolean
 }
 
 export interface IUseLoadableState<T> {
@@ -56,12 +56,11 @@ export interface ICacheEntryParams<T, P> {
 	paramsString: string
 	staleAfter?: number
 	deleteAfter?: number
-	pageIndex?: number
-	noReloadOnWindowFocus?: boolean
+	noReloadOnVisible?: boolean
 }
 
 export class CacheEntry<T, P> {
-	/** Allows us to keep track of the entry in debugging. */
+	/** Key to identify this entry. */
 	readonly key: string
 	/** The load function used to identify this cache entry. */
 	readonly loadFn: TLoadFn<T, P>
@@ -92,7 +91,7 @@ export class CacheEntry<T, P> {
 		this.paramsString = o.paramsString
 		this.staleAfter = o.staleAfter ?? DEFAULT_STALE_AFTER_MS
 		this.deleteAfter = o.deleteAfter ?? DEFAULT_DELETE_AFTER_MS
-		this.noReloadOnVisible = o.noReloadOnWindowFocus || false
+		this.noReloadOnVisible = o.noReloadOnVisible || false
 	}
 
 	private setStatus(
@@ -349,6 +348,7 @@ export function useLoadable<T, P>(
 						paramsString: paramsString,
 						deleteAfter: options.deleteAfter,
 						staleAfter: options.staleAfter,
+						noReloadOnVisible: options.noReloadOnVisible,
 					})
 					storeCacheEntry(entry)
 				}
