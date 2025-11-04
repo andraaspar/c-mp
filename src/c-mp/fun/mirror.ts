@@ -1,5 +1,5 @@
 import { HIGHLIGHT } from '../model/HIGHLIGHT'
-import { log1Group, log1GroupEnd } from './log'
+import { logGroup, logGroupEnd, logIndent, logLevel } from './log'
 import { unproxify } from './proxify'
 
 /**
@@ -7,7 +7,7 @@ import { unproxify } from './proxify'
  * target becomes a copy of the source.
  */
 export function mirror(
-	field: string | number,
+	field: string,
 	source: any,
 	target: any,
 	getId = getIdFromObject,
@@ -16,7 +16,10 @@ export function mirror(
 	// Unproxify the target so that we do not track it accidentally.
 	const targetRaw = unproxify(target)
 	const targetType = getType(targetRaw)
-	log1Group(`🪞 Mirror: %c${field}(${sourceType})`, HIGHLIGHT)
+	if (logLevel >= 2) {
+		console.log(`${logIndent}🪞 Mirror: %c${field}(${sourceType})`, HIGHLIGHT)
+		logGroup()
+	}
 	if (sourceType !== targetType) {
 		throw new Error(
 			`[swctkw] ${sourceType} cannot be mirrored to ${targetType}.`,
@@ -32,6 +35,11 @@ export function mirror(
 			if (isObject(item)) {
 				const id = getId(item)
 				if (id != null) {
+					if (id__targetItem.has(id)) {
+						throw new Error(
+							`[t55msp] Duplicate target ID in ${field}: ${JSON.stringify(id)}`,
+						)
+					}
 					id__targetItem.set(id, item)
 				}
 			}
@@ -43,63 +51,87 @@ export function mirror(
 			if (isObject(item)) {
 				const id = getId(item)
 				if (id != null) {
+					if (sourceIds.has(id)) {
+						throw new Error(
+							`[t55mtx] Duplicate source ID in ${field}: ${JSON.stringify(id)}`,
+						)
+					}
 					sourceIds.add(id)
 				}
 			}
 		}
 
 		// Remove target object if it does not have a matching ID
-		log1Group(`➖ Removing object items with no ID match`)
-		for (let i = 0; i < targetRaw.length; i++) {
+		if (logLevel >= 3) {
+			console.log(`${logIndent}➖ Removing object items with no ID match`)
+			logGroup()
+		}
+		for (let i = targetRaw.length - 1; i >= 0; i--) {
 			const item = targetRaw[i]
 			if (isObject(item)) {
 				const id = getId(item)
 				if (id == null || !sourceIds.has(id)) {
 					;(target as any[]).splice(i, 1)
-					i--
 				}
 			}
 		}
-		log1GroupEnd()
+		if (logLevel >= 3) logGroupEnd()
 
 		// Add or mirror items
-		log1Group(`➕ Adding items`)
+		if (logLevel >= 3) {
+			console.log(`${logIndent}➕ Adding items`)
+			logGroup()
+		}
 		for (let i = 0; i < source.length; i++) {
 			const item = source[i]
 			if (isObject(item)) {
 				const id = getId(item)
 				if (id == null || !id__targetItem.has(id)) {
-					log1Group(`➕ Add new item: ${i}`)
+					if (logLevel >= 3) {
+						console.log(`${logIndent}➕ Add new item: ${i}`)
+						logGroup()
+					}
 					;(target as any[]).splice(i, 0, item)
-					log1GroupEnd()
+					if (logLevel >= 3) logGroupEnd()
 				} else {
 					const targetItem = id__targetItem.get(id)
 					const targetItemMaybe = targetRaw[i]
 					if (targetItem !== targetItemMaybe) {
 						const oldIndex = targetRaw.indexOf(targetItem, i + 1)
-						log1Group(`✔️ Insert existing item earlier: ${i} ← ${oldIndex}`)
+						if (logLevel >= 3) {
+							console.log(
+								`${logIndent}✔️ Insert existing item earlier: ${i} ← ${oldIndex}`,
+							)
+							logGroup()
+						}
 						;(target as any[]).splice(oldIndex, 1)
 						;(target as any[]).splice(i, 0, targetItem)
-						log1GroupEnd()
+						if (logLevel >= 3) logGroupEnd()
 					}
-					mirror(i, item, (target as any[])[i], getId)
+					mirror(`${field}[${i}]`, item, (target as any[])[i], getId)
 				}
 			} else {
 				if (!Object.is(item, (target as any[])[i])) {
-					log1Group(`🟰 Set item: ${i}`)
+					if (logLevel >= 3) {
+						console.log(`${logIndent}🟰 Set item: ${i}`)
+						logGroup()
+					}
 					;(target as any[]).splice(i, 0, item)
-					log1GroupEnd()
+					if (logLevel >= 3) logGroupEnd()
 				}
 			}
 		}
-		log1GroupEnd()
+		if (logLevel >= 3) logGroupEnd()
 
 		// Crop the target array
 		if (targetRaw.length > source.length) {
-			log1Group(`🪓 Cropping array`)
+			if (logLevel >= 3) {
+				console.log(`${logIndent}🪓 Cropping array`)
+				logGroup()
+			}
 			// ;(target as any[]).splice(s.length, t.length - s.length)
 			;(target as any[]).length = source.length
-			log1GroupEnd()
+			if (logLevel >= 3) logGroupEnd()
 		}
 	} else if (sourceType === 'object') {
 		const t = targetRaw
@@ -114,7 +146,7 @@ export function mirror(
 					(Array.isArray(sourceValue) && Array.isArray(targetValue)) ||
 					(isObject(sourceValue) && isObject(targetValue))
 				) {
-					mirror(key, sourceValue, target[key], getId)
+					mirror(`${field}.${key}`, sourceValue, target[key], getId)
 				} else {
 					target[key] = sourceValue
 				}
@@ -129,7 +161,7 @@ export function mirror(
 		}
 	}
 
-	log1GroupEnd()
+	if (logLevel >= 2) logGroupEnd()
 }
 
 function isObject(o: unknown) {

@@ -1,5 +1,5 @@
 import { HIGHLIGHT } from '../model/HIGHLIGHT'
-import { log1, log3 } from './log'
+import { logIndent, logLevel } from './log'
 import { IProxifyCallbacks, proxify } from './proxify'
 import { activeComps } from './useComponent'
 import { activeEffects, IEffectProxyTracker } from './useEffect'
@@ -22,14 +22,15 @@ function runEffects(
 	if (!effects) return
 	const effectsArr = Array.from(effects)
 	if (effectsArr.length) {
-		log1(
-			`${
-				action === 'SET' ? '✏️' : '🗑️'
-			} State ${action}: %c${name}.${prop.toString()}`,
-			HIGHLIGHT,
-			'=',
-			value,
-		)
+		if (logLevel >= 1)
+			console.log(
+				`${logIndent}${
+					action === 'SET' ? '✏️' : '🗑️'
+				} State ${action}: %c${name}.${prop.toString()}`,
+				HIGHLIGHT,
+				'=',
+				value,
+			)
 		for (let i = 0; i < effectsArr.length; i++) {
 			const effect = effectsArr[i]!
 			if (effect.rerun) {
@@ -44,7 +45,11 @@ function runEffects(
 function trackEffect(name: string, target: object, prop: string | symbol) {
 	const activeEffect = activeEffects.at(-1)
 	if (!activeEffect) return
-	log3(`🔌 State GET: %c${name}.${prop.toString()}`, HIGHLIGHT)
+	if (logLevel >= 3)
+		console.log(
+			`${logIndent}🔌 State GET: %c${name}.${prop.toString()}`,
+			HIGHLIGHT,
+		)
 	let props__effects = target__props__effects.get(target)
 	if (!props__effects) {
 		props__effects = new Map()
@@ -73,7 +78,10 @@ const CBS: IProxifyCallbacks = {
 	},
 }
 
-export function useState<T>(name: string, o: T): T {
-	const debugName = activeComps.at(-1)?.debugName ?? '-'
-	return proxify(`${debugName}→${name}`, o, CBS)
+export function useState<T>(
+	name: string,
+	o: T,
+	parentName = activeComps.at(-1)?.debugName ?? '-',
+): T {
+	return proxify(`${parentName}→${name}`, o, CBS)
 }

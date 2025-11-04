@@ -6,10 +6,12 @@ export const UseLoadableTest2Comp = defineComponent<{}>(
 	'UseLoadableTest2Comp',
 	(props, $) => {
 		const main = useLoadable('main', () => ({
+			key: 't57hck',
 			load: loadString,
 			params: {},
 		}))
 		const sub = useLoadable('sub', () => ({
+			key: 't57hcm',
 			load: loadString2,
 			params: { value: main.data! },
 			isEnabled: !!main.data,

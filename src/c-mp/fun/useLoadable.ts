@@ -2,27 +2,32 @@ import { AbortError } from '../model/AbortError'
 import { errorToMessage } from './errorToMessage'
 import { jsonClone } from './jsonClone'
 import { jsonStringify } from './jsonStringify'
-import { log1, log2Group, log2GroupEnd } from './log'
+import { logGroup, logGroupEnd, logIndent, logLevel } from './log'
 import { minutes } from './minutes'
 import { mirror } from './mirror'
 import { seconds } from './seconds'
 import { sleep } from './sleep'
+import { activeComps } from './useComponent'
 import { untrack, useEffect } from './useEffect'
 import { useState } from './useState'
 
 export type TLoadFn<T, P> = (params: P) => Promise<T>
 
-export interface IUseLoadableOptions<T, P> {
+export interface IUseLoadableOptions<T, PLoad, PIn = PLoad> {
+	/** Key to identify this load operation. */
+	key: string
 	/** Parameters to pass to the load function. */
-	params: P
+	params: PIn
 	/** Load and return the data using the parameters. */
-	load: TLoadFn<T, P>
+	load: TLoadFn<T, PLoad>
 	/** Whether to trigger loading by this instance. */
 	isEnabled?: boolean
 	/** How long before the loaded data is considered stale. */
 	staleAfter?: number
 	/** How long before stale off-screen data should be deleted. */
 	deleteAfter?: number
+	/** Page index for infinite loaded data. */
+	pageIndex?: number
 }
 
 export interface IUseLoadableState<T> {
@@ -34,9 +39,9 @@ export interface IUseLoadableState<T> {
 
 export const enum Status {
 	Never = 'Never 🕳️',
-	Stale = 'Stale 🧟',
 	Loading = 'Loading ⌚',
 	Loaded = 'Loaded 📦',
+	Stale = 'Stale 🧟',
 	Error = 'Error ⚠️',
 	Deleted = 'Deleted 🗑️',
 }
@@ -45,17 +50,19 @@ const DEFAULT_STALE_AFTER_MS = seconds(5)
 const DEFAULT_DELETE_AFTER_MS = minutes(5)
 
 export interface ICacheEntryParams<T, P> {
-	name: string
+	key: string
 	load: TLoadFn<T, P>
 	params: P
 	paramsString: string
 	staleAfter?: number
 	deleteAfter?: number
+	pageIndex?: number
+	noReloadOnWindowFocus?: boolean
 }
 
 export class CacheEntry<T, P> {
 	/** Allows us to keep track of the entry in debugging. */
-	readonly name: string
+	readonly key: string
 	/** The load function used to identify this cache entry. */
 	readonly loadFn: TLoadFn<T, P>
 	/** The parameters to be fed to the load function. */
@@ -66,23 +73,26 @@ export class CacheEntry<T, P> {
 	readonly staleAfter: number
 	/** How long before the stale off-screen entry gets deleted. */
 	readonly deleteAfter: number
+	/** Skip reloading when visibility changes. */
+	readonly noReloadOnVisible: boolean
 	status = Status.Never
 	data?: T
 	loadedAt?: number
 	error?: string
 	/** A state for each of the components using this data. */
 	readonly states = new Set<IUseLoadableState<T>>()
-	enabledCount = 0
+	private enabledCount = 0
 	private abortFn?: () => void
 	private abortWaitForDelete?: () => void
 
 	constructor(o: ICacheEntryParams<T, P>) {
-		this.name = o.name
+		this.key = o.key
 		this.loadFn = o.load
 		this.params = o.params
 		this.paramsString = o.paramsString
 		this.staleAfter = o.staleAfter ?? DEFAULT_STALE_AFTER_MS
 		this.deleteAfter = o.deleteAfter ?? DEFAULT_DELETE_AFTER_MS
+		this.noReloadOnVisible = o.noReloadOnWindowFocus || false
 	}
 
 	private setStatus(
@@ -92,8 +102,10 @@ export class CacheEntry<T, P> {
 		error?: string,
 	) {
 		if (this.status === Status.Deleted) return
-
-		log2Group(`☁️ ${this.name} ${status}`)
+		if (logLevel >= 2) {
+			console.log(`${logIndent}☁️ ${this.key} ${status}`)
+			logGroup()
+		}
 
 		// log1(`data:`, data)
 		// log1(`loadedAt:`, loadedAt)
@@ -120,7 +132,7 @@ export class CacheEntry<T, P> {
 		} else if (status === Status.Deleted) {
 			this.delete()
 		}
-		log2GroupEnd()
+		if (logLevel >= 2) logGroupEnd()
 	}
 
 	private async load() {
@@ -137,7 +149,7 @@ export class CacheEntry<T, P> {
 		} catch (e) {
 			if (!(e instanceof AbortError)) {
 				console.error(
-					`Error loading ${JSON.stringify(this.name)} with params ${
+					`${logIndent}Error loading ${JSON.stringify(this.key)} with params ${
 						this.paramsString
 					}:`,
 					e,
@@ -155,7 +167,7 @@ export class CacheEntry<T, P> {
 			this.setStatus(Status.Stale, this.data, this.loadedAt)
 		} catch (e) {
 			if (!(e instanceof AbortError)) {
-				console.error(e)
+				console.error(logIndent, e)
 			}
 		}
 	}
@@ -168,7 +180,7 @@ export class CacheEntry<T, P> {
 			this.setStatus(Status.Deleted, this.data, this.loadedAt)
 		} catch (e) {
 			if (!(e instanceof AbortError)) {
-				console.error(e)
+				console.error(logIndent, e)
 			}
 		}
 	}
@@ -190,12 +202,13 @@ export class CacheEntry<T, P> {
 			if (isEnabled) {
 				this.setStatus(Status.Loading, this.data, this.loadedAt)
 			} else {
-				log1(`⛔`, this.name, `observed.`)
+				if (logLevel >= 2)
+					console.log(`${logIndent}⛔`, JSON.stringify(this.key), `observed.`)
 			}
 		}
 	}
 
-	updateState(state: IUseLoadableState<T>, dataChanged = true) {
+	private updateState(state: IUseLoadableState<T>, dataChanged = true) {
 		state.status = this.status
 		// state.data = data
 		if (
@@ -206,7 +219,7 @@ export class CacheEntry<T, P> {
 		) {
 			// We already had data: mutate it to reflect the updated data.
 			if (dataChanged) {
-				mirror(this.name, this.data, state.data)
+				mirror(this.key, this.data, state.data)
 			}
 		} else {
 			// We had no data before: clone the loaded data and proxify it.
@@ -225,37 +238,71 @@ export class CacheEntry<T, P> {
 		}
 	}
 
-	delete() {
-		deleteCacheEntry(this.loadFn, this.paramsString)
+	private delete() {
+		deleteCacheEntry(this.key, this.paramsString)
 	}
 
+	/** Marks loaded states stale, and aborts loading states so they become either
+	 * stale or never loaded. */
+	makeStaleOrNever() {
+		if (this.status === Status.Loaded) {
+			this.setStatus(Status.Stale, this.data, this.loadedAt)
+			return true
+		} else if (this.status === Status.Loading) {
+			if (this.data) {
+				this.setStatus(Status.Stale, this.data, this.loadedAt)
+			} else {
+				this.setStatus(Status.Never, undefined, undefined)
+			}
+			return true
+		}
+		return false
+	}
+
+	/** Reloads data, regardless of whether any states are enabled. */
 	reload() {
-		if (this.enabledCount === 0) return
-		this.setStatus(Status.Loading, this.data, this.loadedAt)
+		if (this.status !== Status.Deleted) {
+			this.setStatus(Status.Loading, this.data, this.loadedAt)
+			return true
+		}
+		return false
+	}
+
+	/** Reloads data if not opted out and enabled, and status is stale or error or
+	 * never. Suitable for reloading data on visibility change. */
+	maybeReloadOnVisible() {
+		if (
+			!this.noReloadOnVisible &&
+			this.enabledCount > 0 &&
+			(this.status === Status.Stale ||
+				this.status === Status.Error ||
+				this.status === Status.Never)
+		) {
+			this.setStatus(Status.Loading, this.data, this.loadedAt)
+			return true
+		}
+		return false
 	}
 }
 
 /** The cache. */
-const load__param__entry = new Map<
-	TLoadFn<any, any>,
-	Map<string, CacheEntry<any, any>>
->()
+const key__param__entry = new Map<string, Map<string, CacheEntry<any, any>>>()
 
 function storeCacheEntry<T>(entry: CacheEntry<T, any>) {
-	let param__data = load__param__entry.get(entry.loadFn)
+	let param__data = key__param__entry.get(entry.key)
 	if (!param__data) {
 		param__data = new Map()
-		load__param__entry.set(entry.loadFn, param__data)
+		key__param__entry.set(entry.key, param__data)
 	}
 	param__data.set(entry.paramsString, entry)
 }
 
-function deleteCacheEntry<T>(load: TLoadFn<T, any>, paramsString: string) {
-	const param__data = load__param__entry.get(load)
+function deleteCacheEntry<T>(key: string, paramsString: string) {
+	const param__data = key__param__entry.get(key)
 	if (param__data) {
 		param__data.delete(paramsString)
 		if (param__data.size === 0) {
-			load__param__entry.delete(load)
+			key__param__entry.delete(key)
 		}
 	}
 }
@@ -264,77 +311,140 @@ export function useLoadable<T, P>(
 	name: string,
 	createOptions: () => IUseLoadableOptions<T, P>,
 ): IUseLoadableState<T> {
-	const state = useState<IUseLoadableState<T>>(name, { status: Status.Never })
+	const debugName = activeComps.at(-1)!.debugName + `→${name}`
+	const state = useState<IUseLoadableState<T>>(
+		`state`,
+		{ status: Status.Never },
+		debugName,
+	)
 
-	const innerState = useState(name + '.innerState', {
-		entryRef: undefined as CacheEntry<T, P> | undefined,
-		isEnabled: false,
-	})
+	const innerState = useState(
+		'innerState',
+		{
+			entryRef: undefined as CacheEntry<T, P> | undefined,
+			isEnabled: false,
+		},
+		debugName,
+	)
 
 	// Declare effect to keep track of changes in dependencies.
-	useEffect(name + '→optionsEffect', () => {
-		// Create the options in the effect to track dependencies.
-		const options = createOptions()
+	useEffect(
+		'optionsEffect',
+		() => {
+			// Create the options in the effect to track dependencies.
+			const options = createOptions()
 
-		return untrack(name, () => {
-			// The params as a string will be key to get the entry.
-			const paramsString = jsonStringify(options.params, { ordered: true })
-			// Look up the entry in the cache.
-			let entry = load__param__entry.get(options.load)?.get(paramsString)
-			// If not found:
-			if (!entry) {
-				// Create new entry.
-				entry = new CacheEntry({
-					name: name,
-					load: options.load,
-					params: options.params,
-					paramsString: paramsString,
-					deleteAfter: options.deleteAfter,
-					staleAfter: options.staleAfter,
-				})
-				storeCacheEntry(entry)
+			return untrack('untrackOptionsEffect', () => {
+				// The params as a string will be key to get the entry.
+				const paramsString = jsonStringify(options.params, { ordered: true })
+				// Look up the entry in the cache.
+				let entry = key__param__entry.get(options.key)?.get(paramsString)
+				// If not found:
+				if (!entry) {
+					// Create new entry.
+					entry = new CacheEntry({
+						key: options.key,
+						load: options.load,
+						params: options.params,
+						paramsString: paramsString,
+						deleteAfter: options.deleteAfter,
+						staleAfter: options.staleAfter,
+					})
+					storeCacheEntry(entry)
+				}
+				innerState.isEnabled = options.isEnabled ?? true
+				innerState.entryRef = entry
+			})
+		},
+		debugName,
+	)
+
+	useEffect(
+		'entryEffect',
+		() => {
+			const entry = innerState.entryRef
+			if (entry != null) {
+				entry.addState(state, innerState.isEnabled)
+
+				return () => {
+					entry.deleteState(state, innerState.isEnabled)
+				}
 			}
-			innerState.isEnabled = options.isEnabled ?? true
-			innerState.entryRef = entry
-		})
-	})
-
-	useEffect(name + '→entryEffect', () => {
-		const entry = innerState.entryRef
-		if (entry != null) {
-			entry.addState(state, innerState.isEnabled)
-
-			return () => {
-				entry.deleteState(state, innerState.isEnabled)
-			}
-		}
-	})
+		},
+		debugName,
+	)
 
 	return state
 }
 
-export function reloadLoadables<T, P>(
-	load?: TLoadFn<T, P>,
-	paramsPredicate?: (params: P) => boolean,
-) {
+export function getEntries<T, P>(
+	key?: string,
+	paramsPredicate: P | ((params: P) => boolean) | boolean = true,
+): CacheEntry<T, P>[] {
+	const paramsPredicateString =
+		paramsPredicate && typeof paramsPredicate === 'object'
+			? jsonStringify(paramsPredicate, { ordered: true })
+			: undefined
+	if (key != null && paramsPredicateString) {
+		const entry = key__param__entry.get(key)?.get(paramsPredicateString)
+		return entry ? [entry] : []
+	}
+	const paramsPredicateFn =
+		typeof paramsPredicate === 'function'
+			? (paramsPredicate as (params: P) => boolean)
+			: undefined
 	let param__entrys: Map<string, CacheEntry<any, any>>[]
-	if (load) {
-		const param__entry = load__param__entry.get(load)
+	if (key != null) {
+		const param__entry = key__param__entry.get(key)
 		if (param__entry) {
 			param__entrys = [param__entry]
 		} else {
-			return
+			return []
 		}
 	} else {
-		param__entrys = Array.from(load__param__entry.values())
+		param__entrys = Array.from(key__param__entry.values())
 	}
+	const result = []
 	for (const param__entry of param__entrys) {
 		for (const entry of param__entry.values()) {
-			// If the predicate is not provided, we reload each entry we find.
-			// Otherwise only those for which it returns true.
-			if (paramsPredicate?.(entry.params) ?? true) {
-				entry.reload()
+			if (
+				paramsPredicateString
+					? paramsPredicateString === entry.paramsString
+					: paramsPredicateFn
+					? paramsPredicateFn(entry.params)
+					: paramsPredicate
+			) {
+				result.push(entry)
 			}
 		}
 	}
+	return result
+}
+
+export function reloadLoadables<T, P>(
+	key?: string,
+	paramsPredicate?: (params: P) => boolean,
+) {
+	let result = 0
+	const entries = getEntries(key, paramsPredicate)
+	for (const entry of entries) {
+		if (entry.reload()) {
+			result++
+		}
+	}
+	return result
+}
+
+export function maybeReloadLoadablesOnVisible<T, P>(
+	key?: string,
+	paramsPredicate?: (params: P) => boolean,
+) {
+	let result = 0
+	const entries = getEntries(key, paramsPredicate)
+	for (const entry of entries) {
+		if (entry.maybeReloadOnVisible()) {
+			result++
+		}
+	}
+	return result
 }

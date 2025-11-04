@@ -1,4 +1,5 @@
-import { childToBasicItem } from '../fun/childToBasicItem'
+import { expandSlots } from '../fun/expandSlots'
+import { logIndent } from '../fun/log'
 import { stripStack } from '../fun/stripStack'
 import { Comp, defineComponent, useComponent } from '../fun/useComponent'
 import { IProps } from '../model/IProps'
@@ -21,7 +22,7 @@ export const ErrorBoundary = defineComponent<IErrorBoundaryProps>(
 		$.onError = (e) => {
 			// Remove c-mp parts from stack trace.
 			stripStack(e)
-			console.error(`${$.debugName}:`, e)
+			console.error(`${logIndent}${$.debugName}:`, e)
 			render(e + '')
 		}
 
@@ -68,9 +69,9 @@ const ErrorBoundaryTry = defineComponent<{
 }>('ErrorBoundaryTry', (props, $) => {
 	const el = props.fn()
 	if (Array.isArray(el)) {
-		$.append(...el.map(childToBasicItem))
+		$.append(...el.map(expandSlots))
 	} else {
-		$.append(childToBasicItem(el))
+		$.append(expandSlots(el))
 	}
 	return $
 })
@@ -79,9 +80,9 @@ const ErrorBoundaryCatch = defineComponent<{
 }>('ErrorBoundaryCatch', (props, $) => {
 	const el = props.fn()
 	if (Array.isArray(el)) {
-		$.append(...el.map(childToBasicItem))
+		$.append(...el.map(expandSlots))
 	} else {
-		$.append(childToBasicItem(el))
+		$.append(expandSlots(el))
 	}
 	return $
 })

@@ -1,5 +1,5 @@
-import { childToBasicItem } from '../fun/childToBasicItem'
-import { log3 } from '../fun/log'
+import { expandSlots } from '../fun/expandSlots'
+import { logIndent, logLevel } from '../fun/log'
 import { Comp, defineComponent, useComponent } from '../fun/useComponent'
 import { untrack, useEffect } from '../fun/useEffect'
 import { IProps } from '../model/IProps'
@@ -29,13 +29,14 @@ export const Show = defineComponent(
 		// reruns.
 		let lastComp: Comp<any> | undefined
 
-		useEffect($.debugName, () => {
+		useEffect('showWhenEffect', () => {
 			const lastFlag = flag
 			flag = !!props.when?.()
-			log3(`💫 ${$.debugName} value:`, lastFlag, `→`, flag)
+			if (logLevel >= 3)
+				console.log(`${logIndent}💫 ${$.debugName} value:`, lastFlag, `→`, flag)
 			if (!flag === !lastFlag && lastFlag !== NEVER) return
 
-			untrack($.debugName, () => {
+			untrack('untrackShowWhenEffect', () => {
 				lastComp?.remove()
 				lastComp = undefined
 
@@ -69,8 +70,8 @@ const ShowThen = defineComponent(
 	'ShowThen',
 	<T>(props: IShowInnerProps<T>, $: Comp<IShowInnerProps<T>>) => {
 		const el = props.fn()
-		if (Array.isArray(el)) $.append(...el.map(childToBasicItem))
-		else if (el) $.append(childToBasicItem(el))
+		if (Array.isArray(el)) $.append(...el.map(expandSlots))
+		else if (el) $.append(expandSlots(el))
 		return $
 	},
 )
@@ -78,8 +79,8 @@ const ShowElse = defineComponent(
 	'ShowElse',
 	<T>(props: IShowInnerProps<T>, $: Comp<IShowInnerProps<T>>) => {
 		const el = props.fn()
-		if (Array.isArray(el)) $.append(...el.map(childToBasicItem))
-		else if (el) $.append(childToBasicItem(el))
+		if (Array.isArray(el)) $.append(...el.map(expandSlots))
+		else if (el) $.append(expandSlots(el))
 		return $
 	},
 )

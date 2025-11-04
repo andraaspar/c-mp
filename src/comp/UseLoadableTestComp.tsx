@@ -58,8 +58,9 @@ const UseLoadableTestInnerComp = defineComponent<{
 	})
 
 	const loadable = useLoadable('test', () => ({
+		key: 't57hcg',
 		load: loadString,
-		params: undefined,
+		params: { foo: true },
 		isEnabled: state.isEnabled,
 		staleAfter: seconds(3),
 		deleteAfter: seconds(3),
@@ -92,7 +93,7 @@ const UseLoadableTestInnerComp = defineComponent<{
 	return $
 })
 
-async function loadString() {
+async function loadString(params: { foo: boolean }) {
 	return new Promise<string>((resolve) => {
 		setTimeout(() => resolve(Date.now().toString(36)), 1000)
 	})

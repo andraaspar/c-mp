@@ -7,9 +7,9 @@ import { ForTestComp } from './ForTestComp'
 import { HyperscriptTestComp } from './HyperscriptTestComp'
 import { ShowTestComp } from './ShowTestComp'
 import { SlotTestComp } from './SlotTestComp'
-import { UseLoadableInfiniteComp } from './UseLoadableInfiniteComp'
 import { UseLoadableTest2Comp } from './UseLoadableTest2Comp'
 import { UseLoadableTestComp } from './UseLoadableTestComp'
+import { UsePagedLoadableTestComp } from './UsePagedLoadableTestComp'
 
 export const TestsComp = defineComponent<{}>('TestsComp', (props, $) => {
 	$.append(
@@ -19,7 +19,7 @@ export const TestsComp = defineComponent<{}>('TestsComp', (props, $) => {
 				<a href='#show'>Show</a> | <a href='#hyperscript'>Hyperscript</a> |{' '}
 				<a href='#use-loadable'>useLoadable</a> |{' '}
 				<a href='#use-loadable-2'>useLoadable 2</a> |{' '}
-				<a href='#use-loadable-infinite'>useLoadable infinite</a>
+				<a href='#use-paged-loadable'>usePagedLoadable</a>
 			</div>
 			<div>
 				<ErrorBoundary
@@ -27,6 +27,13 @@ export const TestsComp = defineComponent<{}>('TestsComp', (props, $) => {
 					catch={(it) => <div>{it.error}</div>}
 					try={() => [() => state.test]}
 				/>
+			</div>
+			<div>
+				<a href='#slot'>Slot</a> | <a href='#for'>For</a> |{' '}
+				<a href='#show'>Show</a> | <a href='#hyperscript'>Hyperscript</a> |{' '}
+				<a href='#use-loadable'>useLoadable</a> |{' '}
+				<a href='#use-loadable-2'>useLoadable 2</a> |{' '}
+				<a href='#use-paged-loadable'>usePagedLoadable</a>
 			</div>
 		</>,
 	)
@@ -56,8 +63,8 @@ export const TestsComp = defineComponent<{}>('TestsComp', (props, $) => {
 				case '#use-loadable-2':
 					state.test = <UseLoadableTest2Comp />
 					break
-				case '#use-loadable-infinite':
-					state.test = <UseLoadableInfiniteComp />
+				case '#use-paged-loadable':
+					state.test = <UsePagedLoadableTestComp />
 					break
 				default:
 					state.test = undefined

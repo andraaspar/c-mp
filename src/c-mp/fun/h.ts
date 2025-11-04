@@ -1,7 +1,8 @@
 import { IAttributes } from '../model/IAttributes'
 import { IProps } from '../model/IProps'
 import { TFns } from '../model/TFns'
-import { childToBasicItem } from './childToBasicItem'
+import { expandSlots } from './expandSlots'
+import { logIndent } from './log'
 import { activeComps, Comp, IComponentInit, useComponent } from './useComponent'
 import { useEffect } from './useEffect'
 
@@ -81,16 +82,16 @@ export function h(
 		}
 		// Handle children.
 		if (Array.isArray(attrs.children)) {
-			elem.append(...attrs.children.map(childToBasicItem))
+			elem.append(...attrs.children.map(expandSlots))
 		} else if (attrs.children) {
-			elem.append(childToBasicItem(attrs.children))
+			elem.append(expandSlots(attrs.children))
 		}
 		// Pass the completed element to the bindElement function, if provided.
 		if (bindElement) {
 			try {
 				bindElement(elem)
 			} catch (e) {
-				console.error(e)
+				console.error(logIndent, e)
 			}
 		}
 

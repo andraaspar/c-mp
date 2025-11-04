@@ -1,5 +1,5 @@
-import { childToBasicItem } from '../fun/childToBasicItem'
-import { log3 } from '../fun/log'
+import { expandSlots } from '../fun/expandSlots'
+import { logIndent, logLevel } from '../fun/log'
 import { Comp, defineComponent, useComponent } from '../fun/useComponent'
 import { untrack, useEffect } from '../fun/useEffect'
 import { useState } from '../fun/useState'
@@ -38,7 +38,7 @@ export const For = defineComponent(
 		// Store item data here to let items survive multiple effect runs.
 		const key__itemData = new Map<TKey, IForItemData<T>>()
 
-		useEffect($.debugName, () => {
+		useEffect('forEachEffect', () => {
 			const items = props.each() ?? []
 
 			// This will hold keys for items that are no longer in the list.
@@ -52,12 +52,16 @@ export const For = defineComponent(
 				keys.push(key)
 				redundantKeys.delete(key)
 			}
-			log3(`🧹 Redundant keys ${$.debugName}:`, redundantKeys)
+			if (logLevel >= 3)
+				console.log(
+					`${logIndent}🧹 Redundant keys ${$.debugName}:`,
+					redundantKeys,
+				)
 
 			// Remove items with redundant keys. Do this here before sorting items to
 			// avoid unnecessary move operations, as those trigger full component
 			// reinitialization.
-			untrack($.debugName, () => {
+			untrack('untrackForEachEffectRedundant', () => {
 				for (const key of redundantKeys) {
 					const data = key__itemData.get(key)
 					if (data) {
@@ -82,7 +86,7 @@ export const For = defineComponent(
 				}
 			}
 
-			untrack($.debugName, () => {
+			untrack('untrackForEachEffectItems', () => {
 				// Store last element for inserting next element.
 				let lastElem: Comp<IForItemProps<T>> | undefined
 				for (let index = 0, n = items.length; index < n; index++) {
@@ -147,9 +151,9 @@ const ForItem = defineComponent(
 	<T>({ state, render }: IForItemProps<T>, $: Comp<IForItemProps<T>>) => {
 		const el = render(state)
 		if (Array.isArray(el)) {
-			$.append(...el.map(childToBasicItem))
+			$.append(...el.map(expandSlots))
 		} else {
-			$.append(childToBasicItem(el))
+			$.append(expandSlots(el))
 		}
 		return $
 	},
@@ -160,9 +164,9 @@ const ForEmpty = defineComponent<{
 }>('ForEmpty', (props, $) => {
 	const el = props.empty()
 	if (Array.isArray(el)) {
-		$.append(...el.map(childToBasicItem))
+		$.append(...el.map(expandSlots))
 	} else {
-		$.append(childToBasicItem(el))
+		$.append(expandSlots(el))
 	}
 	return $
 })

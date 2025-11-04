@@ -1,3 +1,5 @@
+import { getGlobalCmp } from './getGlobalCmp'
+
 const unwrapped = Symbol('unwrapped')
 
 export interface IProxifyCallbacks {
@@ -22,7 +24,7 @@ export function proxify<T>(name: string, o: T, cbs?: IProxifyCallbacks): T {
 	}
 
 	// Always wrap the source object or array, and never a proxy.
-	// o = unproxify(o)
+	o = unproxify(o)
 
 	return new Proxy(o as any, {
 		// 'foo' in proxy
@@ -53,7 +55,7 @@ export function proxify<T>(name: string, o: T, cbs?: IProxifyCallbacks): T {
 			let result = true
 			let hadKey = p in target
 			let oldValue = (target as any)[p]
-			// newValue = unproxify(newValue)
+			newValue = unproxify(newValue)
 
 			if (!Object.is(oldValue, newValue)) {
 				// Value changed.
@@ -82,7 +84,8 @@ export function proxify<T>(name: string, o: T, cbs?: IProxifyCallbacks): T {
 }
 
 /**
- * Checks whether the given object is suitable for the proxify function.
+ * Checks whether the given object is suitable for the proxify function. It must
+ * be either an array, or a plain object.
  */
 export function isProxifyable(o: unknown): boolean {
 	return (
@@ -104,3 +107,8 @@ export function unproxify<T>(o: T): T {
 	}
 	return o
 }
+
+const cmp = getGlobalCmp()
+cmp.proxify = proxify
+cmp.unproxify = unproxify
+cmp.isProxifyable = isProxifyable

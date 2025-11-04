@@ -8,12 +8,12 @@ let stripStackDisabled: boolean = getNoError<boolean>(false, () =>
 	JSON.parse(sessionStorage['STRIP_STACK_DISABLED']),
 )
 
-const c_mp = getGlobalCmp()
-c_mp.setStripStack = (flag: boolean) => {
-	stripStackDisabled = !flag
-	sessionStorage['STRIP_STACK_DISABLED'] = JSON.stringify(!flag)
+const cmp = getGlobalCmp()
+cmp.setStripStackDisabled = (flag: boolean) => {
+	stripStackDisabled = flag
+	sessionStorage['STRIP_STACK_DISABLED'] = JSON.stringify(flag)
 }
-c_mp.getStripStack = () => !stripStackDisabled
+cmp.getStripStackDisabled = () => stripStackDisabled
 
 export function stripStack(e: unknown) {
 	if (!stripStackDisabled && e instanceof Error && e.stack) {

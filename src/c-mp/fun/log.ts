@@ -1,54 +1,27 @@
 import { getGlobalCmp } from './getGlobalCmp'
 import { getNoError } from './getNoError'
 
-let logLevel = getNoError<number>(0, () =>
+const LEVEL = '⁝ '
+
+export let logIndent = LEVEL
+
+export let logLevel = getNoError<number>(0, () =>
 	JSON.parse(sessionStorage['LOG_LEVEL']),
 )
 
-const c_mp = getGlobalCmp()
-c_mp.setLogLevel = (it: number) => {
+export function setLogLevel(it: number) {
 	sessionStorage['LOG_LEVEL'] = JSON.stringify(it)
 	logLevel = it
 }
-c_mp.getLogLevel = () => logLevel
 
-export function log0(...rest: unknown[]) {
-	if (logLevel >= 0) {
-		console.log(...rest)
-	}
+export function logGroup() {
+	logIndent = logIndent + LEVEL
 }
-export function log1(...rest: unknown[]) {
-	if (logLevel >= 1) {
-		console.log(...rest)
-	}
+
+export function logGroupEnd() {
+	logIndent = logIndent.slice(0, -LEVEL.length)
 }
-export function log1Group(...rest: unknown[]) {
-	if (logLevel >= 1) {
-		console.group(...rest)
-	}
-}
-export function log1GroupEnd() {
-	if (logLevel >= 1) {
-		console.groupEnd()
-	}
-}
-export function log2(...rest: unknown[]) {
-	if (logLevel >= 2) {
-		console.log(...rest)
-	}
-}
-export function log2Group(...rest: unknown[]) {
-	if (logLevel >= 2) {
-		console.group(...rest)
-	}
-}
-export function log2GroupEnd() {
-	if (logLevel >= 2) {
-		console.groupEnd()
-	}
-}
-export function log3(...rest: unknown[]) {
-	if (logLevel >= 3) {
-		console.log(...rest)
-	}
-}
+
+const cmp = getGlobalCmp()
+cmp.setLogLevel = setLogLevel
+cmp.getLogLevel = () => logLevel
