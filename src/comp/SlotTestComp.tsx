@@ -1,5 +1,5 @@
 import { Slot } from '../c-mp/comp/Slot'
-import { defineComponent } from '../c-mp/fun/useComponent'
+import { defineComponent } from '../c-mp/fun/defineComponent'
 import { useState } from '../c-mp/fun/useState'
 
 export const SlotTestComp = defineComponent<{}>('SlotTestComp', (props, $) => {

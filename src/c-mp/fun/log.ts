@@ -1,4 +1,4 @@
-import { getGlobalCmp } from './getGlobalCmp'
+import { cmp } from '../model/cmp'
 import { getNoError } from './getNoError'
 
 const LEVEL = '⁝ '
@@ -22,6 +22,5 @@ export function logGroupEnd() {
 	logIndent = logIndent.slice(0, -LEVEL.length)
 }
 
-const cmp = getGlobalCmp()
 cmp.setLogLevel = setLogLevel
 cmp.getLogLevel = () => logLevel

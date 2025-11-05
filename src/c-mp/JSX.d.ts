@@ -7,13 +7,9 @@ declare module JSX {
 	 * attributes supported by c-mp are also mixed in.
 	 */
 	export type IntrinsicElements = {
-		[P in keyof HTMLElementTagNameMap]: Partial<
-			Omit<
-				import('./model/TFns').TFns<HTMLElementTagNameMap[P]>,
-				'children' | 'className' | 'classList'
-			>
-		> &
-			import('./model/IAttributes').IAttributes<HTMLElementTagNameMap[P]>
+		[P in keyof HTMLElementTagNameMap]: import('./model/TAttributes').TAttributes<
+			HTMLElementTagNameMap[P]
+		>
 	}
 
 	/**

@@ -1,7 +1,7 @@
 import { useEffect } from './useEffect'
 import { maybeReloadLoadablesOnVisible } from './useLoadable'
 
-export function useReloadOnVisibleEffect() {
+export function useReloadOnVisible() {
 	useEffect('reloadOnVisibleEffect', () => {
 		function onVisibilityChange() {
 			if (document.visibilityState === 'visible') {

@@ -1,6 +1,7 @@
+import { Comp, defineComponent } from '../fun/defineComponent'
 import { expandSlots } from '../fun/expandSlots'
+import { h } from '../fun/h'
 import { logIndent, logLevel } from '../fun/log'
-import { Comp, defineComponent, useComponent } from '../fun/useComponent'
 import { untrack, useEffect } from '../fun/useEffect'
 import { IProps } from '../model/IProps'
 import { TChildrenIn } from '../model/TChildrenIn'
@@ -44,13 +45,13 @@ export const Show = defineComponent(
 				// the shown branch changes.
 				if (!!flag) {
 					if (props.then) {
-						lastComp = useComponent<IShowInnerProps<T>>(ShowThen, {
+						lastComp = h(ShowThen<T>, {
 							fn: () => props.then!(props.when as TThenValueGetter<T>),
 						})
 					}
 				} else {
 					if (props.else) {
-						lastComp = useComponent<IShowInnerProps<T>>(ShowElse, {
+						lastComp = h(ShowElse, {
 							fn: props.else,
 						})
 					}

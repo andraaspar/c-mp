@@ -1,4 +1,4 @@
-import { getGlobalCmp } from './getGlobalCmp'
+import { cmp } from '../model/cmp'
 import { getNoError } from './getNoError'
 
 const LINE_ENDING_RE = /[\r\n]+/
@@ -8,13 +8,6 @@ let stripStackDisabled: boolean = getNoError<boolean>(false, () =>
 	JSON.parse(sessionStorage['STRIP_STACK_DISABLED']),
 )
 
-const cmp = getGlobalCmp()
-cmp.setStripStackDisabled = (flag: boolean) => {
-	stripStackDisabled = flag
-	sessionStorage['STRIP_STACK_DISABLED'] = JSON.stringify(flag)
-}
-cmp.getStripStackDisabled = () => stripStackDisabled
-
 export function stripStack(e: unknown) {
 	if (!stripStackDisabled && e instanceof Error && e.stack) {
 		e.stack = e.stack
@@ -23,3 +16,9 @@ export function stripStack(e: unknown) {
 			.join('\n')
 	}
 }
+
+cmp.setStripStackDisabled = (flag: boolean) => {
+	stripStackDisabled = flag
+	sessionStorage['STRIP_STACK_DISABLED'] = JSON.stringify(flag)
+}
+cmp.getStripStackDisabled = () => stripStackDisabled

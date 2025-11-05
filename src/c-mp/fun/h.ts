@@ -1,9 +1,9 @@
-import { IAttributes } from '../model/IAttributes'
+import { IExtraAttributes } from '../model/IExtraAttributes'
 import { IProps } from '../model/IProps'
-import { TFns } from '../model/TFns'
+import { TAttributes } from '../model/TAttributes'
+import { activeComps, Comp, IComponentInit } from './defineComponent'
 import { expandSlots } from './expandSlots'
 import { logIndent } from './log'
-import { activeComps, Comp, IComponentInit, useComponent } from './useComponent'
 import { useEffect } from './useEffect'
 
 export function h<C extends IComponentInit<any>, P extends Parameters<C>[0]>(
@@ -13,19 +13,11 @@ export function h<C extends IComponentInit<any>, P extends Parameters<C>[0]>(
 export function h<
 	N extends keyof HTMLElementTagNameMap,
 	E extends HTMLElementTagNameMap[N],
->(
-	name: N,
-	attrs: IAttributes<E> &
-		Partial<TFns<Omit<E, 'children' | 'className' | 'classList'>>>,
-): E
-export function h(
-	name: string,
-	attrs: IAttributes<HTMLElement> &
-		Partial<TFns<Omit<HTMLElement, 'children' | 'className' | 'classList'>>>,
-): Element
+>(name: N, attrs: TAttributes<E>): E
+export function h(name: string, attrs: TAttributes<HTMLElement>): Element
 export function h(
 	name: string | Function,
-	attrs: IProps & IAttributes<HTMLElement>,
+	attrs: IProps & IExtraAttributes<HTMLElement>,
 	// maybeKey?: unknown,
 	// isStaticChildren?: boolean,
 	// source?: ISource,
@@ -38,30 +30,32 @@ export function h(
 			// transformation makes it easier to deal with children in components.
 			attrs.children = [attrs.children]
 		}
-		return useComponent(name as IComponentInit<typeof attrs>, attrs)
+		const elem = document.createElement('c-mp') as Comp<any>
+		elem.init = name as IComponentInit<any>
+		elem.props = attrs
+		return elem
 	} else {
 		// This is an element.
 		const elem = document.createElement(name)
-		const activeComponent = activeComps.at(-1)
 
-		let bindElement: ((it: typeof elem) => void) | undefined
+		let ref: ((it: typeof elem) => void) | undefined
 
 		for (const [k, v] of Object.entries(attrs)) {
-			if (k === 'className' && typeof v === 'function') {
-				// className set to a function: set up an effect with the return value.
-				useEffect(`${activeComponent?.debugName}→${name}→${k}`, () => {
+			if (k === 'class' && typeof v === 'function') {
+				// class set to a function: set up an effect with the return value.
+				useEffect(`${activeComps.at(-1)?.debugName}→${name}→${k}`, () => {
 					const it = v(elem)
 					if (Array.isArray(it)) elem.className = it.filter(Boolean).join(' ')
 					else if (typeof it === 'string') elem.className = it
 					else elem.className = ''
 				})
-			} else if (k === 'className' && Array.isArray(v)) {
-				// className set to an array: join into a string, filtering out falsy
+			} else if (k === 'class' && Array.isArray(v)) {
+				// class set to an array: join into a string, filtering out falsy
 				// values.
 				elem.className = v.filter(Boolean).join(' ')
-			} else if (k === 'bindElement' && typeof v === 'function') {
-				// Save bindElement for when the element is ready.
-				bindElement = v as (it: typeof elem) => void
+			} else if (k === 'ref' && typeof v === 'function') {
+				// Save ref for when the element is ready.
+				ref = v as (it: typeof elem) => void
 			} else if (
 				k !== 'children' &&
 				typeof v === 'function' &&
@@ -72,7 +66,7 @@ export function h(
 				// the value. Web components are excluded from this functionality to
 				// make it possible to pass functions to them (see the init function of
 				// c-mp).
-				useEffect(`${activeComponent?.debugName}→${name}→${k}`, () => {
+				useEffect(`${activeComps.at(-1)?.debugName}→${name}→${k}`, () => {
 					;(elem as any)[k] = v()
 				})
 			} else if (k !== 'children') {
@@ -86,10 +80,10 @@ export function h(
 		} else if (attrs.children) {
 			elem.append(expandSlots(attrs.children))
 		}
-		// Pass the completed element to the bindElement function, if provided.
-		if (bindElement) {
+		// Pass the completed element to the ref function, if provided.
+		if (ref) {
 			try {
-				bindElement(elem)
+				ref(elem)
 			} catch (e) {
 				console.error(logIndent, e)
 			}

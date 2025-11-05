@@ -1,4 +1,4 @@
-import { getGlobalCmp } from './getGlobalCmp'
+import { cmp } from '../model/cmp'
 
 const unwrapped = Symbol('unwrapped')
 
@@ -108,7 +108,6 @@ export function unproxify<T>(o: T): T {
 	return o
 }
 
-const cmp = getGlobalCmp()
 cmp.proxify = proxify
 cmp.unproxify = unproxify
 cmp.isProxifyable = isProxifyable

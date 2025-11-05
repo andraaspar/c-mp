@@ -1,5 +1,5 @@
 import { ErrorBoundary } from '../c-mp/comp/ErrorBoundary'
-import { defineComponent } from '../c-mp/fun/useComponent'
+import { defineComponent } from '../c-mp/fun/defineComponent'
 import { useEffect } from '../c-mp/fun/useEffect'
 import { useState } from '../c-mp/fun/useState'
 import { TSlotValue } from '../c-mp/model/TChildrenIn'

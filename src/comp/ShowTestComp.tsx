@@ -1,5 +1,5 @@
 import { Show } from '../c-mp/comp/Show'
-import { defineComponent } from '../c-mp/fun/useComponent'
+import { defineComponent } from '../c-mp/fun/defineComponent'
 import { useState } from '../c-mp/fun/useState'
 
 export const ShowTestComp = defineComponent<{}>('ShowTestComp', (props, $) => {

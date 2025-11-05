@@ -1,8 +1,8 @@
 import { For } from '../c-mp/comp/For'
-import { defineComponent } from '../c-mp/fun/useComponent'
+import { defineComponent } from '../c-mp/fun/defineComponent'
 import { reloadLoadables } from '../c-mp/fun/useLoadable'
 import { usePagedLoadable } from '../c-mp/fun/usePagedLoadable'
-import { useReloadOnVisibleEffect } from '../c-mp/fun/useReloadOnVisibleEffect'
+import { useReloadOnVisible } from '../c-mp/fun/useReloadOnVisible'
 import { loadPage } from '../fun/loadPage'
 
 export const UsePagedLoadableTestComp = defineComponent<{}>(
@@ -18,7 +18,7 @@ export const UsePagedLoadableTestComp = defineComponent<{}>(
 			deleteAfter: 5000,
 		}))
 
-		useReloadOnVisibleEffect()
+		useReloadOnVisible()
 
 		$.append(
 			<>

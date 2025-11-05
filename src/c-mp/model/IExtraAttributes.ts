@@ -4,11 +4,11 @@ import { TChildrenIn } from './TChildrenIn'
  * These attributes are in addition to / replacing native fields on HTML
  * elements.
  */
-export interface IAttributes<T> {
+export interface IExtraAttributes<T> {
 	/**
 	 * Classes can be added in multiple ways to elements.
 	 */
-	className?:
+	class?:
 		| string[]
 		| string
 		| null
@@ -24,7 +24,7 @@ export interface IAttributes<T> {
 	/**
 	 * This function, if provided, will get a reference to the element.
 	 */
-	bindElement?: (elem: T) => void
+	ref?: (elem: T) => void
 
 	/**
 	 * This declaration is here for "c-mp" and other unknown tags.

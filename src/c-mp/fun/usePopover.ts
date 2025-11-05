@@ -1,5 +1,5 @@
+import { activeComps } from './defineComponent'
 import { makeAdjustLayoutDropdown } from './makeAdjustLayoutDropdown'
-import { activeComps } from './useComponent'
 import { untrack, useEffect } from './useEffect'
 import { useState } from './useState'
 

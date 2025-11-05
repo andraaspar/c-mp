@@ -1,6 +1,6 @@
 import { Show } from '../c-mp/comp/Show'
+import { defineComponent } from '../c-mp/fun/defineComponent'
 import { seconds } from '../c-mp/fun/seconds'
-import { defineComponent } from '../c-mp/fun/useComponent'
 import { reloadLoadables, useLoadable } from '../c-mp/fun/useLoadable'
 import { useState } from '../c-mp/fun/useState'
 

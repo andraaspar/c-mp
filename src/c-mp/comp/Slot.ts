@@ -1,5 +1,5 @@
+import { defineComponent } from '../fun/defineComponent'
 import { expandSlots } from '../fun/expandSlots'
-import { defineComponent } from '../fun/useComponent'
 import { untrack, useEffect } from '../fun/useEffect'
 import { TSlotValue } from '../model/TChildrenIn'
 

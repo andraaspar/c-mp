@@ -1,6 +1,7 @@
+import { Comp, defineComponent } from '../fun/defineComponent'
 import { expandSlots } from '../fun/expandSlots'
+import { h } from '../fun/h'
 import { logIndent, logLevel } from '../fun/log'
-import { Comp, defineComponent, useComponent } from '../fun/useComponent'
 import { untrack, useEffect } from '../fun/useEffect'
 import { useState } from '../fun/useState'
 import { IProps } from '../model/IProps'
@@ -24,7 +25,7 @@ export interface IForProps<T> extends IProps {
 }
 
 export interface IForItemData<T> {
-	elem: Comp<IForItemProps<T>>
+	elem: Element
 	state: IForState<T>
 }
 
@@ -33,7 +34,7 @@ let nextItemState = 0n
 export const For = defineComponent(
 	'For',
 	<T>(props: IForProps<T>, $: Comp<IForProps<T>>) => {
-		let emptyElem: Comp<any> | undefined
+		let emptyElem: Element | undefined
 
 		// Store item data here to let items survive multiple effect runs.
 		const key__itemData = new Map<TKey, IForItemData<T>>()
@@ -73,7 +74,7 @@ export const For = defineComponent(
 
 			if (items.length === 0) {
 				if (!emptyElem && props.empty) {
-					emptyElem = useComponent(ForEmpty, {
+					emptyElem = h(ForEmpty, {
 						debugName: props.debugName,
 						empty: props.empty,
 					})
@@ -88,7 +89,7 @@ export const For = defineComponent(
 
 			untrack('untrackForEachEffectItems', () => {
 				// Store last element for inserting next element.
-				let lastElem: Comp<IForItemProps<T>> | undefined
+				let lastElem: Element | undefined
 				for (let index = 0, n = items.length; index < n; index++) {
 					const item = items[index]!
 					const key = keys[index]!
@@ -111,7 +112,7 @@ export const For = defineComponent(
 						// Create a context for each item to allow effects to work. This will
 						// run outside the For context, so it must be disposed of manually.
 						// Hence, we store the kill function.
-						const elem = useComponent<IForItemProps<T>>(ForItem, {
+						const elem = h(ForItem<T>, {
 							debugName: props.debugName,
 							state,
 							render: props.render,

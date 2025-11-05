@@ -1,5 +1,5 @@
 import { For } from '../c-mp/comp/For'
-import { defineComponent } from '../c-mp/fun/useComponent'
+import { defineComponent } from '../c-mp/fun/defineComponent'
 import { useState } from '../c-mp/fun/useState'
 
 export const ForTestComp = defineComponent<{}>('ForTestComp', (props, $) => {

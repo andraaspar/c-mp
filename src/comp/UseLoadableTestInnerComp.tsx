@@ -1,4 +1,4 @@
-import { defineComponent } from '../c-mp/fun/useComponent'
+import { defineComponent } from '../c-mp/fun/defineComponent'
 import { IUseLoadableState } from '../c-mp/fun/useLoadable'
 
 export const UseLoadableTestInnerComp = defineComponent<{

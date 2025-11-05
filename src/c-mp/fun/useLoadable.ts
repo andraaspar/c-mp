@@ -1,4 +1,5 @@
 import { AbortError } from '../model/AbortError'
+import { activeComps } from './defineComponent'
 import { errorToMessage } from './errorToMessage'
 import { jsonClone } from './jsonClone'
 import { jsonStringify } from './jsonStringify'
@@ -7,7 +8,6 @@ import { minutes } from './minutes'
 import { mirror } from './mirror'
 import { seconds } from './seconds'
 import { sleep } from './sleep'
-import { activeComps } from './useComponent'
 import { untrack, useEffect } from './useEffect'
 import { useState } from './useState'
 

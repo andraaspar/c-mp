@@ -1,6 +1,6 @@
 import { HIGHLIGHT } from '../model/HIGHLIGHT'
+import { activeComps } from './defineComponent'
 import { logGroup, logGroupEnd, logIndent, logLevel } from './log'
-import { activeComps } from './useComponent'
 
 export interface IEffectProxyTracker {
 	name: string

@@ -1,4 +1,4 @@
-import { defineComponent } from '../c-mp/fun/useComponent'
+import { defineComponent } from '../c-mp/fun/defineComponent'
 import { reloadLoadables, useLoadable } from '../c-mp/fun/useLoadable'
 import { UseLoadableTestInnerComp } from './UseLoadableTestInnerComp'
 

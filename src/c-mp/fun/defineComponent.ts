@@ -1,6 +1,5 @@
 import { HIGHLIGHT } from '../model/HIGHLIGHT'
 import { IProps } from '../model/IProps'
-import { h } from './h'
 import { logGroup, logGroupEnd, logIndent, logLevel } from './log'
 
 /**
@@ -203,17 +202,6 @@ export class Comp<P extends IProps> extends HTMLElement {
 
 // Let Comp be the custom element for <c-mp>.
 customElements.define('c-mp', Comp)
-
-/**
- * Create an instance of the c-mp component using the provided init function and
- * props.
- */
-export function useComponent<P extends IProps>(
-	init: IComponentInit<P>,
-	props: P,
-) {
-	return h('c-mp', { props, init }) as Comp<P>
-}
 
 /**
  * Define a new init function that can be used in a useComponent call. This

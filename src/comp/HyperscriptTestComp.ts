@@ -1,7 +1,7 @@
 import { For } from '../c-mp/comp/For'
 import { Show } from '../c-mp/comp/Show'
+import { defineComponent } from '../c-mp/fun/defineComponent'
 import { h } from '../c-mp/fun/h'
-import { defineComponent } from '../c-mp/fun/useComponent'
 import { useState } from '../c-mp/fun/useState'
 
 export const HyperscriptTestComp = defineComponent<{}>(

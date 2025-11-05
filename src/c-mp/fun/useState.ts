@@ -1,7 +1,7 @@
 import { HIGHLIGHT } from '../model/HIGHLIGHT'
+import { activeComps } from './defineComponent'
 import { logIndent, logLevel } from './log'
 import { IProxifyCallbacks, proxify } from './proxify'
-import { activeComps } from './useComponent'
 import { activeEffects, IEffectProxyTracker } from './useEffect'
 
 const target__props__effects: WeakMap<

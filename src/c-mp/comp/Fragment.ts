@@ -1,4 +1,4 @@
-import { defineComponent } from '../fun/useComponent'
+import { defineComponent } from '../fun/defineComponent'
 import { TChildren } from '../model/TChildren'
 
 /**
