@@ -152,6 +152,22 @@ export function untrack<T>(
 	}
 }
 
+/** Allows effects to run while handling an infinite recursion error. */
+export function unchain<T>(name: string, fn: () => T) {
+	try {
+		if (logLevel >= 2) {
+			console.log(`✂️ Unchain start: %c${name}`, HIGHLIGHT)
+		}
+		activeEffects.push({ name: `${name} (unchain)`, chain: [] })
+		return fn()
+	} finally {
+		activeEffects.pop()
+		if (logLevel >= 2) {
+			logGroupEnd()
+		}
+	}
+}
+
 export function allEffectsDone() {
 	return new Promise<void>((resolve) => {
 		if (scheduledEffects === 0) resolve()

@@ -13,9 +13,7 @@ export interface IExtraAttributes<T> {
 		| string
 		| null
 		| undefined
-		| ((
-				elem: T,
-		  ) =>
+		| (() =>
 				| (string | null | undefined | boolean | number | bigint)[]
 				| string
 				| null

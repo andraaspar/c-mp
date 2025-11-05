@@ -10,7 +10,6 @@ export const HyperscriptTestComp = defineComponent<{}>(
 		const state = useState('state', { arr: ['foo', 'bar', 'baz', 'quux'] })
 
 		$.append(
-			h('h1', { children: 'Hyperscript' }),
 			h(For<string>, {
 				each: () => state.arr,
 				render: (it) =>

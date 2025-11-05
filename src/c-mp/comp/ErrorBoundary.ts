@@ -3,10 +3,11 @@ import { expandSlots } from '../fun/expandSlots'
 import { h } from '../fun/h'
 import { logIndent } from '../fun/log'
 import { stripStack } from '../fun/stripStack'
-import { IProps } from '../model/IProps'
+import { unchain } from '../fun/useEffect'
 import { TChildrenIn } from '../model/TChildrenIn'
 
-export interface IErrorBoundaryCatchProps extends IProps {
+export interface IErrorBoundaryCatchProps {
+	debugName: string
 	error: string
 	reset: () => void
 }
@@ -20,7 +21,9 @@ export const ErrorBoundary = defineComponent<{
 		// Remove c-mp parts from stack trace.
 		stripStack(e)
 		console.error(`${logIndent}${$.debugName}:`, e)
-		render(e + '')
+		unchain('unChainErrorRender', () => {
+			render(e + '')
+		})
 	}
 
 	function reset() {
@@ -36,7 +39,7 @@ export const ErrorBoundary = defineComponent<{
 		// Create ad-hoc component for try & catch callbacks.
 		if (error) {
 			innerComponent = h(ErrorBoundaryCatch, {
-				debugName: props.debugName,
+				debugName: $.debugName,
 				fn: () =>
 					props.catch({
 						debugName: $.debugName,

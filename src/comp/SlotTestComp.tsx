@@ -9,7 +9,6 @@ export const SlotTestComp = defineComponent<{}>('SlotTestComp', (props, $) => {
 
 	$.append(
 		<>
-			<h1>Slot</h1>
 			<div>
 				<Slot get={() => state.value + ''} />
 			</div>

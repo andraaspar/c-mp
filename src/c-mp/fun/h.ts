@@ -1,7 +1,13 @@
 import { IExtraAttributes } from '../model/IExtraAttributes'
 import { IProps } from '../model/IProps'
 import { TAttributes } from '../model/TAttributes'
-import { activeComps, Comp, IComponentInit } from './defineComponent'
+import { TChildren } from '../model/TChildren'
+import {
+	activeComps,
+	Comp,
+	IComponentInit,
+	ICompProps,
+} from './defineComponent'
 import { expandSlots } from './expandSlots'
 import { logIndent } from './log'
 import { useEffect } from './useEffect'
@@ -14,7 +20,7 @@ export function h<
 	N extends keyof HTMLElementTagNameMap,
 	E extends HTMLElementTagNameMap[N],
 >(name: N, attrs: TAttributes<E>): E
-export function h(name: string, attrs: TAttributes<HTMLElement>): Element
+export function h(name: string, attrs: TAttributes<HTMLElement>): HTMLElement
 export function h(
 	name: string | Function,
 	attrs: IProps & IExtraAttributes<HTMLElement>,
@@ -22,42 +28,48 @@ export function h(
 	// isStaticChildren?: boolean,
 	// source?: ISource,
 	// self?: unknown,
-): Element {
+): HTMLElement {
+	// Standardize the shape of children: JSX can pass single elements. This
+	// transformation makes it easier to deal with children in components.
+	if (attrs.children != null) {
+		if (Array.isArray(attrs.children)) {
+			attrs.children = attrs.children.map(expandSlots)
+		} else {
+			attrs.children = [expandSlots(attrs.children)]
+		}
+	}
+
+	let elem: HTMLElement
 	if (typeof name === 'function') {
 		// This is a component.
-		if (attrs.children != null && !Array.isArray(attrs.children)) {
-			// Standardize the shape of children: JSX can pass single elements. This
-			// transformation makes it easier to deal with children in components.
-			attrs.children = [attrs.children]
-		}
-		const elem = document.createElement('c-mp') as Comp<any>
-		elem.init = name as IComponentInit<any>
-		elem.props = attrs
-		return elem
+		elem = h('c-mp', {
+			init: name as IComponentInit<any>,
+			props: attrs,
+		} satisfies ICompProps)
 	} else {
 		// This is an element.
-		const elem = document.createElement(name)
-
-		let ref: ((it: typeof elem) => void) | undefined
+		elem = document.createElement(name)
 
 		for (const [k, v] of Object.entries(attrs)) {
-			if (k === 'class' && typeof v === 'function') {
-				// class set to a function: set up an effect with the return value.
-				useEffect(`${activeComps.at(-1)?.debugName}→${name}→${k}`, () => {
-					const it = v(elem)
-					if (Array.isArray(it)) elem.className = it.filter(Boolean).join(' ')
-					else if (typeof it === 'string') elem.className = it
-					else elem.className = ''
-				})
-			} else if (k === 'class' && Array.isArray(v)) {
-				// class set to an array: join into a string, filtering out falsy
-				// values.
-				elem.className = v.filter(Boolean).join(' ')
-			} else if (k === 'ref' && typeof v === 'function') {
-				// Save ref for when the element is ready.
-				ref = v as (it: typeof elem) => void
+			if (k === 'class') {
+				if (typeof v === 'function') {
+					// class set to a function: set up an effect with the return value.
+					useEffect(`${activeComps.at(-1)?.debugName}→${name}→${k}`, () => {
+						const it = v()
+						if (Array.isArray(it)) elem.className = it.filter(Boolean).join(' ')
+						else if (typeof it === 'string') elem.className = it
+						else elem.className = ''
+					})
+				} else if (Array.isArray(v)) {
+					// class set to an array: join into a string, filtering out falsy
+					// values.
+					elem.className = v.filter(Boolean).join(' ')
+				} else {
+					elem.className = v as string
+				}
 			} else if (
 				k !== 'children' &&
+				k !== 'ref' &&
 				typeof v === 'function' &&
 				!k.startsWith('on') &&
 				!name.includes('-')
@@ -75,20 +87,18 @@ export function h(
 			}
 		}
 		// Handle children.
-		if (Array.isArray(attrs.children)) {
-			elem.append(...attrs.children.map(expandSlots))
-		} else if (attrs.children) {
-			elem.append(expandSlots(attrs.children))
+		if (attrs.children) {
+			elem.append(...(attrs.children as TChildren))
 		}
-		// Pass the completed element to the ref function, if provided.
-		if (ref) {
-			try {
-				ref(elem)
-			} catch (e) {
-				console.error(logIndent, e)
-			}
-		}
-
-		return elem
 	}
+	// Pass the completed element to the ref function, if provided.
+	if (attrs.ref) {
+		try {
+			attrs.ref(elem)
+		} catch (e) {
+			console.error(logIndent, e)
+		}
+	}
+
+	return elem
 }

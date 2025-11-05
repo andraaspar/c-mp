@@ -11,7 +11,6 @@ export const UseLoadableTestComp = defineComponent<{}>(
 
 		$.append(
 			<>
-				<h1>useLoadable</h1>
 				<Show
 					when={() => state.showOne}
 					then={() => <UseLoadableTestInnerComp debugName='One' />}

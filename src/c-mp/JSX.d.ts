@@ -19,5 +19,5 @@ declare module JSX {
 		children: {}
 	}
 
-	export type Element = globalThis.Element
+	export type Element = globalThis.HTMLElement
 }

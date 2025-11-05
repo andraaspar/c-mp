@@ -21,10 +21,27 @@ export interface IComponentInit<P extends IProps = IProps> {
  */
 export const activeComps: Comp<any>[] = []
 
+export interface ICompProps<P extends IProps = IProps> {
+	/**
+	 * The props passed to this instance at init time. This field is set directly
+	 * on the instance after it is constructed.
+	 */
+	props: P | undefined
+
+	/**
+	 * The init function used to set up this component. This field is set directly
+	 * on the instance after it is constructed.
+	 */
+	init: IComponentInit<P> | undefined
+}
+
 /**
  * The c-mp web component.
  */
-export class Comp<P extends IProps> extends HTMLElement {
+export class Comp<P extends IProps>
+	extends HTMLElement
+	implements ICompProps<P>
+{
 	/**
 	 * The props passed to this instance at init time. This field is set directly
 	 * on the instance after it is constructed.

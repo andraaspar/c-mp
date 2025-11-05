@@ -13,7 +13,7 @@ export interface IForState<T> {
 	item: T
 	index: number
 }
-export interface IForElemProps<T> extends IProps {
+export interface IForElemProps<T> {
 	state: IForState<T>
 }
 

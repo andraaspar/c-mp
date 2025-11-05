@@ -22,8 +22,6 @@ export const UsePagedLoadableTestComp = defineComponent<{}>(
 
 		$.append(
 			<>
-				<h1>usePagedLoadable</h1>
-
 				<For
 					each={() => content.data?.pages}
 					render={(page) => (

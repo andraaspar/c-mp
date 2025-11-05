@@ -7,7 +7,6 @@ export const ForTestComp = defineComponent<{}>('ForTestComp', (props, $) => {
 
 	$.append(
 		<>
-			<h1>For</h1>
 			<For
 				each={() => state.arr}
 				render={(it) => (

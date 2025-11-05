@@ -9,7 +9,6 @@ export const ShowTestComp = defineComponent<{}>('ShowTestComp', (props, $) => {
 
 	$.append(
 		<>
-			<h1>Show</h1>
 			<Show
 				when={() => state.flag1}
 				then={(getFlag1) => (
