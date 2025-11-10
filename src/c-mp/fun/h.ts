@@ -9,7 +9,6 @@ import {
 	ICompProps,
 } from './defineComponent'
 import { expandSlots } from './expandSlots'
-import { logIndent } from './log'
 import { useEffect } from './useEffect'
 
 export function h<C extends IComponentInit<any>, P extends Parameters<C>[0]>(
@@ -96,7 +95,7 @@ export function h(
 		try {
 			attrs.ref(elem)
 		} catch (e) {
-			console.error(logIndent, e)
+			console.error(e)
 		}
 	}
 

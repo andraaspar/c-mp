@@ -1,7 +1,6 @@
 import { defineComponent } from '../fun/defineComponent'
 import { expandSlots } from '../fun/expandSlots'
 import { h } from '../fun/h'
-import { logIndent } from '../fun/log'
 import { stripStack } from '../fun/stripStack'
 import { unchain } from '../fun/useEffect'
 import { TChildrenIn } from '../model/TChildrenIn'
@@ -20,7 +19,7 @@ export const ErrorBoundary = defineComponent<{
 	$.onError = (e) => {
 		// Remove c-mp parts from stack trace.
 		stripStack(e)
-		console.error(`${logIndent}${$.debugName}:`, e)
+		console.error(`${$.debugName}:`, e)
 		unchain('unChainErrorRender', () => {
 			render(e + '')
 		})

@@ -1,9 +1,8 @@
 import { cmp } from '../model/cmp'
 import { getNoError } from './getNoError'
 
-const LEVEL = '⁝ '
-
-export let logIndent = LEVEL
+// export const LOG_GROUP_START = `🔰`
+// export const LOG_GROUP_END = `🛑`
 
 export let logLevel = getNoError<number>(0, () =>
 	JSON.parse(sessionStorage['LOG_LEVEL']),
@@ -12,14 +11,6 @@ export let logLevel = getNoError<number>(0, () =>
 export function setLogLevel(it: number) {
 	sessionStorage['LOG_LEVEL'] = JSON.stringify(it)
 	logLevel = it
-}
-
-export function logGroup() {
-	logIndent = logIndent + LEVEL
-}
-
-export function logGroupEnd() {
-	logIndent = logIndent.slice(0, -LEVEL.length)
 }
 
 cmp.setLogLevel = setLogLevel

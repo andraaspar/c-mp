@@ -2,7 +2,7 @@ import { Show } from '../c-mp/comp/Show'
 import { defineComponent } from '../c-mp/fun/defineComponent'
 import { seconds } from '../c-mp/fun/seconds'
 import { reloadLoadables, useLoadable } from '../c-mp/fun/useLoadable'
-import { useState } from '../c-mp/fun/useState'
+import { mutateState, useState } from '../c-mp/fun/useState'
 
 export const UseLoadableTestComp = defineComponent<{}>(
 	'UseLoadableTestComp',
@@ -23,14 +23,18 @@ export const UseLoadableTestComp = defineComponent<{}>(
 				/>
 				<button
 					onclick={() => {
-						state.showOne = !state.showOne
+						mutateState('toggle one [t59m07]', () => {
+							state.showOne = !state.showOne
+						})
 					}}
 				>
 					{() => (state.showOne ? 'Hide' : 'Show')} One
 				</button>
 				<button
 					onclick={() => {
-						state.showTwo = !state.showTwo
+						mutateState('toggle two [t59m0w]', () => {
+							state.showTwo = !state.showTwo
+						})
 					}}
 				>
 					{() => (state.showTwo ? 'Hide' : 'Show')} Two
@@ -56,8 +60,8 @@ const UseLoadableTestInnerComp = defineComponent<{
 		isEnabled: !!props.enabledByDefault,
 	})
 
-	const loadable = useLoadable('test', () => ({
-		key: 't57hcg',
+	const loadable = useLoadable('loadable [t5iga9]', () => ({
+		key: 'simple loadable [t57hcg]',
 		load: loadString,
 		params: { foo: true },
 		isEnabled: state.isEnabled,
@@ -81,7 +85,9 @@ const UseLoadableTestInnerComp = defineComponent<{
 			</div>
 			<button
 				onclick={() => {
-					state.isEnabled = !state.isEnabled
+					mutateState('toggle enabled [t5ifxr]', () => {
+						state.isEnabled = !state.isEnabled
+					})
 				}}
 			>
 				{() => (state.isEnabled ? 'Disable' : 'Enable')}

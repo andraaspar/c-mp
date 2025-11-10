@@ -1,6 +1,6 @@
 import { HIGHLIGHT } from '../model/HIGHLIGHT'
 import { activeComps } from './defineComponent'
-import { logGroup, logGroupEnd, logIndent, logLevel } from './log'
+import { logLevel } from './log'
 
 export interface IEffectProxyTracker {
 	name: string
@@ -27,14 +27,12 @@ export function useEffect(
 		if (isKilled) return
 		isKilled = true
 		runLastCleanup()
-		if (logLevel >= 3)
-			console.log(`${logIndent}💀 Killed effect: %c${name}`, HIGHLIGHT)
+		if (logLevel >= 3) console.debug(`💀 Killed effect: %c${name}`, HIGHLIGHT)
 	}
 
 	function runLastCleanup() {
 		if (logLevel >= 2) {
-			console.log(`${logIndent}🧹 Cleaning up effect: %c${name}`, HIGHLIGHT)
-			logGroup()
+			console.debug(`🔰 🧹 Cleaning up effect: %c${name}`, HIGHLIGHT)
 		}
 
 		// This makes it impossible to run the effect from the existing proxy
@@ -45,11 +43,13 @@ export function useEffect(
 			lastCleanup?.()
 		} catch (e) {
 			if (parentComponent) parentComponent.handleError(e)
-			else console.error(logIndent, e)
+			else console.error(e)
 		} finally {
 			lastCleanup = undefined
 		}
-		if (logLevel >= 2) logGroupEnd()
+		if (logLevel >= 2) {
+			console.debug(`🛑 🧹 Cleaning up effect: %c${name}`, HIGHLIGHT)
+		}
 	}
 
 	function run() {
@@ -66,15 +66,13 @@ export function useEffect(
 			if (!isKilled) {
 				isScheduled = false
 				if (logLevel >= 2) {
-					console.log(`${logIndent}– Effect microtask: %c${name}`, HIGHLIGHT)
-					logGroup()
+					console.debug(`🔰 – Effect microtask: %c${name}`, HIGHLIGHT)
 				}
 				runLastCleanup()
 				try {
 					proxyTracker = { name, rerun: run, chain }
 					if (logLevel >= 2) {
-						console.log(`${logIndent}▶️ Effect run: %c${name}`, HIGHLIGHT)
-						logGroup()
+						console.debug(`🔰 ▶️ Effect run: %c${name}`, HIGHLIGHT)
 					}
 					// console.debug(`Effect run:`, name)
 					activeEffects.push(proxyTracker)
@@ -84,21 +82,23 @@ export function useEffect(
 					lastCleanup = fn()
 				} catch (e) {
 					if (parentComponent) parentComponent.handleError(e)
-					else console.error(logIndent, e)
+					else console.error(e)
 				} finally {
 					activeEffects.pop()
 					// console.debug(`Effect run end:`, name)
-					if (logLevel >= 2) logGroupEnd()
-					if (logLevel >= 2) logGroupEnd()
+					if (logLevel >= 2) {
+						console.debug(`🛑 ▶️ Effect run: %c${name}`, HIGHLIGHT)
+						console.debug(`🛑 – Effect microtask: %c${name}`, HIGHLIGHT)
+					}
 				}
 			}
 			if (--scheduledEffects === 0) {
-				if (logLevel >= 2) console.log(`${logIndent}🏁 All effects are done.`)
+				if (logLevel >= 2) console.debug(`🏁 All effects are done.`)
 				for (let i = noScheduledEffectsCallbacks.length - 1; i >= 0; i--) {
 					try {
 						noScheduledEffectsCallbacks[i]?.()
 					} catch (e) {
-						console.error(logIndent, e)
+						console.error(e)
 					} finally {
 						noScheduledEffectsCallbacks.splice(i, 1)
 					}
@@ -127,7 +127,7 @@ function getChain(name: string) {
 	const caller = activeEffects.at(-1)
 	const chain = [...(caller?.chain ?? []), name]
 	if (chain.length > 500) {
-		console.log(`${logIndent}Infinite effect recursion chain:`, chain)
+		console.debug(`Infinite effect recursion chain:`, chain)
 		throw new Error(`[svhnon] Infinite effect recursion.`)
 	}
 	return chain
@@ -141,14 +141,15 @@ export function untrack<T>(
 	name = `${parentName}→${name}`
 	try {
 		if (logLevel >= 2) {
-			console.log(`${logIndent}🚧 Untrack start: %c${name}`, HIGHLIGHT)
-			logGroup()
+			console.debug(`🔰 🚧 Untrack: %c${name}`, HIGHLIGHT)
 		}
 		activeEffects.push({ name: `${name} (untrack)`, chain: getChain(name) })
 		return fn()
 	} finally {
 		activeEffects.pop()
-		if (logLevel >= 2) logGroupEnd()
+		if (logLevel >= 2) {
+			console.debug(`🛑 🚧 Untrack: %c${name}`, HIGHLIGHT)
+		}
 	}
 }
 
@@ -156,14 +157,14 @@ export function untrack<T>(
 export function unchain<T>(name: string, fn: () => T) {
 	try {
 		if (logLevel >= 2) {
-			console.log(`✂️ Unchain start: %c${name}`, HIGHLIGHT)
+			console.debug(`🔰 ✂️ Unchain: %c${name}`, HIGHLIGHT)
 		}
 		activeEffects.push({ name: `${name} (unchain)`, chain: [] })
 		return fn()
 	} finally {
 		activeEffects.pop()
 		if (logLevel >= 2) {
-			logGroupEnd()
+			console.debug(`🛑 ✂️ Unchain: %c${name}`, HIGHLIGHT)
 		}
 	}
 }

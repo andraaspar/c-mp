@@ -1,5 +1,5 @@
 import { defineComponent } from '../c-mp/fun/defineComponent'
-import { useState } from '../c-mp/fun/useState'
+import { mutateState, useState } from '../c-mp/fun/useState'
 import './ClassTestComp.css'
 
 export const ClassTestComp = defineComponent<{}>(
@@ -28,7 +28,9 @@ export const ClassTestComp = defineComponent<{}>(
 
 				<button
 					onclick={() => {
-						state.isSky = !state.isSky
+						mutateState('toggle class [t59lk7]', () => {
+							state.isSky = !state.isSky
+						})
 					}}
 				>
 					Toggle reactive

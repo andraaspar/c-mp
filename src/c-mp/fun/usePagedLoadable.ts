@@ -1,4 +1,3 @@
-import { logIndent } from './log'
 import { unproxify } from './proxify'
 import {
 	getEntries,
@@ -48,9 +47,7 @@ export function usePagedLoadable<
 		{
 			loadNextPage() {
 				if (!options) {
-					console.warn(
-						`${logIndent}[t57hyk] loadNextPage called before options was ready.`,
-					)
+					console.warn(`[t57hyk] loadNextPage called before options was ready.`)
 					return
 				}
 				const entry = getEntries<IUsePagedLoadableData<T>, TUnpagedParams<P>>(

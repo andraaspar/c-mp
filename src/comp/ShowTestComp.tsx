@@ -1,6 +1,6 @@
 import { Show } from '../c-mp/comp/Show'
 import { defineComponent } from '../c-mp/fun/defineComponent'
-import { useState } from '../c-mp/fun/useState'
+import { mutateState, useState } from '../c-mp/fun/useState'
 
 export const ShowTestComp = defineComponent<{}>('ShowTestComp', (props, $) => {
 	const state = useState('state', {
@@ -18,21 +18,27 @@ export const ShowTestComp = defineComponent<{}>('ShowTestComp', (props, $) => {
 			/>
 			<button
 				onclick={() => {
-					state.flag1 = true
+					mutateState('set flag1 [t59lvv]', () => {
+						state.flag1 = true
+					})
 				}}
 			>
 				true
 			</button>
 			<button
 				onclick={() => {
-					state.flag1 = false
+					mutateState('set flag1 [t59lvy]', () => {
+						state.flag1 = false
+					})
 				}}
 			>
 				false
 			</button>
 			<button
 				onclick={() => {
-					state.flag1 = { id: 'yay' }
+					mutateState('set flag1 [t59lw3]', () => {
+						state.flag1 = { id: 'yay' }
+					})
 				}}
 			>
 				{`{id: 'yay'}`}

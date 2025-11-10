@@ -1,6 +1,6 @@
 import { For } from '../c-mp/comp/For'
 import { defineComponent } from '../c-mp/fun/defineComponent'
-import { useState } from '../c-mp/fun/useState'
+import { mutateState, useState } from '../c-mp/fun/useState'
 
 export const ForTestComp = defineComponent<{}>('ForTestComp', (props, $) => {
 	const state = useState('state', { arr: ['foo', 'bar', 'baz', 'quux'] })
@@ -14,7 +14,9 @@ export const ForTestComp = defineComponent<{}>('ForTestComp', (props, $) => {
 						<span>{() => it.item}</span>{' '}
 						<button
 							onclick={() => {
-								state.arr.splice(it.index, 1)
+								mutateState('remove item [t59lu9]', () => {
+									state.arr.splice(it.index, 1)
+								})
 							}}
 						>
 							×
@@ -24,7 +26,9 @@ export const ForTestComp = defineComponent<{}>('ForTestComp', (props, $) => {
 			/>
 			<button
 				onclick={() => {
-					state.arr.push(Date.now().toString(36))
+					mutateState('add item [t59lq1]', () => {
+						state.arr.push(Date.now().toString(36))
+					})
 				}}
 			>
 				<b>Add</b> <i>item</i>

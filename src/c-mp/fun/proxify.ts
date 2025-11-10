@@ -12,6 +12,7 @@ export interface IProxifyCallbacks {
 		newValue: any,
 	) => void
 	delete?: (name: string, target: any, prop: string | symbol) => void
+	cache?: WeakMap<any, any>
 }
 
 /**
@@ -42,8 +43,20 @@ export function proxify<T>(name: string, o: T, cbs?: IProxifyCallbacks): T {
 			cbs?.get?.(name, target, p)
 			const result = Reflect.get(target, p, receiver)
 			if (isProxifyable(result)) {
-				// Return proxy rather than value: allows deep reads to trigger callbacks.
-				return proxify(name + '.' + p.toString(), result, cbs)
+				// The result is either a plain object or an array: we wrap it in a
+				// proxy, and return proxy rather than value: allows deep reads to
+				// trigger callbacks.
+
+				// Get existing proxy from cache.
+				const cachedProxy = cbs?.cache?.get(result)
+				if (cachedProxy) return cachedProxy
+
+				// Create a new proxy instead.
+				const newProxy = proxify(name + '.' + p.toString(), result, cbs)
+				if (cbs?.cache) {
+					cbs.cache.set(result, newProxy)
+				}
+				return newProxy
 			} else {
 				// Primitives and class instances need not register.
 				return result

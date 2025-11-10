@@ -2,7 +2,7 @@ import { ErrorBoundary } from '../c-mp/comp/ErrorBoundary'
 import { Slot } from '../c-mp/comp/Slot'
 import { defineComponent } from '../c-mp/fun/defineComponent'
 import { useEffect } from '../c-mp/fun/useEffect'
-import { useState } from '../c-mp/fun/useState'
+import { mutateState, useState } from '../c-mp/fun/useState'
 
 export const ErrorBoundaryInComponentInfiniteEffectTestComp =
 	defineComponent<{}>(
@@ -41,7 +41,9 @@ export const ErroringComponent = defineComponent<{}>(
 			<div>
 				<button
 					onclick={() => {
-						state.throw = !state.throw
+						mutateState('toggle throw [t59me8]', () => {
+							state.throw = !state.throw
+						})
 					}}
 				>
 					Throw

@@ -1,9 +1,9 @@
 import { Comp, defineComponent } from '../fun/defineComponent'
 import { expandSlots } from '../fun/expandSlots'
 import { h } from '../fun/h'
-import { logIndent, logLevel } from '../fun/log'
+import { logLevel } from '../fun/log'
 import { untrack, useEffect } from '../fun/useEffect'
-import { useState } from '../fun/useState'
+import { mutateState, useState } from '../fun/useState'
 import { IProps } from '../model/IProps'
 import { TChildrenIn } from '../model/TChildrenIn'
 
@@ -29,8 +29,6 @@ export interface IForItemData<T> {
 	state: IForState<T>
 }
 
-let nextItemState = 0n
-
 export const For = defineComponent(
 	'For',
 	<T>(props: IForProps<T>, $: Comp<IForProps<T>>) => {
@@ -53,11 +51,9 @@ export const For = defineComponent(
 				keys.push(key)
 				redundantKeys.delete(key)
 			}
-			if (logLevel >= 3)
-				console.log(
-					`${logIndent}🧹 Redundant keys ${$.debugName}:`,
-					redundantKeys,
-				)
+			if (logLevel >= 3) {
+				console.debug(`🧹 Redundant keys ${$.debugName}:`, redundantKeys)
+			}
 
 			// Remove items with redundant keys. Do this here before sorting items to
 			// avoid unnecessary move operations, as those trigger full component
@@ -90,52 +86,51 @@ export const For = defineComponent(
 			untrack('untrackForEachEffectItems', () => {
 				// Store last element for inserting next element.
 				let lastElem: Element | undefined
-				for (let index = 0, n = items.length; index < n; index++) {
-					const item = items[index]!
-					const key = keys[index]!
-					let itemData = key__itemData.get(key)
-					if (itemData) {
-						// Existing item.
-						itemData.state.index = index
-						// Update the item in case we had no keys and the list shifted.
-						itemData.state.item = item
-					} else {
-						// Initialize new item.
-						const state = useState<IForState<T>>(
-							`${$.debugName}→itemState_${nextItemState++}`,
-							{
+				mutateState(`${$.debugName} update items [t5im53]`, () => {
+					for (let index = 0, n = items.length; index < n; index++) {
+						const item = items[index]!
+						const key = keys[index]!
+						let itemData = key__itemData.get(key)
+						if (itemData) {
+							// Existing item.
+							itemData.state.index = index
+							// Update the item in case we had no keys and the list shifted.
+							itemData.state.item = item
+						} else {
+							// Initialize new item.
+							const state = useState<IForState<T>>(`${$.debugName}→itemState`, {
 								index,
 								item,
-							},
-						)
+							})
 
-						// Create a context for each item to allow effects to work. This will
-						// run outside the For context, so it must be disposed of manually.
-						// Hence, we store the kill function.
-						const elem = h(ForItem<T>, {
-							debugName: props.debugName,
-							state,
-							render: props.render,
-						})
-						itemData = { elem, state }
-						key__itemData.set(key, itemData)
-					}
+							// Create a context for each item to allow effects to work. This will
+							// run outside the For context, so it must be disposed of manually.
+							// Hence, we store the kill function.
+							const elem = h(ForItem<T>, {
+								debugName: props.debugName,
+								state,
+								render: props.render,
+							})
+							itemData = { elem, state }
+							key__itemData.set(key, itemData)
+						}
 
-					// Move element to its correct position in the DOM. Moving a component
-					// will trigger disconnect & connect, so avoid doing this if possible.
-					if (lastElem) {
-						if (lastElem.nextElementSibling !== itemData.elem) {
-							lastElem.after(itemData.elem)
+						// Move element to its correct position in the DOM. Moving a component
+						// will trigger disconnect & connect, so avoid doing this if possible.
+						if (lastElem) {
+							if (lastElem.nextElementSibling !== itemData.elem) {
+								lastElem.after(itemData.elem)
+							}
+						} else {
+							if (
+								itemData.elem.parentElement?.firstElementChild !== itemData.elem
+							) {
+								$.prepend(itemData.elem)
+							}
 						}
-					} else {
-						if (
-							itemData.elem.parentElement?.firstElementChild !== itemData.elem
-						) {
-							$.prepend(itemData.elem)
-						}
+						lastElem = itemData.elem
 					}
-					lastElem = itemData.elem
-				}
+				})
 			})
 		})
 		return $

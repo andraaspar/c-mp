@@ -1,6 +1,6 @@
 import { Slot } from '../c-mp/comp/Slot'
 import { defineComponent } from '../c-mp/fun/defineComponent'
-import { useState } from '../c-mp/fun/useState'
+import { mutateState, useState } from '../c-mp/fun/useState'
 
 export const SlotTestComp = defineComponent<{}>('SlotTestComp', (props, $) => {
 	const state = useState('state', {
@@ -13,7 +13,15 @@ export const SlotTestComp = defineComponent<{}>('SlotTestComp', (props, $) => {
 				<Slot get={() => state.value + ''} />
 			</div>
 			<div>{() => state.value + ''}</div>
-			<button onclick={() => state.value++}>Increment</button>
+			<button
+				onclick={() => {
+					mutateState('increment value [t59lma]', () => {
+						state.value++
+					})
+				}}
+			>
+				Increment
+			</button>
 		</>,
 	)
 

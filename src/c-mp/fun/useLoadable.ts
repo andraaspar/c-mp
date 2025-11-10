@@ -3,13 +3,13 @@ import { activeComps } from './defineComponent'
 import { errorToMessage } from './errorToMessage'
 import { jsonClone } from './jsonClone'
 import { jsonStringify } from './jsonStringify'
-import { logGroup, logGroupEnd, logIndent, logLevel } from './log'
+import { logLevel } from './log'
 import { minutes } from './minutes'
 import { mirror } from './mirror'
 import { seconds } from './seconds'
 import { sleep } from './sleep'
 import { untrack, useEffect } from './useEffect'
-import { useState } from './useState'
+import { mutateState, useState } from './useState'
 
 export type TLoadFn<T, P> = (params: P) => Promise<T>
 
@@ -31,6 +31,7 @@ export interface IUseLoadableOptions<T, PLoad, PIn = PLoad> {
 }
 
 export interface IUseLoadableState<T> {
+	name: string
 	status: Status
 	data?: T
 	error?: string
@@ -101,9 +102,9 @@ export class CacheEntry<T, P> {
 		error?: string,
 	) {
 		if (this.status === Status.Deleted) return
+		const oldStatus = this.status
 		if (logLevel >= 2) {
-			console.log(`${logIndent}☁️ ${this.key} ${status}`)
-			logGroup()
+			console.debug(`🔰 ☁️ ${this.key} ${oldStatus} → ${status}`)
 		}
 
 		// log1(`data:`, data)
@@ -131,7 +132,9 @@ export class CacheEntry<T, P> {
 		} else if (status === Status.Deleted) {
 			this.delete()
 		}
-		if (logLevel >= 2) logGroupEnd()
+		if (logLevel >= 2) {
+			console.debug(`🛑 ☁️ ${this.key} ${oldStatus} → ${status}`)
+		}
 	}
 
 	private async load() {
@@ -148,7 +151,7 @@ export class CacheEntry<T, P> {
 		} catch (e) {
 			if (!(e instanceof AbortError)) {
 				console.error(
-					`${logIndent}Error loading ${JSON.stringify(this.key)} with params ${
+					`Error loading ${JSON.stringify(this.key)} with params ${
 						this.paramsString
 					}:`,
 					e,
@@ -166,7 +169,7 @@ export class CacheEntry<T, P> {
 			this.setStatus(Status.Stale, this.data, this.loadedAt)
 		} catch (e) {
 			if (!(e instanceof AbortError)) {
-				console.error(logIndent, e)
+				console.error(e)
 			}
 		}
 	}
@@ -179,7 +182,7 @@ export class CacheEntry<T, P> {
 			this.setStatus(Status.Deleted, this.data, this.loadedAt)
 		} catch (e) {
 			if (!(e instanceof AbortError)) {
-				console.error(logIndent, e)
+				console.error(e)
 			}
 		}
 	}
@@ -202,30 +205,32 @@ export class CacheEntry<T, P> {
 				this.setStatus(Status.Loading, this.data, this.loadedAt)
 			} else {
 				if (logLevel >= 2)
-					console.log(`${logIndent}⛔`, JSON.stringify(this.key), `observed.`)
+					console.debug(`⛔`, JSON.stringify(this.key), `observed.`)
 			}
 		}
 	}
 
 	private updateState(state: IUseLoadableState<T>, dataChanged = true) {
-		state.status = this.status
-		// state.data = data
-		if (
-			this.data != null &&
-			typeof this.data === 'object' &&
-			state.data != null &&
-			typeof state.data === 'object'
-		) {
-			// We already had data: mutate it to reflect the updated data.
-			if (dataChanged) {
-				mirror(this.key, this.data, state.data)
+		mutateState(`☁️ ${this.key} 👉 ${state.name} (${this.status})`, () => {
+			state.status = this.status
+			// state.data = data
+			if (
+				this.data != null &&
+				typeof this.data === 'object' &&
+				state.data != null &&
+				typeof state.data === 'object'
+			) {
+				// We already had data: mutate it to reflect the updated data.
+				if (dataChanged) {
+					mirror(this.key, this.data, state.data)
+				}
+			} else {
+				// We had no data before: clone the loaded data and proxify it.
+				state.data = jsonClone(this.data)
 			}
-		} else {
-			// We had no data before: clone the loaded data and proxify it.
-			state.data = jsonClone(this.data)
-		}
-		state.loadedAt = this.loadedAt
-		state.error = this.error
+			state.loadedAt = this.loadedAt
+			state.error = this.error
+		})
 	}
 
 	deleteState(state: IUseLoadableState<T>, isEnabled: boolean) {
@@ -313,7 +318,7 @@ export function useLoadable<T, P>(
 	const debugName = activeComps.at(-1)!.debugName + `→${name}`
 	const state = useState<IUseLoadableState<T>>(
 		`state`,
-		{ status: Status.Never },
+		{ name, status: Status.Never },
 		debugName,
 	)
 
@@ -425,6 +430,7 @@ export function reloadLoadables<T, P>(
 	key?: string,
 	paramsPredicate?: (params: P) => boolean,
 ) {
+	console.debug(`🔰 ☁️ reload`, key, paramsPredicate)
 	let result = 0
 	const entries = getEntries(key, paramsPredicate)
 	for (const entry of entries) {
@@ -432,6 +438,7 @@ export function reloadLoadables<T, P>(
 			result++
 		}
 	}
+	console.debug(`🛑 ☁️ reload`, key, paramsPredicate, result)
 	return result
 }
 
@@ -439,6 +446,7 @@ export function maybeReloadLoadablesOnVisible<T, P>(
 	key?: string,
 	paramsPredicate?: (params: P) => boolean,
 ) {
+	console.debug(`🔰 ☁️ maybe reload on visible`, key, paramsPredicate)
 	let result = 0
 	const entries = getEntries(key, paramsPredicate)
 	for (const entry of entries) {
@@ -446,5 +454,6 @@ export function maybeReloadLoadablesOnVisible<T, P>(
 			result++
 		}
 	}
+	console.debug(`🛑 ☁️ maybe reload on visible`, key, paramsPredicate, result)
 	return result
 }

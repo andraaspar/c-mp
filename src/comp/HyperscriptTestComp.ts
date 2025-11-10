@@ -2,7 +2,7 @@ import { For } from '../c-mp/comp/For'
 import { Show } from '../c-mp/comp/Show'
 import { defineComponent } from '../c-mp/fun/defineComponent'
 import { h } from '../c-mp/fun/h'
-import { useState } from '../c-mp/fun/useState'
+import { mutateState, useState } from '../c-mp/fun/useState'
 
 export const HyperscriptTestComp = defineComponent<{}>(
 	'HyperscriptTestComp',
@@ -19,7 +19,9 @@ export const HyperscriptTestComp = defineComponent<{}>(
 							' ',
 							h('button', {
 								onclick: () => {
-									state.arr.splice(it.index, 1)
+									mutateState('remove item [t59lxo]', () => {
+										state.arr.splice(it.index, 1)
+									})
 								},
 								children: '×',
 							}),
@@ -28,7 +30,9 @@ export const HyperscriptTestComp = defineComponent<{}>(
 			}),
 			h('button', {
 				onclick: () => {
-					state.arr.push(Date.now().toString(36))
+					mutateState('add item [t59ly5]', () => {
+						state.arr.push(Date.now().toString(36))
+					})
 				},
 				children: [
 					h('b', { children: 'Add' }),

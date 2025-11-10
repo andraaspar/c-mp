@@ -1,7 +1,7 @@
 import { activeComps } from './defineComponent'
 import { makeAdjustLayoutDropdown } from './makeAdjustLayoutDropdown'
 import { untrack, useEffect } from './useEffect'
-import { useState } from './useState'
+import { mutateState, useState } from './useState'
 
 export function usePopover({
 	getMenuElem,
@@ -40,8 +40,10 @@ export function usePopover({
 		if (!menuElem) return
 		menuElem.popover = 'auto'
 		function onBeforeToggle(e: Event) {
-			// console.log(`[swx89a] usePopover.onBeforeToggle:`, (e as ToggleEvent).newState)
-			popoverState.isOpen = (e as ToggleEvent).newState === 'open'
+			// console.debug(`[swx89a] usePopover.onBeforeToggle:`, (e as ToggleEvent).newState)
+			mutateState('popover match event open state [t5im3s]', () => {
+				popoverState.isOpen = (e as ToggleEvent).newState === 'open'
+			})
 			justToggled = true
 			requestAnimationFrame(() => {
 				justToggled = false

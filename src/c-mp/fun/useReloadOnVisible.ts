@@ -7,7 +7,7 @@ export function useReloadOnVisible() {
 			if (document.visibilityState === 'visible') {
 				const count = maybeReloadLoadablesOnVisible()
 				if (count) {
-					console.log(
+					console.debug(
 						`[t57jfc] Document visible, reloading ${count} entries...`,
 					)
 				}

@@ -1,7 +1,7 @@
 import { Comp, defineComponent } from '../fun/defineComponent'
 import { expandSlots } from '../fun/expandSlots'
 import { h } from '../fun/h'
-import { logIndent, logLevel } from '../fun/log'
+import { logLevel } from '../fun/log'
 import { untrack, useEffect } from '../fun/useEffect'
 import { IProps } from '../model/IProps'
 import { TChildrenIn } from '../model/TChildrenIn'
@@ -33,8 +33,9 @@ export const Show = defineComponent(
 		useEffect('showWhenEffect', () => {
 			const lastFlag = flag
 			flag = !!props.when?.()
-			if (logLevel >= 3)
-				console.log(`${logIndent}💫 ${$.debugName} value:`, lastFlag, `→`, flag)
+			if (logLevel >= 3) {
+				console.debug(`💫 ${$.debugName} value:`, lastFlag, `→`, flag)
+			}
 			if (!flag === !lastFlag && lastFlag !== NEVER) return
 
 			untrack('untrackShowWhenEffect', () => {

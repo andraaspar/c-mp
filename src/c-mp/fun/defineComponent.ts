@@ -1,6 +1,6 @@
 import { HIGHLIGHT } from '../model/HIGHLIGHT'
 import { IProps } from '../model/IProps'
-import { logGroup, logGroupEnd, logIndent, logLevel } from './log'
+import { logLevel } from './log'
 
 /**
  * The debug name of each init function.
@@ -108,14 +108,13 @@ export class Comp<P extends IProps>
 			activeComps.at(-1) ?? this.parentElement?.closest<Comp<any>>('c-mp')
 
 		if (logLevel >= 2) {
-			console.log(
-				`${logIndent}☀️ Component connected: %c${this.debugName}`,
+			console.debug(
+				`🔰 ☀️ Component connected: %c${this.debugName}`,
 				HIGHLIGHT,
 				this,
 				'inside',
 				this.parentComp ?? this.parentNode,
 			)
-			logGroup()
 		}
 
 		this.setAttribute('is', this.debugName)
@@ -128,7 +127,15 @@ export class Comp<P extends IProps>
 			this.handleError(e)
 		} finally {
 			activeComps.pop()
-			if (logLevel >= 2) logGroupEnd()
+			if (logLevel >= 2) {
+				console.debug(
+					`🛑 ☀️ Component connected: %c${this.debugName}`,
+					HIGHLIGHT,
+					this,
+					'inside',
+					this.parentComp ?? this.parentNode,
+				)
+			}
 		}
 	}
 
@@ -140,42 +147,48 @@ export class Comp<P extends IProps>
 		if (this.onError) {
 			try {
 				if (logLevel >= 2) {
-					console.log(
-						`${logIndent}🎯 Handling error: %c${this.debugName}`,
-						HIGHLIGHT,
-					)
-					logGroup()
+					console.debug(`🔰 🎯 Handling error: %c${this.debugName}`, HIGHLIGHT)
 				}
 				this.onError(e)
 				handled = true
 			} catch (e) {
-				console.error(logIndent, e)
+				console.error(e)
 			} finally {
-				if (logLevel >= 2) logGroupEnd()
+				if (logLevel >= 2) {
+					console.debug(`🛑 🎯 Handling error: %c${this.debugName}`, HIGHLIGHT)
+				}
 			}
 		}
 		if (!handled) {
 			if (this.parentComp) {
 				if (logLevel >= 2) {
-					console.log(
-						`${logIndent}🔍 Looking for error handler: %c${this.debugName}`,
+					console.debug(
+						`🔰 🔍 Looking for error handler: %c${this.debugName}`,
 						HIGHLIGHT,
 					)
-					logGroup()
 				}
 				this.parentComp.handleError(e)
-				if (logLevel >= 2) logGroupEnd()
-			} else {
 				if (logLevel >= 2) {
-					console.log(
-						`${logIndent}⚠️ Failed to handle error: %c${this.debugName}`,
+					console.debug(
+						`🛑 🔍 Looking for error handler: %c${this.debugName}`,
 						HIGHLIGHT,
 					)
-					logGroup()
 				}
-				console.error(logIndent, e)
+			} else {
+				if (logLevel >= 2) {
+					console.debug(
+						`🔰 ⚠️ Failed to handle error: %c${this.debugName}`,
+						HIGHLIGHT,
+					)
+				}
+				console.error(e)
 				this.remove()
-				if (logLevel >= 2) logGroupEnd()
+				if (logLevel >= 2) {
+					console.debug(
+						`🛑 ⚠️ Failed to handle error: %c${this.debugName}`,
+						HIGHLIGHT,
+					)
+				}
 			}
 		}
 	}
@@ -190,14 +203,13 @@ export class Comp<P extends IProps>
 		// The component is removed from the DOM, or is being moved around. It kills
 		// the context.
 		if (logLevel >= 2) {
-			console.log(
-				`${logIndent}🌑 Component disconnected: %c${this.debugName}`,
+			console.debug(
+				`🔰 🌑 Component disconnected: %c${this.debugName}`,
 				HIGHLIGHT,
 				this,
 				'from',
 				this.parentComp ?? this.parentNode,
 			)
-			logGroup()
 		}
 
 		this.parentComp = undefined
@@ -213,7 +225,15 @@ export class Comp<P extends IProps>
 		this.innerHTML = ''
 
 		this.wasConnected = false
-		if (logLevel >= 2) logGroupEnd()
+		if (logLevel >= 2) {
+			console.debug(
+				`🛑 🌑 Component disconnected: %c${this.debugName}`,
+				HIGHLIGHT,
+				this,
+				'from',
+				this.parentComp ?? this.parentNode,
+			)
+		}
 	}
 }
 

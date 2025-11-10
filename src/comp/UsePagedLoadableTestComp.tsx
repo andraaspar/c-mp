@@ -9,7 +9,7 @@ export const UsePagedLoadableTestComp = defineComponent<{}>(
 	'UsePagedLoadableTestComp',
 	(props, $) => {
 		const [content, contentHandle] = usePagedLoadable('content', () => ({
-			key: 'hey',
+			key: 'loadPage',
 			load: loadPage,
 			params: {
 				foo: true,
@@ -58,7 +58,7 @@ export const UsePagedLoadableTestComp = defineComponent<{}>(
 				</button>
 				<button
 					onclick={() => {
-						reloadLoadables('hey')
+						reloadLoadables('loadPage')
 					}}
 				>
 					Reload
