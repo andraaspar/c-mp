@@ -1,19 +1,15 @@
 import { defineComponent } from '../c-mp/fun/defineComponent'
-import {
-	IUseLoadableState,
-	reloadLoadables,
-	useLoadable,
-} from '../c-mp/fun/useLoadable'
+import { IUseQueriestate, reloadQueries, useQuery } from '../c-mp/fun/useQuery'
 
-export const UseLoadableDependentTestComp = defineComponent<{}>(
-	'UseLoadableDependentTestComp',
+export const UseQueryDependentTestComp = defineComponent<{}>(
+	'UseQueryDependentTestComp',
 	(props, $) => {
-		const main = useLoadable('main', () => ({
+		const main = useQuery('main', () => ({
 			key: 't57hck',
 			load: loadString,
 			params: {},
 		}))
-		const sub = useLoadable('sub', () => ({
+		const sub = useQuery('sub', () => ({
 			key: 't57hcm',
 			load: loadString2,
 			params: { value: main.data! },
@@ -22,11 +18,11 @@ export const UseLoadableDependentTestComp = defineComponent<{}>(
 
 		$.append(
 			<>
-				<UseLoadableDependentInnerComp debugName='main' loadable={main} />
-				<UseLoadableDependentInnerComp debugName='sub' loadable={sub} />
+				<UseQueryDependentInnerComp debugName='main' query={main} />
+				<UseQueryDependentInnerComp debugName='sub' query={sub} />
 				<button
 					onclick={() => {
-						reloadLoadables()
+						reloadQueries()
 					}}
 				>
 					Reload
@@ -50,22 +46,22 @@ async function loadString2(o: { value: string }) {
 	})
 }
 
-const UseLoadableDependentInnerComp = defineComponent<{
-	loadable: IUseLoadableState<any>
+const UseQueryDependentInnerComp = defineComponent<{
+	query: IUseQueriestate<any>
 	disabledByDefault?: boolean
-}>('UseLoadableTestInnerComp', (props, $) => {
+}>('UseQueryTestInnerComp', (props, $) => {
 	$.append(
 		<fieldset>
 			<legend>{props.debugName}</legend>
-			<div>Status: {() => props.loadable.status}</div>
-			<div>Data: {() => JSON.stringify(props.loadable.data)}</div>
-			<div>Error: {() => props.loadable.error}</div>
+			<div>Status: {() => props.query.status}</div>
+			<div>Data: {() => JSON.stringify(props.query.data)}</div>
+			<div>Error: {() => props.query.error}</div>
 			<div>
 				Loaded at:{' '}
 				{() =>
-					props.loadable.loadedAt == null
+					props.query.loadedAt == null
 						? ''
-						: new Date(props.loadable.loadedAt).toLocaleString('hu')
+						: new Date(props.query.loadedAt).toLocaleString('hu')
 				}
 			</div>
 		</fieldset>,

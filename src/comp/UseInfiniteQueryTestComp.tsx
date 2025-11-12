@@ -1,14 +1,14 @@
 import { For } from '../c-mp/comp/For'
 import { defineComponent } from '../c-mp/fun/defineComponent'
-import { reloadLoadables } from '../c-mp/fun/useLoadable'
-import { usePagedLoadable } from '../c-mp/fun/usePagedLoadable'
+import { useInfiniteQuery } from '../c-mp/fun/useInfiniteQuery'
+import { reloadQueries } from '../c-mp/fun/useQuery'
 import { useReloadOnVisible } from '../c-mp/fun/useReloadOnVisible'
 import { loadPage } from '../fun/loadPage'
 
-export const UsePagedLoadableTestComp = defineComponent<{}>(
-	'UsePagedLoadableTestComp',
+export const UseInfiniteQueryTestComp = defineComponent<{}>(
+	'UseInfiniteQueryTestComp',
 	(props, $) => {
-		const [content, contentHandle] = usePagedLoadable('content', () => ({
+		const [content, contentHandle] = useInfiniteQuery('content', () => ({
 			key: 'loadPage',
 			load: loadPage,
 			params: {
@@ -58,7 +58,7 @@ export const UsePagedLoadableTestComp = defineComponent<{}>(
 				</button>
 				<button
 					onclick={() => {
-						reloadLoadables('loadPage')
+						reloadQueries('loadPage')
 					}}
 				>
 					Reload

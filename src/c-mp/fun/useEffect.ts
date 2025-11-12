@@ -35,9 +35,8 @@ export function useEffect(
 			console.debug(`🔰 🧹 Cleaning up effect: %c${name}`, HIGHLIGHT)
 		}
 
-		// This makes it impossible to run the effect from the existing proxy
-		// trackers. It effectively unregisters those trackers. The next run will
-		// register new trackers.
+		// This signals to the proxy tracker that this effect is to be removed
+		// rather than re-run.
 		proxyTracker.rerun = undefined
 		try {
 			lastCleanup?.()

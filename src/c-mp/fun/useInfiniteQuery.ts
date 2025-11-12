@@ -1,40 +1,40 @@
 import { unproxify } from './proxify'
 import {
 	getEntries,
-	IUseLoadableOptions,
+	IUseQueryOptions,
 	Status,
 	TLoadFn,
-	useLoadable,
-} from './useLoadable'
+	useQuery,
+} from './useQuery'
 
-export interface IUsePagedLoadablePage<T> {
+export interface IUseInfiniteQueryPage<T> {
 	id: number
 	value: T
 }
 
-export interface IUsePagedLoadableData<T> {
-	pages: IUsePagedLoadablePage<T>[]
+export interface IUseInfiniteQueryData<T> {
+	pages: IUseInfiniteQueryPage<T>[]
 }
 
-export interface IUsePagedLoadableParam {
+export interface IUseInfiniteQueryParam {
 	page: number
 }
 
-export interface IUsePagedLoadableHasMore {
+export interface IUseInfiniteQueryHasMore {
 	hasMore?: boolean
 }
 
-export type TUnpagedParams<P> = Omit<P, 'page'>
+export type TUninfiniteParams<P> = Omit<P, 'page'>
 
-export function usePagedLoadable<
-	T extends IUsePagedLoadableHasMore,
-	P extends IUsePagedLoadableParam,
+export function useInfiniteQuery<
+	T extends IUseInfiniteQueryHasMore,
+	P extends IUseInfiniteQueryParam,
 >(
 	name: string,
-	createOptions: () => IUseLoadableOptions<T, P, TUnpagedParams<P>>,
+	createOptions: () => IUseQueryOptions<T, P, TUninfiniteParams<P>>,
 ) {
-	let options: IUseLoadableOptions<T, P, TUnpagedParams<P>> | undefined
-	const result = useLoadable(name, () => {
+	let options: IUseQueryOptions<T, P, TUninfiniteParams<P>> | undefined
+	const result = useQuery(name, () => {
 		const o = (options = createOptions())
 
 		return {
@@ -50,10 +50,10 @@ export function usePagedLoadable<
 					console.warn(`[t57hyk] loadNextPage called before options was ready.`)
 					return
 				}
-				const entry = getEntries<IUsePagedLoadableData<T>, TUnpagedParams<P>>(
-					options.key,
-					options.params,
-				)[0]
+				const entry = getEntries<
+					IUseInfiniteQueryData<T>,
+					TUninfiniteParams<P>
+				>(options.key, options.params)[0]
 				if (
 					entry?.data &&
 					(entry.status === Status.Loaded || entry.status === Status.Stale)
@@ -70,14 +70,14 @@ export function usePagedLoadable<
 }
 
 async function loadData<
-	T extends IUsePagedLoadableHasMore,
-	P extends IUsePagedLoadableParam,
+	T extends IUseInfiniteQueryHasMore,
+	P extends IUseInfiniteQueryParam,
 >(
 	entryKey: string,
 	loadPage: TLoadFn<T, P>,
-	params: TUnpagedParams<P>,
-): Promise<IUsePagedLoadableData<T>> {
-	const entry = getEntries<IUsePagedLoadableData<T>, TUnpagedParams<P>>(
+	params: TUninfiniteParams<P>,
+): Promise<IUseInfiniteQueryData<T>> {
+	const entry = getEntries<IUseInfiniteQueryData<T>, TUninfiniteParams<P>>(
 		entryKey,
 		params,
 	)[0]
@@ -90,7 +90,7 @@ async function loadData<
 			pages,
 		}
 	} else {
-		const pages: IUsePagedLoadablePage<T>[] = []
+		const pages: IUseInfiniteQueryPage<T>[] = []
 		for (let page = 0; page < pageCount; page++) {
 			const value = await loadPage({ ...params, page } as P)
 			pages.push({ id: page, value })

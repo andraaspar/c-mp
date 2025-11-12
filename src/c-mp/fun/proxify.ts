@@ -1,5 +1,3 @@
-import { cmp } from '../model/cmp'
-
 const unwrapped = Symbol('unwrapped')
 
 export interface IProxifyCallbacks {
@@ -121,6 +119,6 @@ export function unproxify<T>(o: T): T {
 	return o
 }
 
-cmp.proxify = proxify
-cmp.unproxify = unproxify
-cmp.isProxifyable = isProxifyable
+// cmp.proxify = proxify
+// cmp.unproxify = unproxify
+// cmp.isProxifyable = isProxifyable

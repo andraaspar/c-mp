@@ -1,11 +1,11 @@
 import { useEffect } from './useEffect'
-import { maybeReloadLoadablesOnVisible } from './useLoadable'
+import { maybeReloadQueriesOnVisible } from './useQuery'
 
 export function useReloadOnVisible() {
 	useEffect('reloadOnVisibleEffect', () => {
 		function onVisibilityChange() {
 			if (document.visibilityState === 'visible') {
-				const count = maybeReloadLoadablesOnVisible()
+				const count = maybeReloadQueriesOnVisible()
 				if (count) {
 					console.debug(
 						`[t57jfc] Document visible, reloading ${count} entries...`,

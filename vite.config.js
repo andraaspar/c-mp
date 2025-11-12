@@ -5,7 +5,8 @@ export default defineConfig({
 
 	build: {
 		modulePreload: false,
-
-		// minify: false,
+	},
+	esbuild: {
+		minifyIdentifiers: false,
 	},
 })

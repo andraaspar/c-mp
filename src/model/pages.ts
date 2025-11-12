@@ -8,9 +8,9 @@ import { ForTestComp } from '../comp/ForTestComp'
 import { HyperscriptTestComp } from '../comp/HyperscriptTestComp'
 import { ShowTestComp } from '../comp/ShowTestComp'
 import { SlotTestComp } from '../comp/SlotTestComp'
-import { UseLoadableDependentTestComp } from '../comp/UseLoadableDependentTestComp'
-import { UseLoadableTestComp } from '../comp/UseLoadableTestComp'
-import { UsePagedLoadableTestComp } from '../comp/UsePagedLoadableTestComp'
+import { UseInfiniteQueryTestComp } from '../comp/UseInfiniteQueryTestComp'
+import { UseQueryDependentTestComp } from '../comp/UseQueryDependentTestComp'
+import { UseQueryTestComp } from '../comp/UseQueryTestComp'
 
 // prettier-ignore
 const data = [
@@ -19,9 +19,9 @@ const data = [
 	['#for', ForTestComp, 'For'],
 	['#show', ShowTestComp, 'Show'],
 	['#hyperscript', HyperscriptTestComp, 'Hyperscript'],
-	['#use-loadable', UseLoadableTestComp, 'UseLoadable'],
-	['#use-loadable-dependent', UseLoadableDependentTestComp, 'UseLoadableDependent'],
-	['#use-paged-loadable', UsePagedLoadableTestComp, 'UsePagedLoadable'],
+	['#use-query', UseQueryTestComp, 'UseQuery'],
+	['#use-query-dependent', UseQueryDependentTestComp, 'UseQueryDependent'],
+	['#use-infinite-query', UseInfiniteQueryTestComp, 'UseInfiniteQuery'],
 	['#error-boundary-immediate', ErrorBoundaryImmediateTestComp, 'ErrorBoundaryImmediate'],
 	['#error-boundary-in-component-init', ErrorBoundaryInComponentInitTestComp, 'ErrorBoundaryInComponentInit'],
 	['#error-boundary-in-component-effect', ErrorBoundaryInComponentEffectTestComp, 'ErrorBoundaryInComponentEffect'],

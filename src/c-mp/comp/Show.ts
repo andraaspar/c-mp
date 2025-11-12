@@ -26,8 +26,8 @@ export const Show = defineComponent(
 		// content.
 		let flag: boolean | typeof NEVER = NEVER
 
-		// Last kill function is stored here, because it can survive multiple effect
-		// reruns.
+		// Last inner component is stored here, because it can survive multiple
+		// effect reruns.
 		let lastComp: Comp<any> | undefined
 
 		useEffect('showWhenEffect', () => {

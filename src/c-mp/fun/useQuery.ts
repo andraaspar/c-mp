@@ -13,8 +13,8 @@ import { mutateState, useState } from './useState'
 
 export type TLoadFn<T, P> = (params: P) => Promise<T>
 
-export interface IUseLoadableOptions<T, PLoad, PIn = PLoad> {
-	/** Key to identify this loadable. */
+export interface IUseQueryOptions<T, PLoad, PIn = PLoad> {
+	/** Key to identify this query. */
 	key: string
 	/** Parameters to pass to the load function. */
 	params: PIn
@@ -30,7 +30,7 @@ export interface IUseLoadableOptions<T, PLoad, PIn = PLoad> {
 	noReloadOnVisible?: boolean
 }
 
-export interface IUseLoadableState<T> {
+export interface IUseQueriestate<T> {
 	name: string
 	status: Status
 	data?: T
@@ -80,7 +80,7 @@ export class CacheEntry<T, P> {
 	loadedAt?: number
 	error?: string
 	/** A state for each of the components using this data. */
-	readonly states = new Set<IUseLoadableState<T>>()
+	readonly states = new Set<IUseQueriestate<T>>()
 	private enabledCount = 0
 	private abortFn?: () => void
 	private abortWaitForDelete?: () => void
@@ -187,7 +187,7 @@ export class CacheEntry<T, P> {
 		}
 	}
 
-	addState(state: IUseLoadableState<T>, isEnabled: boolean) {
+	addState(state: IUseQueriestate<T>, isEnabled: boolean) {
 		this.states.add(state)
 		if (isEnabled) this.enabledCount++
 
@@ -210,7 +210,7 @@ export class CacheEntry<T, P> {
 		}
 	}
 
-	private updateState(state: IUseLoadableState<T>, dataChanged = true) {
+	private updateState(state: IUseQueriestate<T>, dataChanged = true) {
 		mutateState(`☁️ ${this.key} 👉 ${state.name} (${this.status})`, () => {
 			state.status = this.status
 			// state.data = data
@@ -233,7 +233,7 @@ export class CacheEntry<T, P> {
 		})
 	}
 
-	deleteState(state: IUseLoadableState<T>, isEnabled: boolean) {
+	deleteState(state: IUseQueriestate<T>, isEnabled: boolean) {
 		this.states.delete(state)
 		if (isEnabled) this.enabledCount--
 
@@ -311,12 +311,12 @@ function deleteCacheEntry<T>(key: string, paramsString: string) {
 	}
 }
 
-export function useLoadable<T, P>(
+export function useQuery<T, P>(
 	name: string,
-	createOptions: () => IUseLoadableOptions<T, P>,
-): IUseLoadableState<T> {
+	createOptions: () => IUseQueryOptions<T, P>,
+): IUseQueriestate<T> {
 	const debugName = activeComps.at(-1)!.debugName + `→${name}`
-	const state = useState<IUseLoadableState<T>>(
+	const state = useState<IUseQueriestate<T>>(
 		`state`,
 		{ name, status: Status.Never },
 		debugName,
@@ -426,7 +426,7 @@ export function getEntries<T, P>(
 	return result
 }
 
-export function reloadLoadables<T, P>(
+export function reloadQueries<T, P>(
 	key?: string,
 	paramsPredicate?: (params: P) => boolean,
 ) {
@@ -442,7 +442,7 @@ export function reloadLoadables<T, P>(
 	return result
 }
 
-export function maybeReloadLoadablesOnVisible<T, P>(
+export function maybeReloadQueriesOnVisible<T, P>(
 	key?: string,
 	paramsPredicate?: (params: P) => boolean,
 ) {

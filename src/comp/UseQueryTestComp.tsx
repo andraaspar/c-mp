@@ -1,11 +1,11 @@
 import { Show } from '../c-mp/comp/Show'
 import { defineComponent } from '../c-mp/fun/defineComponent'
 import { seconds } from '../c-mp/fun/seconds'
-import { reloadLoadables, useLoadable } from '../c-mp/fun/useLoadable'
+import { reloadQueries, useQuery } from '../c-mp/fun/useQuery'
 import { mutateState, useState } from '../c-mp/fun/useState'
 
-export const UseLoadableTestComp = defineComponent<{}>(
-	'UseLoadableTestComp',
+export const UseQueryTestComp = defineComponent<{}>(
+	'UseQueryTestComp',
 	(props, $) => {
 		const state = useState('state', { showOne: false, showTwo: false })
 
@@ -13,12 +13,12 @@ export const UseLoadableTestComp = defineComponent<{}>(
 			<>
 				<Show
 					when={() => state.showOne}
-					then={() => <UseLoadableTestInnerComp debugName='One' />}
+					then={() => <UseQueryTestInnerComp debugName='One' />}
 				/>
 				<Show
 					when={() => state.showTwo}
 					then={() => (
-						<UseLoadableTestInnerComp debugName='Two' enabledByDefault />
+						<UseQueryTestInnerComp debugName='Two' enabledByDefault />
 					)}
 				/>
 				<button
@@ -41,7 +41,7 @@ export const UseLoadableTestComp = defineComponent<{}>(
 				</button>
 				<button
 					onclick={() => {
-						reloadLoadables()
+						reloadQueries()
 					}}
 				>
 					Reload
@@ -53,15 +53,15 @@ export const UseLoadableTestComp = defineComponent<{}>(
 	},
 )
 
-const UseLoadableTestInnerComp = defineComponent<{
+const UseQueryTestInnerComp = defineComponent<{
 	enabledByDefault?: boolean
-}>('UseLoadableTestInnerComp', (props, $) => {
+}>('UseQueryTestInnerComp', (props, $) => {
 	const state = useState('state', {
 		isEnabled: !!props.enabledByDefault,
 	})
 
-	const loadable = useLoadable('loadable [t5iga9]', () => ({
-		key: 'simple loadable [t57hcg]',
+	const query = useQuery('query [t5iga9]', () => ({
+		key: 'simple query [t57hcg]',
 		load: loadString,
 		params: { foo: true },
 		isEnabled: state.isEnabled,
@@ -72,15 +72,15 @@ const UseLoadableTestInnerComp = defineComponent<{
 	$.append(
 		<fieldset>
 			<legend>{props.debugName}</legend>
-			<div>Status: {() => loadable.status}</div>
-			<div>Data: {() => JSON.stringify(loadable.data)}</div>
-			<div>Error: {() => loadable.error}</div>
+			<div>Status: {() => query.status}</div>
+			<div>Data: {() => JSON.stringify(query.data)}</div>
+			<div>Error: {() => query.error}</div>
 			<div>
 				Loaded at:{' '}
 				{() =>
-					loadable.loadedAt == null
+					query.loadedAt == null
 						? ''
-						: new Date(loadable.loadedAt).toLocaleString('hu')
+						: new Date(query.loadedAt).toLocaleString('hu')
 				}
 			</div>
 			<button
