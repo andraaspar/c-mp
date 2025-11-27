@@ -71,6 +71,16 @@ export function proxify<T>(name: string, o: T, cbs?: IProxifyCallbacks): T {
 			if (!Object.is(oldValue, newValue)) {
 				// Value changed.
 				result = Reflect.set(target, p, newValue, receiver)
+				if (!result) {
+					console.error(
+						`[t68ki1] ${name}.${p.toString()} could not be set:`,
+						oldValue,
+						`✏️`,
+						newValue,
+						`target:`,
+						target,
+					)
+				}
 				cbs?.set?.(name, target, p, newValue)
 			}
 			if (!hadKey && Array.isArray(target)) {

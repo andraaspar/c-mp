@@ -18,7 +18,9 @@ function runEffects(
 	prop: string | symbol,
 	value: unknown,
 ) {
-	if (!allowMutation) throw new Error(`[t59l5g] Mutation not allowed.`)
+	if (!allowMutation) {
+		console.error(`👾 Unlabeled mutation!`)
+	}
 	let props__effects = target__props__effects.get(target)
 	if (!props__effects) return
 	let effects = props__effects.get(prop)
@@ -81,22 +83,34 @@ const CBS: IProxifyCallbacks = {
 	cache: new WeakMap(),
 }
 
+/**
+ * Creates a state proxy that tracks mutations and invokes effects.
+ */
 export function useState<T>(
 	name: string,
 	o: T,
 	parentName = activeComps.at(-1)?.debugName ?? '-',
 ): T {
-	return proxify(`${parentName}→${name}`, o, CBS)
+	return proxify(`${parentName} → ${name}`, o, CBS)
 }
 
-export async function mutateState<T>(name: string, fn: () => void) {
+/**
+ * Labels mutations for debugging.
+ */
+export async function mutateState(
+	parent: string,
+	name: string,
+	fn: () => void,
+) {
 	try {
-		if (logLevel >= 1) console.debug(`🔰 👾 Mutation: ${name}`)
+		console.log(logLevel >= 1 ? '🔰 👾' : '👾', parent, name)
 		allowMutation = true
 		fn()
-		await allEffectsDone()
 	} finally {
 		allowMutation = false
-		if (logLevel >= 1) console.debug(`🛑 👾 Mutation: ${name}`)
+	}
+	if (logLevel >= 1) {
+		await allEffectsDone()
+		console.debug(`🛑 👾`, parent, name)
 	}
 }

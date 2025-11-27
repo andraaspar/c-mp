@@ -39,7 +39,7 @@ export const ErroringComponent = defineComponent<{}>(
 			<div>
 				<button
 					onclick={() => {
-						mutateState('toggle throw [t59mch]', () => {
+						mutateState($.debugName, 'toggle throw [t59mch]', () => {
 							state.throw = !state.throw
 						})
 					}}

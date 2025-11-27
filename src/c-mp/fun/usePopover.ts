@@ -10,10 +10,10 @@ export function usePopover({
 	getMenuElem: () => HTMLElement | null | undefined
 	getButtonElem: () => HTMLButtonElement | null | undefined
 }) {
-	const debugName = `${activeComps.at(-1)?.debugName}→popover`
-	const popoverState = useState(`${debugName}→state`, { isOpen: false })
+	const debugName = `${activeComps.at(-1)?.debugName} → popover`
+	const popoverState = useState(`${debugName} → state`, { isOpen: false })
 	let justToggled = false
-	useEffect(`${debugName}→adjust`, () => {
+	useEffect(`${debugName} → adjust`, () => {
 		const menuElem = getMenuElem()
 		const buttonElem = getButtonElem()
 		// if (menuElem && buttonElem) {
@@ -35,13 +35,13 @@ export function usePopover({
 			})
 		}
 	})
-	useEffect(`${debugName}→onbeforetoggle`, () => {
+	useEffect(`${debugName} → onbeforetoggle`, () => {
 		const menuElem = getMenuElem()
 		if (!menuElem) return
 		menuElem.popover = 'auto'
 		function onBeforeToggle(e: Event) {
 			// console.debug(`[swx89a] usePopover.onBeforeToggle:`, (e as ToggleEvent).newState)
-			mutateState('popover match event open state [t5im3s]', () => {
+			mutateState(debugName, `popover match event open state [t5im3s]`, () => {
 				popoverState.isOpen = (e as ToggleEvent).newState === 'open'
 			})
 			justToggled = true
@@ -54,7 +54,7 @@ export function usePopover({
 			menuElem.removeEventListener('beforetoggle', onBeforeToggle)
 		}
 	})
-	useEffect(`${debugName}→button→onclick`, () => {
+	useEffect(`${debugName} → button → onclick`, () => {
 		const buttonElem = getButtonElem()
 		if (buttonElem) {
 			buttonElem.addEventListener('click', toggle)

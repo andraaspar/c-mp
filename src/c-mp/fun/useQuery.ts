@@ -30,7 +30,7 @@ export interface IUseQueryOptions<T, PLoad, PIn = PLoad> {
 	noReloadOnVisible?: boolean
 }
 
-export interface IUseQueriestate<T> {
+export interface IUseQueryState<T> {
 	name: string
 	status: Status
 	data?: T
@@ -80,7 +80,7 @@ export class CacheEntry<T, P> {
 	loadedAt?: number
 	error?: string
 	/** A state for each of the components using this data. */
-	readonly states = new Set<IUseQueriestate<T>>()
+	readonly states = new Set<IUseQueryState<T>>()
 	private enabledCount = 0
 	private abortFn?: () => void
 	private abortWaitForDelete?: () => void
@@ -104,7 +104,7 @@ export class CacheEntry<T, P> {
 		if (this.status === Status.Deleted) return
 		const oldStatus = this.status
 		if (logLevel >= 2) {
-			console.debug(`🔰 ☁️ ${this.key} ${oldStatus} → ${status}`)
+			console.debug(`🔰 ☁️ ${this.key} ${oldStatus} ✏️ ${status}`)
 		}
 
 		// log1(`data:`, data)
@@ -113,6 +113,9 @@ export class CacheEntry<T, P> {
 
 		// const oldStatus = this.status
 		const dataChanged = !Object.is(data, this.data)
+		if (status === Status.Loaded) {
+			console.log(`[t6casj] ${this.key} ${this.loadFn.name} loaded:`, data)
+		}
 		this.status = status
 		this.data = data
 		this.loadedAt = loadedAt
@@ -133,7 +136,7 @@ export class CacheEntry<T, P> {
 			this.delete()
 		}
 		if (logLevel >= 2) {
-			console.debug(`🛑 ☁️ ${this.key} ${oldStatus} → ${status}`)
+			console.debug(`🛑 ☁️ ${this.key} ${oldStatus} ✏️ ${status}`)
 		}
 	}
 
@@ -187,7 +190,7 @@ export class CacheEntry<T, P> {
 		}
 	}
 
-	addState(state: IUseQueriestate<T>, isEnabled: boolean) {
+	addState(state: IUseQueryState<T>, isEnabled: boolean) {
 		this.states.add(state)
 		if (isEnabled) this.enabledCount++
 
@@ -210,8 +213,8 @@ export class CacheEntry<T, P> {
 		}
 	}
 
-	private updateState(state: IUseQueriestate<T>, dataChanged = true) {
-		mutateState(`☁️ ${this.key} 👉 ${state.name} (${this.status})`, () => {
+	private updateState(state: IUseQueryState<T>, dataChanged = true) {
+		mutateState('☁️ ' + this.key, `👉 ${state.name} (${this.status})`, () => {
 			state.status = this.status
 			// state.data = data
 			if (
@@ -233,7 +236,7 @@ export class CacheEntry<T, P> {
 		})
 	}
 
-	deleteState(state: IUseQueriestate<T>, isEnabled: boolean) {
+	deleteState(state: IUseQueryState<T>, isEnabled: boolean) {
 		this.states.delete(state)
 		if (isEnabled) this.enabledCount--
 
@@ -314,11 +317,11 @@ function deleteCacheEntry<T>(key: string, paramsString: string) {
 export function useQuery<T, P>(
 	name: string,
 	createOptions: () => IUseQueryOptions<T, P>,
-): IUseQueriestate<T> {
-	const debugName = activeComps.at(-1)!.debugName + `→${name}`
-	const state = useState<IUseQueriestate<T>>(
+): IUseQueryState<T> {
+	const debugName = activeComps.at(-1)!.debugName + ` → ${name}`
+	const state = useState<IUseQueryState<T>>(
 		`state`,
-		{ name, status: Status.Never },
+		{ name: debugName, status: Status.Never },
 		debugName,
 	)
 
@@ -357,8 +360,14 @@ export function useQuery<T, P>(
 					})
 					storeCacheEntry(entry)
 				}
-				innerState.isEnabled = options.isEnabled ?? true
-				innerState.entryRef = entry
+				mutateState(
+					debugName,
+					`→ untrackOptionsEffect update innerState [t6c1bq]`,
+					() => {
+						innerState.isEnabled = options.isEnabled ?? true
+						innerState.entryRef = entry
+					},
+				)
 			})
 		},
 		debugName,
@@ -435,6 +444,22 @@ export function reloadQueries<T, P>(
 	const entries = getEntries(key, paramsPredicate)
 	for (const entry of entries) {
 		if (entry.reload()) {
+			result++
+		}
+	}
+	console.debug(`🛑 ☁️ reload`, key, paramsPredicate, result)
+	return result
+}
+
+export function resetQueries<T, P>(
+	key?: string,
+	paramsPredicate?: (params: P) => boolean,
+) {
+	console.debug(`🔰 ☁️ reload`, key, paramsPredicate)
+	let result = 0
+	const entries = getEntries(key, paramsPredicate)
+	for (const entry of entries) {
+		if (entry.makeStaleOrNever() && entry.maybeReloadOnVisible()) {
 			result++
 		}
 	}

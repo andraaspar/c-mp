@@ -11,6 +11,7 @@ export const HyperscriptTestComp = defineComponent<{}>(
 
 		$.append(
 			h(For<string>, {
+				debugName: 'arr',
 				each: () => state.arr,
 				render: (it) =>
 					h('div', {
@@ -19,7 +20,7 @@ export const HyperscriptTestComp = defineComponent<{}>(
 							' ',
 							h('button', {
 								onclick: () => {
-									mutateState('remove item [t59lxo]', () => {
+									mutateState($.debugName, 'remove item [t59lxo]', () => {
 										state.arr.splice(it.index, 1)
 									})
 								},
@@ -30,7 +31,7 @@ export const HyperscriptTestComp = defineComponent<{}>(
 			}),
 			h('button', {
 				onclick: () => {
-					mutateState('add item [t59ly5]', () => {
+					mutateState($.debugName, 'add item [t59ly5]', () => {
 						state.arr.push(Date.now().toString(36))
 					})
 				},

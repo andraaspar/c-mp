@@ -18,7 +18,7 @@ export const ShowTestComp = defineComponent<{}>('ShowTestComp', (props, $) => {
 			/>
 			<button
 				onclick={() => {
-					mutateState('set flag1 [t59lvv]', () => {
+					mutateState($.debugName, 'set flag1 [t59lvv]', () => {
 						state.flag1 = true
 					})
 				}}
@@ -27,7 +27,7 @@ export const ShowTestComp = defineComponent<{}>('ShowTestComp', (props, $) => {
 			</button>
 			<button
 				onclick={() => {
-					mutateState('set flag1 [t59lvy]', () => {
+					mutateState($.debugName, 'set flag1 [t59lvy]', () => {
 						state.flag1 = false
 					})
 				}}
@@ -36,7 +36,7 @@ export const ShowTestComp = defineComponent<{}>('ShowTestComp', (props, $) => {
 			</button>
 			<button
 				onclick={() => {
-					mutateState('set flag1 [t59lw3]', () => {
+					mutateState($.debugName, 'set flag1 [t59lw3]', () => {
 						state.flag1 = { id: 'yay' }
 					})
 				}}

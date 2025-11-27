@@ -15,7 +15,7 @@ export const SlotTestComp = defineComponent<{}>('SlotTestComp', (props, $) => {
 			<div>{() => state.value + ''}</div>
 			<button
 				onclick={() => {
-					mutateState('increment value [t59lma]', () => {
+					mutateState($.debugName, 'increment value [t59lma]', () => {
 						state.value++
 					})
 				}}

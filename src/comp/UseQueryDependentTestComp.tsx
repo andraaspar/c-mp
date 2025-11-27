@@ -1,5 +1,5 @@
 import { defineComponent } from '../c-mp/fun/defineComponent'
-import { IUseQueriestate, reloadQueries, useQuery } from '../c-mp/fun/useQuery'
+import { IUseQueryState, reloadQueries, useQuery } from '../c-mp/fun/useQuery'
 
 export const UseQueryDependentTestComp = defineComponent<{}>(
 	'UseQueryDependentTestComp',
@@ -47,7 +47,7 @@ async function loadString2(o: { value: string }) {
 }
 
 const UseQueryDependentInnerComp = defineComponent<{
-	query: IUseQueriestate<any>
+	query: IUseQueryState<any>
 	disabledByDefault?: boolean
 }>('UseQueryTestInnerComp', (props, $) => {
 	$.append(

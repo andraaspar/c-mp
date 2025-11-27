@@ -5,7 +5,7 @@ import { logLevel } from '../fun/log'
 import { untrack, useEffect } from '../fun/useEffect'
 import { mutateState, useState } from '../fun/useState'
 import { IProps } from '../model/IProps'
-import { TChildrenIn } from '../model/TChildrenIn'
+import { TChildrenIn } from '../model/TChildren'
 
 export type TKey = string | number | bigint | symbol | boolean
 
@@ -18,6 +18,7 @@ export interface IForElemProps<T> {
 }
 
 export interface IForProps<T> extends IProps {
+	debugName: string
 	each: () => T[] | undefined
 	getKey?: (item: T, index: number) => TKey
 	render: (state: IForState<T>) => TChildrenIn
@@ -86,7 +87,7 @@ export const For = defineComponent(
 			untrack('untrackForEachEffectItems', () => {
 				// Store last element for inserting next element.
 				let lastElem: Element | undefined
-				mutateState(`${$.debugName} update items [t5im53]`, () => {
+				mutateState($.debugName, `update items [t5im53]`, () => {
 					for (let index = 0, n = items.length; index < n; index++) {
 						const item = items[index]!
 						const key = keys[index]!
@@ -98,10 +99,13 @@ export const For = defineComponent(
 							itemData.state.item = item
 						} else {
 							// Initialize new item.
-							const state = useState<IForState<T>>(`${$.debugName}→itemState`, {
-								index,
-								item,
-							})
+							const state = useState<IForState<T>>(
+								`${$.debugName} → itemState`,
+								{
+									index,
+									item,
+								},
+							)
 
 							// Create a context for each item to allow effects to work. This will
 							// run outside the For context, so it must be disposed of manually.

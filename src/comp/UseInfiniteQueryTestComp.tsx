@@ -23,6 +23,7 @@ export const UseInfiniteQueryTestComp = defineComponent<{}>(
 		$.append(
 			<>
 				<For
+					debugName='content pages'
 					each={() => content.data?.pages}
 					render={(page) => (
 						<fieldset>

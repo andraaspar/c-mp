@@ -28,7 +28,7 @@ export const ClassTestComp = defineComponent<{}>(
 
 				<button
 					onclick={() => {
-						mutateState('toggle class [t59lk7]', () => {
+						mutateState($.debugName, 'toggle class [t59lk7]', () => {
 							state.isSky = !state.isSky
 						})
 					}}

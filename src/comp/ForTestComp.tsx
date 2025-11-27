@@ -8,13 +8,14 @@ export const ForTestComp = defineComponent<{}>('ForTestComp', (props, $) => {
 	$.append(
 		<>
 			<For
+				debugName='arr'
 				each={() => state.arr}
 				render={(it) => (
 					<div>
 						<span>{() => it.item}</span>{' '}
 						<button
 							onclick={() => {
-								mutateState('remove item [t59lu9]', () => {
+								mutateState($.debugName, 'remove item [t59lu9]', () => {
 									state.arr.splice(it.index, 1)
 								})
 							}}
@@ -26,7 +27,7 @@ export const ForTestComp = defineComponent<{}>('ForTestComp', (props, $) => {
 			/>
 			<button
 				onclick={() => {
-					mutateState('add item [t59lq1]', () => {
+					mutateState($.debugName, 'add item [t59lq1]', () => {
 						state.arr.push(Date.now().toString(36))
 					})
 				}}

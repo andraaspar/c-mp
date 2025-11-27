@@ -1,4 +1,5 @@
-import { TChildrenIn } from './TChildrenIn'
+import { TChildrenIn } from './TChildren'
+import { TStyle } from './TStyle'
 
 /**
  * These attributes are in addition to / replacing native fields on HTML
@@ -9,7 +10,7 @@ export interface IExtraAttributes<T> {
 	 * Classes can be added in multiple ways to elements.
 	 */
 	class?:
-		| string[]
+		| (string | null | undefined | boolean | number | bigint)[]
 		| string
 		| null
 		| undefined
@@ -18,6 +19,8 @@ export interface IExtraAttributes<T> {
 				| string
 				| null
 				| undefined)
+
+	style?: TStyle
 
 	/**
 	 * This function, if provided, will get a reference to the element.

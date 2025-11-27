@@ -4,7 +4,7 @@ import { h } from '../fun/h'
 import { logLevel } from '../fun/log'
 import { untrack, useEffect } from '../fun/useEffect'
 import { IProps } from '../model/IProps'
-import { TChildrenIn } from '../model/TChildrenIn'
+import { TChildrenIn } from '../model/TChildren'
 
 export type TThenValue<T> = Exclude<T, false | null | undefined | 0 | '' | 0n>
 export type TThenValueGetter<T> = () => TThenValue<T>
@@ -34,7 +34,7 @@ export const Show = defineComponent(
 			const lastFlag = flag
 			flag = !!props.when?.()
 			if (logLevel >= 3) {
-				console.debug(`💫 ${$.debugName} value:`, lastFlag, `→`, flag)
+				console.debug(`💫 ${$.debugName} value:`, lastFlag, `✏️`, flag)
 			}
 			if (!flag === !lastFlag && lastFlag !== NEVER) return
 

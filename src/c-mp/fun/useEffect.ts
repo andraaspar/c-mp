@@ -17,7 +17,7 @@ export function useEffect(
 	fn: () => (() => void) | void,
 	parentName = activeComps.at(-1)?.debugName ?? '-',
 ) {
-	name = `${parentName}→${name}`
+	name = `${parentName} → ${name}`
 	let proxyTracker: IEffectProxyTracker = { name, rerun: run, chain: [] }
 	let lastCleanup: (() => void) | void
 	let isScheduled = false
@@ -137,7 +137,7 @@ export function untrack<T>(
 	fn: () => T,
 	parentName = activeEffects.at(-1)?.name ?? '-',
 ) {
-	name = `${parentName}→${name}`
+	name = `${parentName} → ${name}`
 	try {
 		if (logLevel >= 2) {
 			console.debug(`🔰 🚧 Untrack: %c${name}`, HIGHLIGHT)

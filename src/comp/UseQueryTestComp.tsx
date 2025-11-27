@@ -23,7 +23,7 @@ export const UseQueryTestComp = defineComponent<{}>(
 				/>
 				<button
 					onclick={() => {
-						mutateState('toggle one [t59m07]', () => {
+						mutateState($.debugName, 'toggle one [t59m07]', () => {
 							state.showOne = !state.showOne
 						})
 					}}
@@ -32,7 +32,7 @@ export const UseQueryTestComp = defineComponent<{}>(
 				</button>
 				<button
 					onclick={() => {
-						mutateState('toggle two [t59m0w]', () => {
+						mutateState($.debugName, 'toggle two [t59m0w]', () => {
 							state.showTwo = !state.showTwo
 						})
 					}}
@@ -85,7 +85,7 @@ const UseQueryTestInnerComp = defineComponent<{
 			</div>
 			<button
 				onclick={() => {
-					mutateState('toggle enabled [t5ifxr]', () => {
+					mutateState($.debugName, 'toggle enabled [t5ifxr]', () => {
 						state.isEnabled = !state.isEnabled
 					})
 				}}

@@ -33,7 +33,9 @@ export const ErroringComponent = defineComponent<{}>(
 
 		useEffect('throwEffect', () => {
 			if (state.throw) {
-				state.count++
+				mutateState($.debugName, `increment count [t6dpye]`, () => {
+					state.count++
+				})
 			}
 		})
 
@@ -41,7 +43,7 @@ export const ErroringComponent = defineComponent<{}>(
 			<div>
 				<button
 					onclick={() => {
-						mutateState('toggle throw [t59me8]', () => {
+						mutateState($.debugName, 'toggle throw [t59me8]', () => {
 							state.throw = !state.throw
 						})
 					}}

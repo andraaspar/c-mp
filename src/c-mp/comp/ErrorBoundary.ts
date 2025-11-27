@@ -3,7 +3,7 @@ import { expandSlots } from '../fun/expandSlots'
 import { h } from '../fun/h'
 import { stripStack } from '../fun/stripStack'
 import { unchain } from '../fun/useEffect'
-import { TChildrenIn } from '../model/TChildrenIn'
+import { TChildrenIn } from '../model/TChildren'
 
 export interface IErrorBoundaryCatchProps {
 	debugName: string

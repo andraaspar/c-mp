@@ -1,7 +1,7 @@
 import { defineComponent } from '../fun/defineComponent'
 import { expandSlots } from '../fun/expandSlots'
 import { untrack, useEffect } from '../fun/useEffect'
-import { TSlotValue } from '../model/TChildrenIn'
+import { TSlotValue } from '../model/TChildren'
 
 /**
  * Displays JSX or a string. If the string is trusted, shows it unescaped.

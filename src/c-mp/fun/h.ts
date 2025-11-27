@@ -53,7 +53,7 @@ export function h(
 			if (k === 'class') {
 				if (typeof v === 'function') {
 					// class set to a function: set up an effect with the return value.
-					useEffect(`${activeComps.at(-1)?.debugName}→${name}→${k}`, () => {
+					useEffect(`${activeComps.at(-1)?.debugName} → ${name} → ${k}`, () => {
 						const it = v()
 						if (Array.isArray(it)) elem.className = it.filter(Boolean).join(' ')
 						else if (typeof it === 'string') elem.className = it
@@ -66,6 +66,18 @@ export function h(
 				} else {
 					elem.className = v as string
 				}
+			} else if (k === 'style') {
+				if (typeof v === 'function') {
+					// style set to a function: set up an effect with the return value.
+					useEffect(`${activeComps.at(-1)?.debugName} → ${name} → ${k}`, () => {
+						const it = v()
+						if (it && typeof it === 'object') {
+							Object.assign(elem.style, it)
+						}
+					})
+				} else if (v && typeof v === 'object') {
+					Object.assign(elem.style, v)
+				}
 			} else if (
 				k !== 'children' &&
 				k !== 'ref' &&
@@ -77,7 +89,7 @@ export function h(
 				// the value. Web components are excluded from this functionality to
 				// make it possible to pass functions to them (see the init function of
 				// c-mp).
-				useEffect(`${activeComps.at(-1)?.debugName}→${name}→${k}`, () => {
+				useEffect(`${activeComps.at(-1)?.debugName} → ${name} → ${k}`, () => {
 					;(elem as any)[k] = v()
 				})
 			} else if (k !== 'children') {
