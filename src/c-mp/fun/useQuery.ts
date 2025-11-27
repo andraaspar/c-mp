@@ -113,9 +113,6 @@ export class CacheEntry<T, P> {
 
 		// const oldStatus = this.status
 		const dataChanged = !Object.is(data, this.data)
-		if (status === Status.Loaded) {
-			console.log(`[t6casj] ${this.key} ${this.loadFn.name} loaded:`, data)
-		}
 		this.status = status
 		this.data = data
 		this.loadedAt = loadedAt
