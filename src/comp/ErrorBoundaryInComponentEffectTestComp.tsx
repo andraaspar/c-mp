@@ -29,7 +29,7 @@ export const ErroringComponent = defineComponent<{}>(
 	(props, $) => {
 		const state = useState('state', { throw: false })
 
-		useEffect('throwEffect', () => {
+		useEffect('throw changed [t6e0da]', () => {
 			if (state.throw) {
 				throw new Error(`Test!`)
 			}

@@ -2,7 +2,7 @@ import { useEffect } from './useEffect'
 import { maybeReloadQueriesOnVisible } from './useQuery'
 
 export function useReloadOnVisible() {
-	useEffect('reloadOnVisibleEffect', () => {
+	useEffect('set handler [t6e0br]', () => {
 		function onVisibilityChange() {
 			if (document.visibilityState === 'visible') {
 				const count = maybeReloadQueriesOnVisible()

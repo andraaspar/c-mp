@@ -1,5 +1,6 @@
 import { IComponentInit } from '../c-mp/fun/defineComponent'
 import { ClassTestComp } from '../comp/ClassTestComp'
+import { EffectSequenceTestComp } from '../comp/EffectSequenceTestComp'
 import { ErrorBoundaryImmediateTestComp } from '../comp/ErrorBoundaryImmediateTestComp'
 import { ErrorBoundaryInComponentEffectTestComp } from '../comp/ErrorBoundaryInComponentEffectTestComp'
 import { ErrorBoundaryInComponentInfiniteEffectTestComp } from '../comp/ErrorBoundaryInComponentInfiniteEffectTestComp'
@@ -26,6 +27,7 @@ const data = [
 	['#error-boundary-in-component-init', ErrorBoundaryInComponentInitTestComp, 'ErrorBoundaryInComponentInit'],
 	['#error-boundary-in-component-effect', ErrorBoundaryInComponentEffectTestComp, 'ErrorBoundaryInComponentEffect'],
 	['#error-boundary-in-component-infinite-effect', ErrorBoundaryInComponentInfiniteEffectTestComp, 'ErrorBoundaryInComponentInfiniteEffect'],
+	['#effect-sequence', EffectSequenceTestComp, 'EffectSequence'],
 ] as const
 
 export const pages = data.map(([, comp]) => comp)

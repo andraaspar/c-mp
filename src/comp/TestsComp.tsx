@@ -1,5 +1,6 @@
 import { ErrorBoundary } from '../c-mp/comp/ErrorBoundary'
 import { For } from '../c-mp/comp/For'
+import { Slot } from '../c-mp/comp/Slot'
 import { defineComponent } from '../c-mp/fun/defineComponent'
 import { h } from '../c-mp/fun/h'
 import { useEffect } from '../c-mp/fun/useEffect'
@@ -29,9 +30,9 @@ export const TestsComp = defineComponent<{}>('TestsComp', (props, $) => {
 		title: 'Pick a test',
 	})
 
-	useEffect('state from hash [t2u5ey]', () => {
+	useEffect('add hash change listener [t2u5ey]', () => {
 		function onHashChange() {
-			mutateState($.debugName, 'hashChange [t59lhi]', () => {
+			mutateState($.debugName, 'update comp [t59lhi]', () => {
 				const comp = hash__page.get(location.hash)
 				state.test = comp ? h(comp, {}) : <NoTestComp />
 				state.title = (comp && page__title.get(comp)) ?? 'Pick a test'
@@ -52,13 +53,13 @@ const LinksComp = defineComponent<{}>('LinksComp', (props, $) => {
 	$.append(
 		<div>
 			<For
-				debugName='pages'
+				debugName='links'
 				each={() => pages}
 				render={(it) => (
 					<>
 						{() => it.index > 0 && ' | '}
 						<a href={() => page__hash.get(it.item) ?? ''}>
-							{() => page__title.get(it.item)}
+							<Slot debugName='page' get={() => page__title.get(it.item)} />
 						</a>
 					</>
 				)}

@@ -30,15 +30,15 @@ export const Show = defineComponent(
 		// effect reruns.
 		let lastComp: Comp<any> | undefined
 
-		useEffect('showWhenEffect', () => {
+		useEffect('when changed [t6e02g]', () => {
 			const lastFlag = flag
 			flag = !!props.when?.()
-			if (logLevel >= 3) {
+			if (logLevel >= 2) {
 				console.debug(`💫 ${$.debugName} value:`, lastFlag, `✏️`, flag)
 			}
 			if (!flag === !lastFlag && lastFlag !== NEVER) return
 
-			untrack('untrackShowWhenEffect', () => {
+			untrack('update comp [t6e02l]', () => {
 				lastComp?.remove()
 				lastComp = undefined
 

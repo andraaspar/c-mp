@@ -80,12 +80,23 @@ export class Comp<P extends IProps>
 	wasConnected = false
 
 	/**
+	 * How deeply this component is nested within the component tree.
+	 */
+	level = 0
+
+	/**
 	 * Executes each time this c-mp web component is connected to the DOM.
 	 */
 	connectedCallback() {
+		this.parentComp =
+			activeComps.at(-1) ?? this.parentElement?.closest<Comp<any>>('c-mp')
+
+		this.level = (this.parentComp?.level ?? -1) + 1
+
 		this.debugName =
 			((this.init && debugNameByInit.get(this.init)) ?? 'c-mp') +
-			(this.props?.debugName ? `(${this.props.debugName})` : '')
+			(this.props?.debugName ? `(${this.props.debugName})` : '') +
+			`<${this.level}>`
 
 		if (this.wasConnected) {
 			throw new Error(
@@ -104,20 +115,19 @@ export class Comp<P extends IProps>
 		// The component enters the DOM. It initializes a context and calls the
 		// component function inside.
 
-		this.parentComp =
-			activeComps.at(-1) ?? this.parentElement?.closest<Comp<any>>('c-mp')
-
-		if (logLevel >= 2) {
+		if (logLevel >= 3) {
 			console.debug(
-				`🔰 ☀️ Component connected: %c${this.debugName}`,
+				`🔰 ☀️ Component connected: %c${this.debugName}%c inside %c${
+					this.parentComp?.debugName ?? `<${this.parentNode?.nodeName}>`
+				}%c`,
 				HIGHLIGHT,
-				this,
-				'inside',
-				this.parentComp ?? this.parentNode,
+				undefined,
+				HIGHLIGHT,
 			)
 		}
 
 		this.setAttribute('is', this.debugName)
+		// this.setAttribute('level', this.level + '')
 
 		activeComps.push(this)
 
@@ -127,13 +137,14 @@ export class Comp<P extends IProps>
 			this.handleError(e)
 		} finally {
 			activeComps.pop()
-			if (logLevel >= 2) {
+			if (logLevel >= 3) {
 				console.debug(
-					`🛑 ☀️ Component connected: %c${this.debugName}`,
+					`🛑 ☀️ Component connected: %c${this.debugName}%c inside %c${
+						this.parentComp?.debugName ?? `<${this.parentNode?.nodeName}>`
+					}%c`,
 					HIGHLIGHT,
-					this,
-					'inside',
-					this.parentComp ?? this.parentNode,
+					undefined,
+					HIGHLIGHT,
 				)
 			}
 		}
@@ -146,7 +157,7 @@ export class Comp<P extends IProps>
 		let handled = false
 		if (this.onError) {
 			try {
-				if (logLevel >= 2) {
+				if (logLevel >= 3) {
 					console.debug(`🔰 🎯 Handling error: %c${this.debugName}`, HIGHLIGHT)
 				}
 				this.onError(e)
@@ -154,28 +165,28 @@ export class Comp<P extends IProps>
 			} catch (e) {
 				console.error(e)
 			} finally {
-				if (logLevel >= 2) {
+				if (logLevel >= 3) {
 					console.debug(`🛑 🎯 Handling error: %c${this.debugName}`, HIGHLIGHT)
 				}
 			}
 		}
 		if (!handled) {
 			if (this.parentComp) {
-				if (logLevel >= 2) {
+				if (logLevel >= 3) {
 					console.debug(
 						`🔰 🔍 Looking for error handler: %c${this.debugName}`,
 						HIGHLIGHT,
 					)
 				}
 				this.parentComp.handleError(e)
-				if (logLevel >= 2) {
+				if (logLevel >= 3) {
 					console.debug(
 						`🛑 🔍 Looking for error handler: %c${this.debugName}`,
 						HIGHLIGHT,
 					)
 				}
 			} else {
-				if (logLevel >= 2) {
+				if (logLevel >= 3) {
 					console.debug(
 						`🔰 ⚠️ Failed to handle error: %c${this.debugName}`,
 						HIGHLIGHT,
@@ -183,7 +194,7 @@ export class Comp<P extends IProps>
 				}
 				console.error(e)
 				this.remove()
-				if (logLevel >= 2) {
+				if (logLevel >= 3) {
 					console.debug(
 						`🛑 ⚠️ Failed to handle error: %c${this.debugName}`,
 						HIGHLIGHT,
@@ -202,13 +213,14 @@ export class Comp<P extends IProps>
 
 		// The component is removed from the DOM, or is being moved around. It kills
 		// the context.
-		if (logLevel >= 2) {
+		if (logLevel >= 3) {
 			console.debug(
-				`🔰 🌑 Component disconnected: %c${this.debugName}`,
+				`🔰 🌑 Component disconnected: %c${this.debugName}%c from %c${
+					this.parentComp?.debugName ?? `<${this.parentNode?.nodeName}>`
+				}%c`,
 				HIGHLIGHT,
-				this,
-				'from',
-				this.parentComp ?? this.parentNode,
+				undefined,
+				HIGHLIGHT,
 			)
 		}
 
@@ -225,13 +237,10 @@ export class Comp<P extends IProps>
 		this.innerHTML = ''
 
 		this.wasConnected = false
-		if (logLevel >= 2) {
+		if (logLevel >= 3) {
 			console.debug(
 				`🛑 🌑 Component disconnected: %c${this.debugName}`,
 				HIGHLIGHT,
-				this,
-				'from',
-				this.parentComp ?? this.parentNode,
 			)
 		}
 	}

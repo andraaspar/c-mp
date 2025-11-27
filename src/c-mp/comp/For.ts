@@ -38,7 +38,7 @@ export const For = defineComponent(
 		// Store item data here to let items survive multiple effect runs.
 		const key__itemData = new Map<TKey, IForItemData<T>>()
 
-		useEffect('forEachEffect', () => {
+		useEffect('update items [t6e00f]', () => {
 			const items = props.each() ?? []
 
 			// This will hold keys for items that are no longer in the list.
@@ -52,22 +52,24 @@ export const For = defineComponent(
 				keys.push(key)
 				redundantKeys.delete(key)
 			}
-			if (logLevel >= 3) {
-				console.debug(`🧹 Redundant keys ${$.debugName}:`, redundantKeys)
-			}
-
-			// Remove items with redundant keys. Do this here before sorting items to
-			// avoid unnecessary move operations, as those trigger full component
-			// reinitialization.
-			untrack('untrackForEachEffectRedundant', () => {
-				for (const key of redundantKeys) {
-					const data = key__itemData.get(key)
-					if (data) {
-						data.elem.remove()
-					}
-					key__itemData.delete(key)
+			if (redundantKeys.size) {
+				if (logLevel >= 3) {
+					console.debug(`🧹 Redundant keys ${$.debugName}:`, redundantKeys)
 				}
-			})
+
+				// Remove items with redundant keys. Do this here before sorting items to
+				// avoid unnecessary move operations, as those trigger full component
+				// reinitialization.
+				untrack('redundant [t6e01i]', () => {
+					for (const key of redundantKeys) {
+						const data = key__itemData.get(key)
+						if (data) {
+							data.elem.remove()
+						}
+						key__itemData.delete(key)
+					}
+				})
+			}
 
 			if (items.length === 0) {
 				if (!emptyElem && props.empty) {
@@ -84,7 +86,7 @@ export const For = defineComponent(
 				}
 			}
 
-			untrack('untrackForEachEffectItems', () => {
+			untrack('update [t6e01d]', () => {
 				// Store last element for inserting next element.
 				let lastElem: Element | undefined
 				mutateState($.debugName, `update items [t5im53]`, () => {

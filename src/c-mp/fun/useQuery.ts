@@ -336,12 +336,12 @@ export function useQuery<T, P>(
 
 	// Declare effect to keep track of changes in dependencies.
 	useEffect(
-		'optionsEffect',
+		'options changed [t6e0aa]',
 		() => {
 			// Create the options in the effect to track dependencies.
 			const options = createOptions()
 
-			return untrack('untrackOptionsEffect', () => {
+			return untrack('apply [t6e0ai]', () => {
 				// The params as a string will be key to get the entry.
 				const paramsString = jsonStringify(options.params, { ordered: true })
 				// Look up the entry in the cache.
@@ -374,7 +374,7 @@ export function useQuery<T, P>(
 	)
 
 	useEffect(
-		'entryEffect',
+		'entry changed [t6e0as]',
 		() => {
 			const entry = innerState.entryRef
 			if (entry != null) {

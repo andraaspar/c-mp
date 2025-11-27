@@ -1,4 +1,3 @@
-import { activeComps } from './defineComponent'
 import { makeAdjustLayoutDropdown } from './makeAdjustLayoutDropdown'
 import { untrack, useEffect } from './useEffect'
 import { mutateState, useState } from './useState'
@@ -10,17 +9,16 @@ export function usePopover({
 	getMenuElem: () => HTMLElement | null | undefined
 	getButtonElem: () => HTMLButtonElement | null | undefined
 }) {
-	const debugName = `${activeComps.at(-1)?.debugName} → popover`
-	const popoverState = useState(`${debugName} → state`, { isOpen: false })
+	const popoverState = useState(`usePopover state`, { isOpen: false })
 	let justToggled = false
-	useEffect(`${debugName} → adjust`, () => {
+	useEffect(`changed open or elems [t6e05y]`, () => {
 		const menuElem = getMenuElem()
 		const buttonElem = getButtonElem()
 		// if (menuElem && buttonElem) {
 		// 	buttonElem.popoverTargetElement = menuElem
 		// }
 		if (popoverState.isOpen && menuElem && buttonElem) {
-			return untrack(debugName, () => {
+			return untrack('apply [t6e06x]', () => {
 				const adjust = makeAdjustLayoutDropdown()
 				let aborted = false
 				function run() {
@@ -35,13 +33,13 @@ export function usePopover({
 			})
 		}
 	})
-	useEffect(`${debugName} → onbeforetoggle`, () => {
+	useEffect(`onbeforetoggle [t6e075]`, () => {
 		const menuElem = getMenuElem()
 		if (!menuElem) return
 		menuElem.popover = 'auto'
 		function onBeforeToggle(e: Event) {
 			// console.debug(`[swx89a] usePopover.onBeforeToggle:`, (e as ToggleEvent).newState)
-			mutateState(debugName, `popover match event open state [t5im3s]`, () => {
+			mutateState('usePopover', `match event open state [t5im3s]`, () => {
 				popoverState.isOpen = (e as ToggleEvent).newState === 'open'
 			})
 			justToggled = true
@@ -54,7 +52,7 @@ export function usePopover({
 			menuElem.removeEventListener('beforetoggle', onBeforeToggle)
 		}
 	})
-	useEffect(`${debugName} → button → onclick`, () => {
+	useEffect(`button → onclick [t6e091]`, () => {
 		const buttonElem = getButtonElem()
 		if (buttonElem) {
 			buttonElem.addEventListener('click', toggle)

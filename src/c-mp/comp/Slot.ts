@@ -18,11 +18,11 @@ export const Slot = defineComponent<{
 	 */
 	isTrustedHtml?: boolean
 }>('Slot', (props, $) => {
-	useEffect('slotGetEffect', () => {
+	useEffect('value changed [t6e03o]', () => {
 		// Get the new value.
 		let value = props.get?.()
 
-		untrack('untrackSlotGetEffect', () => {
+		untrack('apply value [t6e03y]', () => {
 			// Remove the old content.
 			$.innerHTML = ''
 

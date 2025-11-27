@@ -31,7 +31,7 @@ export const ErroringComponent = defineComponent<{}>(
 	(props, $) => {
 		const state = useState('state', { throw: false, count: 0 })
 
-		useEffect('throwEffect', () => {
+		useEffect('throw changed [t6e0dm]', () => {
 			if (state.throw) {
 				mutateState($.debugName, `increment count [t6dpye]`, () => {
 					state.count++
