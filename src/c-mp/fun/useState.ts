@@ -9,7 +9,7 @@ const target__props__effects: WeakMap<
 	Map<string | symbol, Set<IEffectProxyTracker>>
 > = new WeakMap()
 
-let allowMutation = false
+let allowMutation = 0
 
 function runEffects(
 	name: string,
@@ -21,22 +21,22 @@ function runEffects(
 	if (!allowMutation) {
 		console.error(`👾 Unlabeled mutation!`)
 	}
+	if (logLevel >= 1) {
+		console.debug(
+			`${
+				action === 'SET' ? '✏️' : '🗑️'
+			} State ${action}: %c${name}.${prop.toString()}`,
+			HIGHLIGHT,
+			'=',
+			value,
+		)
+	}
 	let props__effects = target__props__effects.get(target)
 	if (!props__effects) return
 	let effects = props__effects.get(prop)
 	if (!effects) return
 	const effectsArr = Array.from(effects)
 	if (effectsArr.length) {
-		if (logLevel >= 1) {
-			console.debug(
-				`${
-					action === 'SET' ? '✏️' : '🗑️'
-				} State ${action}: %c${name}.${prop.toString()}`,
-				HIGHLIGHT,
-				'=',
-				value,
-			)
-		}
 		for (let i = 0; i < effectsArr.length; i++) {
 			const effect = effectsArr[i]!
 			if (effect.rerun) {
@@ -104,10 +104,10 @@ export async function mutateState(
 ) {
 	try {
 		console.log(logLevel >= 1 ? '🔰 👾' : '👾', parent, name)
-		allowMutation = true
+		allowMutation++
 		fn()
 	} finally {
-		allowMutation = false
+		allowMutation--
 	}
 	if (logLevel >= 1) {
 		await allEffectsDone()

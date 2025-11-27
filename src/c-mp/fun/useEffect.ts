@@ -106,7 +106,7 @@ export function useEffect(
 	function run() {
 		if (isKilled || isScheduled) return
 
-		const chain = getChain(name)
+		const chain = getEffectChain(name)
 
 		// The actual work is done at the end of the current animation frame,
 		// similar to a Promise. This allows multiple changes to accumulate and
@@ -146,23 +146,20 @@ export function useEffect(
 	}
 
 	const parentComponent = activeComps.at(-1)
-	if (!parentComponent) {
-		throw new Error(`[svhdq6] No active context for effect: ${name}`)
-	}
-	parentComponent.kills.push(kill)
-	const priority = parentComponent!.level
+	parentComponent?.kills.push(kill)
+	const priority = parentComponent?.level ?? -1
 
 	try {
 		run()
 	} catch (e) {
-		parentComponent.handleError(e)
+		parentComponent?.handleError(e)
 		throw e
 	}
 
 	return kill
 }
 
-function getChain(name: string) {
+export function getEffectChain(name: string) {
 	const caller = activeEffects.at(-1)
 	const chain = [...(caller?.chain ?? []), name]
 	if (chain.length > 500) {
@@ -182,7 +179,10 @@ export function untrack<T>(
 		// if (logLevel >= 3) {
 		// 	console.debug(`🔰 🚧 Untrack: %c${name}`, HIGHLIGHT)
 		// }
-		activeEffects.push({ name: `${name} (untrack)`, chain: getChain(name) })
+		activeEffects.push({
+			name: `${name} (untrack)`,
+			chain: getEffectChain(name),
+		})
 		return fn()
 	} finally {
 		activeEffects.pop()
