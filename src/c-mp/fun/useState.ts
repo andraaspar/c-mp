@@ -1,13 +1,22 @@
 import { HIGHLIGHT } from '../model/HIGHLIGHT'
 import { activeComps } from './defineComponent'
 import { logLevel } from './log'
-import { IProxifyCallbacks, proxify } from './proxify'
-import { activeEffects, allEffectsDone, IEffectProxyTracker } from './useEffect'
+import { type IProxifyCallbacks, proxify } from './proxify'
+import {
+	activeEffects,
+	allEffectsDone,
+	type IEffectProxyTracker,
+} from './useEffect'
 
 const target__props__effects: WeakMap<
 	object,
 	Map<string | symbol, Set<IEffectProxyTracker>>
 > = new WeakMap()
+
+let effectsCleanedThisMutation = new WeakMap<
+	Set<IEffectProxyTracker>,
+	boolean
+>()
 
 let allowMutation = 0
 
@@ -35,15 +44,12 @@ function runEffects(
 	if (!props__effects) return
 	let effects = props__effects.get(prop)
 	if (!effects) return
-	const effectsArr = Array.from(effects)
-	if (effectsArr.length) {
-		for (let i = 0; i < effectsArr.length; i++) {
-			const effect = effectsArr[i]!
-			if (effect.rerun) {
-				effect.rerun()
-			} else {
-				effects.delete(effect)
-			}
+	effectsCleanedThisMutation.set(effects, true)
+	for (const effect of Array.from(effects)) {
+		if (effect.rerun) {
+			effect.rerun()
+		} else {
+			effects.delete(effect)
 		}
 	}
 }
@@ -60,7 +66,16 @@ function trackEffect(name: string, target: object, prop: string | symbol) {
 		target__props__effects.set(target, props__effects)
 	}
 	let effects = props__effects.get(prop)
-	if (!effects) {
+	if (effects) {
+		if (!effectsCleanedThisMutation.get(effects)) {
+			for (const effect of Array.from(effects)) {
+				if (!effect.rerun) {
+					effects.delete(effect)
+				}
+			}
+			effectsCleanedThisMutation.set(effects, true)
+		}
+	} else {
 		effects = new Set()
 		props__effects.set(prop, effects)
 	}
@@ -102,6 +117,7 @@ export async function mutateState(
 	name: string,
 	fn: () => void,
 ) {
+	const start = performance.now()
 	try {
 		console.log(logLevel >= 1 ? '🔰 👾' : '👾', parent, name)
 		allowMutation++
@@ -111,6 +127,7 @@ export async function mutateState(
 	}
 	if (logLevel >= 1) {
 		await allEffectsDone()
-		console.debug(`🛑 👾`, parent, name)
+		effectsCleanedThisMutation = new WeakMap()
+		console.debug(`🛑 👾`, parent, name, performance.now() - start)
 	}
 }

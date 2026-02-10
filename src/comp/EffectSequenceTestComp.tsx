@@ -26,14 +26,16 @@ export const EffectSequenceTestComp = defineComponent<{}>(
 					State B:{' '}
 					<Show
 						debugName='stateB.value'
-						when={() => stateB.value}
-						then={() => (
-							<Slot
-								debugName='stateB.value!.count'
-								get={() => stateB.value!.count + ''}
-							/>
-						)}
-						else={() => '–'}
+						it={{
+							when: () => stateB.value,
+							then: () => (
+								<Slot
+									debugName='stateB.value!.count'
+									get={() => stateB.value!.count + ''}
+								/>
+							),
+						}}
+						else={() => <>–</>}
 					/>
 				</div>
 				<button

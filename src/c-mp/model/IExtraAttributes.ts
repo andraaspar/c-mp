@@ -1,5 +1,5 @@
-import { TChildrenIn } from './TChildren'
-import { TStyle } from './TStyle'
+import type { TChildren } from './TChildren'
+import type { TStyle } from './TStyle'
 
 /**
  * These attributes are in addition to / replacing native fields on HTML
@@ -35,5 +35,5 @@ export interface IExtraAttributes<T> {
 	/**
 	 * The children of the element.
 	 */
-	children?: TChildrenIn
+	children?: TChildren
 }

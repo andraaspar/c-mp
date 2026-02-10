@@ -1,3 +1,4 @@
+import { Slot } from '../c-mp/comp/Slot'
 import { defineComponent } from '../c-mp/fun/defineComponent'
 import { mutateState, useState } from '../c-mp/fun/useState'
 import './ClassTestComp.css'
@@ -14,7 +15,7 @@ export const ClassTestComp = defineComponent<{}>(
 				<div class={['sky bold', 'italic']}>Array SKY</div>
 
 				<div class={() => (state.isSky ? 'sky bold' : 'crimson bold')}>
-					Reactive string {() => (state.isSky ? 'sky' : 'crimson')}
+					Reactive string <Slot get={() => (state.isSky ? 'sky' : 'crimson')} />
 				</div>
 				<div
 					class={() => [
@@ -23,7 +24,7 @@ export const ClassTestComp = defineComponent<{}>(
 						!state.isSky && 'crimson',
 					]}
 				>
-					Reactive array {() => (state.isSky ? 'sky' : 'crimson')}
+					Reactive array <Slot get={() => (state.isSky ? 'sky' : 'crimson')} />
 				</div>
 
 				<button

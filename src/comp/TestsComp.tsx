@@ -14,11 +14,13 @@ export const TestsComp = defineComponent<{}>('TestsComp', (props, $) => {
 		<>
 			<LinksComp />
 			<hr />
-			<h1>{() => state.title}</h1>
+			<h1>
+				<Slot get={() => state.title} />
+			</h1>
 			<ErrorBoundary
 				debugName='t2ua2s'
 				catch={(it) => <div>{it.error}</div>}
-				try={() => [() => state.test]}
+				try={() => <Slot get={() => state.test} />}
 			/>
 			<hr />
 			<LinksComp />
@@ -57,7 +59,7 @@ const LinksComp = defineComponent<{}>('LinksComp', (props, $) => {
 				each={() => pages}
 				render={(it) => (
 					<>
-						{() => it.index > 0 && ' | '}
+						<Slot get={() => (it.index > 0 ? ' | ' : '')} />
 						<a href={() => page__hash.get(it.item) ?? ''}>
 							<Slot debugName='page' get={() => page__title.get(it.item)} />
 						</a>

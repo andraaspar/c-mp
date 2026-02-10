@@ -1,9 +1,9 @@
-import { IExtraAttributes } from '../model/IExtraAttributes'
-import { IProps } from '../model/IProps'
-import { TAttributes } from '../model/TAttributes'
-import { TChildren } from '../model/TChildren'
-import { Comp, IComponentInit, ICompProps } from './defineComponent'
-import { expandSlots } from './expandSlots'
+import { Fragment } from '../comp/Fragment'
+import type { IExtraAttributes } from '../model/IExtraAttributes'
+import type { IProps } from '../model/IProps'
+import type { TAttributes } from '../model/TAttributes'
+import type { TChild } from '../model/TChildren'
+import { Comp, type IComponentInit, type ICompProps } from './defineComponent'
 import { useEffect } from './useEffect'
 
 export function h<C extends IComponentInit<any>, P extends Parameters<C>[0]>(
@@ -22,27 +22,43 @@ export function h(
 	// isStaticChildren?: boolean,
 	// source?: ISource,
 	// self?: unknown,
-): HTMLElement {
+): HTMLElement | DocumentFragment {
 	// Standardize the shape of children: JSX can pass single elements. This
 	// transformation makes it easier to deal with children in components.
 	if (attrs.children != null) {
 		if (Array.isArray(attrs.children)) {
-			attrs.children = attrs.children.map(expandSlots)
+			attrs.children = attrs.children
 		} else {
-			attrs.children = [expandSlots(attrs.children)]
+			attrs.children = [attrs.children]
 		}
 	}
 
-	let elem: HTMLElement
 	if (typeof name === 'function') {
 		// This is a component.
-		elem = h('c-mp', {
-			init: name as IComponentInit<any>,
-			props: attrs,
-		} satisfies ICompProps)
+		if (name === Fragment) {
+			const elem = new DocumentFragment()
+			if (attrs.children) {
+				elem.append(...(attrs.children as TChild[]))
+			}
+			return elem
+		} else {
+			const elem = h('c-mp', {
+				init: name as IComponentInit<any>,
+				props: attrs,
+			} satisfies ICompProps)
+			// Pass the completed element to the ref function, if provided.
+			if (attrs.ref) {
+				try {
+					attrs.ref(elem)
+				} catch (e) {
+					console.error(e)
+				}
+			}
+			return elem
+		}
 	} else {
 		// This is an element.
-		elem = document.createElement(name)
+		const elem = document.createElement(name)
 
 		for (const [k, v] of Object.entries(attrs)) {
 			if (k === 'class') {
@@ -94,17 +110,18 @@ export function h(
 		}
 		// Handle children.
 		if (attrs.children) {
-			elem.append(...(attrs.children as TChildren))
+			elem.append(...(attrs.children as TChild[]))
 		}
-	}
-	// Pass the completed element to the ref function, if provided.
-	if (attrs.ref) {
-		try {
-			attrs.ref(elem)
-		} catch (e) {
-			console.error(e)
-		}
-	}
 
-	return elem
+		// Pass the completed element to the ref function, if provided.
+		if (attrs.ref) {
+			try {
+				attrs.ref(elem)
+			} catch (e) {
+				console.error(e)
+			}
+		}
+
+		return elem
+	}
 }

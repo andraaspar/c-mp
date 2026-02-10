@@ -1,7 +1,6 @@
 import { defineComponent } from '../fun/defineComponent'
-import { expandSlots } from '../fun/expandSlots'
 import { untrack, useEffect } from '../fun/useEffect'
-import { TSlotValue } from '../model/TChildren'
+import { type TSlotValue } from '../model/TChildren'
 
 /**
  * Displays JSX or a string. If the string is trusted, shows it unescaped.
@@ -32,10 +31,10 @@ export const Slot = defineComponent<{
 					$.innerHTML = value
 				} else if (Array.isArray(value)) {
 					// Display the new content array normally.
-					$.append(...value.map(expandSlots))
+					$.append(...value)
 				} else {
 					// Display the new single content normally.
-					$.append(expandSlots(value))
+					$.append(value)
 				}
 			}
 		})

@@ -1,3 +1,4 @@
+import { Slot } from '../c-mp/comp/Slot'
 import { defineComponent } from '../c-mp/fun/defineComponent'
 import { IUseQueryState, reloadQueries, useQuery } from '../c-mp/fun/useQuery'
 
@@ -53,16 +54,24 @@ const UseQueryDependentInnerComp = defineComponent<{
 	$.append(
 		<fieldset>
 			<legend>{props.debugName}</legend>
-			<div>Status: {() => props.query.status}</div>
-			<div>Data: {() => JSON.stringify(props.query.data)}</div>
-			<div>Error: {() => props.query.error}</div>
+			<div>
+				Status: <Slot get={() => props.query.status} />
+			</div>
+			<div>
+				Data: <Slot get={() => JSON.stringify(props.query.data)} />
+			</div>
+			<div>
+				Error: <Slot get={() => props.query.error} />
+			</div>
 			<div>
 				Loaded at:{' '}
-				{() =>
-					props.query.loadedAt == null
-						? ''
-						: new Date(props.query.loadedAt).toLocaleString('hu')
-				}
+				<Slot
+					get={() =>
+						props.query.loadedAt == null
+							? ''
+							: new Date(props.query.loadedAt).toLocaleString('hu')
+					}
+				/>
 			</div>
 		</fieldset>,
 	)

@@ -1,19 +1,21 @@
-import { defineComponent } from '../fun/defineComponent'
-import { expandSlots } from '../fun/expandSlots'
+import { arrayWrap } from '../fun/arrayWrap'
+import { Comp, defineComponent } from '../fun/defineComponent'
 import { h } from '../fun/h'
 import { stripStack } from '../fun/stripStack'
 import { unchain } from '../fun/useEffect'
-import { TChildrenIn } from '../model/TChildren'
+import { type IProps } from '../model/IProps'
+import { TChildren } from '../model/TChildren'
 
-export interface IErrorBoundaryCatchProps {
+export interface IErrorBoundaryCatchParams {
 	debugName: string
 	error: string
+	stack: string
 	reset: () => void
 }
 
 export const ErrorBoundary = defineComponent<{
-	try: () => TChildrenIn
-	catch: (p: IErrorBoundaryCatchProps) => TChildrenIn
+	try: () => TChildren
+	catch: (p: IErrorBoundaryCatchParams) => TChildren
 }>('ErrorBoundary', (props, $) => {
 	// Add error handler to c-mp.
 	$.onError = (e) => {
@@ -21,7 +23,7 @@ export const ErrorBoundary = defineComponent<{
 		stripStack(e)
 		console.error(`${$.debugName}:`, e)
 		unchain('unChainErrorRender', () => {
-			render(e + '')
+			render(e + '', e instanceof Error ? e.stack : e + '')
 		})
 	}
 
@@ -30,9 +32,9 @@ export const ErrorBoundary = defineComponent<{
 		render()
 	}
 
-	let innerComponent: Element | undefined
+	let innerComponent: Comp<any> | undefined
 
-	function render(error?: string) {
+	function render(error?: string, stack?: string) {
 		innerComponent?.remove()
 
 		// Create ad-hoc component for try & catch callbacks.
@@ -43,6 +45,7 @@ export const ErrorBoundary = defineComponent<{
 					props.catch({
 						debugName: $.debugName,
 						error,
+						stack: stack ?? error,
 						reset,
 					}),
 			})
@@ -62,25 +65,26 @@ export const ErrorBoundary = defineComponent<{
 	return $
 })
 
-const ErrorBoundaryTry = defineComponent<{
-	fn: () => TChildrenIn
-}>('ErrorBoundaryTry', (props, $) => {
-	const el = props.fn()
-	if (Array.isArray(el)) {
-		$.append(...el.map(expandSlots))
-	} else {
-		$.append(expandSlots(el))
-	}
-	return $
-})
-const ErrorBoundaryCatch = defineComponent<{
-	fn: () => TChildrenIn
-}>('ErrorBoundaryCatch', (props, $) => {
-	const el = props.fn()
-	if (Array.isArray(el)) {
-		$.append(...el.map(expandSlots))
-	} else {
-		$.append(expandSlots(el))
-	}
-	return $
-})
+export interface IErrorBoundaryTryProps extends IProps {
+	fn: () => TChildren
+}
+
+const ErrorBoundaryTry = defineComponent<IErrorBoundaryTryProps>(
+	'ErrorBoundaryTry',
+	(props, $) => {
+		$.append(...arrayWrap(props.fn()))
+		return $
+	},
+)
+
+export interface IErrorBoundaryCatchProps extends IProps {
+	fn: () => TChildren
+}
+
+const ErrorBoundaryCatch = defineComponent<IErrorBoundaryCatchProps>(
+	'ErrorBoundaryCatch',
+	(props, $) => {
+		$.append(...arrayWrap(props.fn()))
+		return $
+	},
+)

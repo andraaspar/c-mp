@@ -1,4 +1,5 @@
 import { Show } from '../c-mp/comp/Show'
+import { Slot } from '../c-mp/comp/Slot'
 import { defineComponent } from '../c-mp/fun/defineComponent'
 import { seconds } from '../c-mp/fun/seconds'
 import { reloadQueries, useQuery } from '../c-mp/fun/useQuery'
@@ -12,14 +13,18 @@ export const UseQueryTestComp = defineComponent<{}>(
 		$.append(
 			<>
 				<Show
-					when={() => state.showOne}
-					then={() => <UseQueryTestInnerComp debugName='One' />}
+					it={{
+						when: () => state.showOne,
+						then: () => <UseQueryTestInnerComp debugName='One' />,
+					}}
 				/>
 				<Show
-					when={() => state.showTwo}
-					then={() => (
-						<UseQueryTestInnerComp debugName='Two' enabledByDefault />
-					)}
+					it={{
+						when: () => state.showTwo,
+						then: () => (
+							<UseQueryTestInnerComp debugName='Two' enabledByDefault />
+						),
+					}}
 				/>
 				<button
 					onclick={() => {
@@ -28,7 +33,7 @@ export const UseQueryTestComp = defineComponent<{}>(
 						})
 					}}
 				>
-					{() => (state.showOne ? 'Hide' : 'Show')} One
+					<Slot get={() => (state.showOne ? 'Hide' : 'Show')} /> One
 				</button>
 				<button
 					onclick={() => {
@@ -37,7 +42,7 @@ export const UseQueryTestComp = defineComponent<{}>(
 						})
 					}}
 				>
-					{() => (state.showTwo ? 'Hide' : 'Show')} Two
+					<Slot get={() => (state.showTwo ? 'Hide' : 'Show')} /> Two
 				</button>
 				<button
 					onclick={() => {
@@ -72,16 +77,24 @@ const UseQueryTestInnerComp = defineComponent<{
 	$.append(
 		<fieldset>
 			<legend>{props.debugName}</legend>
-			<div>Status: {() => query.status}</div>
-			<div>Data: {() => JSON.stringify(query.data)}</div>
-			<div>Error: {() => query.error}</div>
+			<div>
+				Status: <Slot get={() => query.status} />
+			</div>
+			<div>
+				Data: <Slot get={() => JSON.stringify(query.data)} />
+			</div>
+			<div>
+				Error: <Slot get={() => query.error} />
+			</div>
 			<div>
 				Loaded at:{' '}
-				{() =>
-					query.loadedAt == null
-						? ''
-						: new Date(query.loadedAt).toLocaleString('hu')
-				}
+				<Slot
+					get={() =>
+						query.loadedAt == null
+							? ''
+							: new Date(query.loadedAt).toLocaleString('hu')
+					}
+				/>
 			</div>
 			<button
 				onclick={() => {
@@ -90,7 +103,7 @@ const UseQueryTestInnerComp = defineComponent<{
 					})
 				}}
 			>
-				{() => (state.isEnabled ? 'Disable' : 'Enable')}
+				<Slot get={() => (state.isEnabled ? 'Disable' : 'Enable')} />
 			</button>
 		</fieldset>,
 	)

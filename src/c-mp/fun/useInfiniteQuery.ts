@@ -1,9 +1,9 @@
 import { unproxify } from './proxify'
 import {
 	getEntries,
-	IUseQueryOptions,
+	type IUseQueryOptions,
 	Status,
-	TLoadFn,
+	type TLoadFn,
 	useQuery,
 } from './useQuery'
 

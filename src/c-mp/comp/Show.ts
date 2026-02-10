@@ -1,42 +1,48 @@
+import { arrayWrap } from '../fun/arrayWrap'
 import { Comp, defineComponent } from '../fun/defineComponent'
-import { expandSlots } from '../fun/expandSlots'
 import { h } from '../fun/h'
 import { logLevel } from '../fun/log'
 import { untrack, useEffect } from '../fun/useEffect'
-import { IProps } from '../model/IProps'
-import { TChildrenIn } from '../model/TChildren'
+import { type IProps } from '../model/IProps'
+import { TChildren } from '../model/TChildren'
 
 export type TThenValue<T> = Exclude<T, false | null | undefined | 0 | '' | 0n>
 export type TThenValueGetter<T> = () => TThenValue<T>
 
-// This is a placeholder value, so the comparison with the last value fails the
-// first time.
-const NEVER = Symbol('NEVER')
+export interface IShowCondition<T> {
+	when: () => T
+	then: (get: TThenValueGetter<T>) => TChildren
+}
 
-export interface IShowProps<T> extends IProps {
-	when: (() => T) | undefined
-	then?: (get: TThenValueGetter<T>) => TChildrenIn
-	else?: () => TChildrenIn
+export interface IShowProps extends IProps {
+	it: IShowCondition<any>[] | IShowCondition<any>
+	else?: () => TChildren
 }
 
 export const Show = defineComponent(
 	'Show',
-	<T>(props: IShowProps<T>, $: Comp<IShowProps<T>>) => {
-		// Remember the last flag to be able to decide if we need to recreate the
+	<T>(props: IShowProps, $: Comp<IShowProps>) => {
+		// Remember the last index to be able to decide if we need to recreate the
 		// content.
-		let flag: boolean | typeof NEVER = NEVER
+		let conditionIndex = NaN
 
 		// Last inner component is stored here, because it can survive multiple
 		// effect reruns.
 		let lastComp: Comp<any> | undefined
 
-		useEffect('when changed [t6e02g]', () => {
-			const lastFlag = flag
-			flag = !!props.when?.()
+		useEffect('condition changed [t6e02g]', () => {
+			const lastConditionIndex = conditionIndex
+			const conditions = Array.isArray(props.it) ? props.it : [props.it]
+			conditionIndex = conditions.findIndex((it) => it.when())
 			if (logLevel >= 2) {
-				console.debug(`💫 ${$.debugName} value:`, lastFlag, `✏️`, flag)
+				console.debug(
+					`💫 ${$.debugName} condition:`,
+					lastConditionIndex,
+					`✏️`,
+					conditionIndex,
+				)
 			}
-			if (!flag === !lastFlag && lastFlag !== NEVER) return
+			if (conditionIndex === lastConditionIndex) return
 
 			untrack('update comp [t6e02l]', () => {
 				lastComp?.remove()
@@ -44,12 +50,11 @@ export const Show = defineComponent(
 
 				// Create a component, so inner effects will be cleaned up properly, when
 				// the shown branch changes.
-				if (!!flag) {
-					if (props.then) {
-						lastComp = h(ShowThen<T>, {
-							fn: () => props.then!(props.when as TThenValueGetter<T>),
-						})
-					}
+				const condition = conditions[conditionIndex]
+				if (condition) {
+					lastComp = h(ShowThen<T>, {
+						fn: () => condition.then(condition.when),
+					})
 				} else {
 					if (props.else) {
 						lastComp = h(ShowElse, {
@@ -65,24 +70,20 @@ export const Show = defineComponent(
 	},
 )
 
-interface IShowInnerProps<T> extends IProps {
-	fn: () => TChildrenIn | undefined
+interface IShowInnerProps extends IProps {
+	fn: () => TChildren
 }
 const ShowThen = defineComponent(
 	'ShowThen',
-	<T>(props: IShowInnerProps<T>, $: Comp<IShowInnerProps<T>>) => {
-		const el = props.fn()
-		if (Array.isArray(el)) $.append(...el.map(expandSlots))
-		else if (el) $.append(expandSlots(el))
+	<T>(props: IShowInnerProps, $: Comp<IShowInnerProps>) => {
+		$.append(...arrayWrap(props.fn()))
 		return $
 	},
 )
 const ShowElse = defineComponent(
 	'ShowElse',
-	<T>(props: IShowInnerProps<T>, $: Comp<IShowInnerProps<T>>) => {
-		const el = props.fn()
-		if (Array.isArray(el)) $.append(...el.map(expandSlots))
-		else if (el) $.append(expandSlots(el))
+	<T>(props: IShowInnerProps, $: Comp<IShowInnerProps>) => {
+		$.append(...arrayWrap(props.fn()))
 		return $
 	},
 )

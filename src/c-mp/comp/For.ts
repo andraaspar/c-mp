@@ -1,11 +1,11 @@
+import { arrayWrap } from '../fun/arrayWrap'
 import { Comp, defineComponent } from '../fun/defineComponent'
-import { expandSlots } from '../fun/expandSlots'
 import { h } from '../fun/h'
 import { logLevel } from '../fun/log'
 import { untrack, useEffect } from '../fun/useEffect'
 import { mutateState, useState } from '../fun/useState'
-import { IProps } from '../model/IProps'
-import { TChildrenIn } from '../model/TChildren'
+import { type IProps } from '../model/IProps'
+import { TChildren } from '../model/TChildren'
 
 export type TKey = string | number | bigint | symbol | boolean
 
@@ -21,8 +21,8 @@ export interface IForProps<T> extends IProps {
 	debugName: string
 	each: () => T[] | undefined
 	getKey?: (item: T, index: number) => TKey
-	render: (state: IForState<T>) => TChildrenIn
-	empty?: () => TChildrenIn
+	render: (state: IForState<T>) => TChildren
+	empty?: () => TChildren
 }
 
 export interface IForItemData<T> {
@@ -145,30 +145,25 @@ export const For = defineComponent(
 
 export interface IForItemProps<T> extends IProps {
 	state: IForState<T>
-	render: (state: IForState<T>) => TChildrenIn
+	render: (state: IForState<T>) => TChildren
 }
 
 const ForItem = defineComponent(
 	'ForItem',
 	<T>({ state, render }: IForItemProps<T>, $: Comp<IForItemProps<T>>) => {
-		const el = render(state)
-		if (Array.isArray(el)) {
-			$.append(...el.map(expandSlots))
-		} else {
-			$.append(expandSlots(el))
-		}
+		$.append(...arrayWrap(render(state)))
 		return $
 	},
 )
 
-const ForEmpty = defineComponent<{
-	empty: () => TChildrenIn
-}>('ForEmpty', (props, $) => {
-	const el = props.empty()
-	if (Array.isArray(el)) {
-		$.append(...el.map(expandSlots))
-	} else {
-		$.append(expandSlots(el))
-	}
-	return $
-})
+export interface IForEmptyProps<T> extends IProps {
+	empty: () => TChildren
+}
+
+const ForEmpty = defineComponent(
+	'ForEmpty',
+	<T>(props: IForEmptyProps<T>, $: Comp<IForEmptyProps<T>>) => {
+		$.append(...arrayWrap(props.empty()))
+		return $
+	},
+)

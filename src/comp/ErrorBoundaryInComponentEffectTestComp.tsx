@@ -1,4 +1,5 @@
 import { ErrorBoundary } from '../c-mp/comp/ErrorBoundary'
+import { Slot } from '../c-mp/comp/Slot'
 import { defineComponent } from '../c-mp/fun/defineComponent'
 import { useEffect } from '../c-mp/fun/useEffect'
 import { mutateState, useState } from '../c-mp/fun/useState'
@@ -12,7 +13,7 @@ export const ErrorBoundaryInComponentEffectTestComp = defineComponent<{}>(
 				try={() => <ErroringComponent />}
 				catch={(p) => (
 					<div>
-						Error caught: {() => p.error}
+						Error caught: <Slot get={() => p.error} />
 						<br />
 						<button onclick={p.reset}>Reset</button>
 					</div>

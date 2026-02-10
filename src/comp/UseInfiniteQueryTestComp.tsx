@@ -1,4 +1,5 @@
 import { For } from '../c-mp/comp/For'
+import { Slot } from '../c-mp/comp/Slot'
 import { defineComponent } from '../c-mp/fun/defineComponent'
 import { useInfiniteQuery } from '../c-mp/fun/useInfiniteQuery'
 import { reloadQueries } from '../c-mp/fun/useQuery'
@@ -28,24 +29,36 @@ export const UseInfiniteQueryTestComp = defineComponent<{}>(
 					render={(page) => (
 						<fieldset>
 							<legend>Page #{page.index + ''}</legend>
-							<div>Status: {() => content.status}</div>
-							<div>Error: {() => content.error}</div>
-							<div>Data: {() => JSON.stringify(page.item.value)}</div>
+							<div>
+								Status: <Slot get={() => content.status} />
+							</div>
+							<div>
+								Error: <Slot get={() => content.error} />
+							</div>
+							<div>
+								Data: <Slot get={() => JSON.stringify(page.item.value)} />
+							</div>
 							<div>
 								Loaded at:{' '}
-								{() =>
-									content.loadedAt == null
-										? ''
-										: new Date(content.loadedAt).toLocaleString('hu')
-								}
+								<Slot
+									get={() =>
+										content.loadedAt == null
+											? ''
+											: new Date(content.loadedAt).toLocaleString('hu')
+									}
+								/>
 							</div>
 						</fieldset>
 					)}
 					empty={() => (
 						<fieldset>
 							<legend>Page #0</legend>
-							<div>Status: {() => content.status}</div>
-							<div>Error: {() => content.error}</div>
+							<div>
+								Status: <Slot get={() => content.status} />
+							</div>
+							<div>
+								Error: <Slot get={() => content.error} />
+							</div>
 							<div>Data: </div>
 							<div>Loaded at: </div>
 						</fieldset>

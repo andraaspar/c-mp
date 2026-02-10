@@ -1,12 +1,4 @@
-import { defineComponent } from '../fun/defineComponent'
-import { TChildren, TChildrenIn } from '../model/TChildren'
-
 /**
- * Shows children.
+ * Placeholder for DocumentFragment.
  */
-export const Fragment = defineComponent<{
-	children: TChildrenIn
-}>('Fragment', (props, $) => {
-	$.append(...(props.children as TChildren))
-	return $
-})
+export const Fragment = (props: any, $: any) => $

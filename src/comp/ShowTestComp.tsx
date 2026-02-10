@@ -1,4 +1,5 @@
 import { Show } from '../c-mp/comp/Show'
+import { Slot } from '../c-mp/comp/Slot'
 import { defineComponent } from '../c-mp/fun/defineComponent'
 import { mutateState, useState } from '../c-mp/fun/useState'
 
@@ -10,10 +11,14 @@ export const ShowTestComp = defineComponent<{}>('ShowTestComp', (props, $) => {
 	$.append(
 		<>
 			<Show
-				when={() => state.flag1}
-				then={(getFlag1) => (
-					<div>TRUE ({() => JSON.stringify(getFlag1())})</div>
-				)}
+				it={{
+					when: () => state.flag1,
+					then: (getFlag1) => (
+						<div>
+							TRUE (<Slot get={() => JSON.stringify(getFlag1())} />)
+						</div>
+					),
+				}}
 				else={() => <div>FALSE</div>}
 			/>
 			<button

@@ -1,5 +1,5 @@
 import { HIGHLIGHT } from '../model/HIGHLIGHT'
-import { IProps } from '../model/IProps'
+import type { IProps } from '../model/IProps'
 import { logLevel } from './log'
 
 /**
@@ -95,8 +95,7 @@ export class Comp<P extends IProps>
 
 		this.debugName =
 			((this.init && debugNameByInit.get(this.init)) ?? 'c-mp') +
-			(this.props?.debugName ? `(${this.props.debugName})` : '') +
-			`<${this.level}>`
+			(this.props?.debugName ? `(${this.props.debugName})` : '')
 
 		if (this.wasConnected) {
 			throw new Error(

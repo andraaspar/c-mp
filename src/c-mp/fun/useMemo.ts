@@ -1,5 +1,9 @@
 import { activeComps } from './defineComponent'
-import { activeEffects, getEffectChain, IEffectProxyTracker } from './useEffect'
+import {
+	activeEffects,
+	getEffectChain,
+	type IEffectProxyTracker,
+} from './useEffect'
 import { mutateState, useState } from './useState'
 
 export interface IMemoState<T> {

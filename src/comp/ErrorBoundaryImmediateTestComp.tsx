@@ -1,4 +1,5 @@
 import { ErrorBoundary } from '../c-mp/comp/ErrorBoundary'
+import { Slot } from '../c-mp/comp/Slot'
 import { defineComponent } from '../c-mp/fun/defineComponent'
 
 export const ErrorBoundaryImmediateTestComp = defineComponent<{}>(
@@ -11,7 +12,11 @@ export const ErrorBoundaryImmediateTestComp = defineComponent<{}>(
 					try={() => {
 						throw new Error(`Test!`)
 					}}
-					catch={(p) => <>Immediate error caught: {() => p.error}</>}
+					catch={(p) => (
+						<>
+							Immediate error caught: <Slot get={() => p.error} />
+						</>
+					)}
 				/>
 			</div>,
 		)
