@@ -106,55 +106,55 @@ export function useEffect(
 	function run() {
 		if (isKilled || isScheduled) return
 
-		const chain = getEffectChain(name)
+		try {
+			const chain = getEffectChain(name)
 
-		// The actual work is done at the end of the current animation frame,
-		// similar to a Promise. This allows multiple changes to accumulate and
-		// trigger a run only once.
-		isScheduled = true
+			// The actual work is done at the end of the current animation frame,
+			// similar to a Promise. This allows multiple changes to accumulate and
+			// trigger a run only once.
+			isScheduled = true
 
-		queueEffect({
-			priority,
-			name,
-			run: () => {
-				if (!isKilled) {
-					isScheduled = false
-					runLastCleanup()
-					try {
-						proxyTracker = { name, rerun: run, chain }
-						if (logLevel >= 2) {
-							console.debug(`🔰 ▶️ Effect run: %c${name}`, HIGHLIGHT)
-						}
-						// console.debug(`Effect run:`, name)
-						activeEffects.push(proxyTracker)
-						// Async functions may not have run just yet... they may add
-						// additional effect runs, not tracked by scheduledEffects. Could be
-						// solved by awaiting here.
-						lastCleanup = fn()
-					} catch (e) {
-						parentComponent!.handleError(e)
-					} finally {
-						activeEffects.pop()
-						// console.debug(`Effect run end:`, name)
-						if (logLevel >= 2) {
-							console.debug(`🛑 ▶️ Effect run: %c${name}`, HIGHLIGHT)
+			queueEffect({
+				priority,
+				name,
+				run: () => {
+					if (!isKilled) {
+						isScheduled = false
+						runLastCleanup()
+						try {
+							proxyTracker = { name, rerun: run, chain }
+							if (logLevel >= 2) {
+								console.debug(`🔰 ▶️ Effect run: %c${name}`, HIGHLIGHT)
+							}
+							// console.debug(`Effect run:`, name)
+							activeEffects.push(proxyTracker)
+							// Async functions may not have run just yet... they may add
+							// additional effect runs, not tracked by scheduledEffects. Could be
+							// solved by awaiting here.
+							lastCleanup = fn()
+						} catch (e) {
+							parentComponent!.handleError(e)
+						} finally {
+							activeEffects.pop()
+							// console.debug(`Effect run end:`, name)
+							if (logLevel >= 2) {
+								console.debug(`🛑 ▶️ Effect run: %c${name}`, HIGHLIGHT)
+							}
 						}
 					}
-				}
-			},
-		})
+				},
+			})
+		} catch (e) {
+			parentComponent?.handleError(e)
+			throw e
+		}
 	}
 
 	const parentComponent = activeComps.at(-1)
 	parentComponent?.kills.push(kill)
 	const priority = parentComponent?.level ?? -1
 
-	try {
-		run()
-	} catch (e) {
-		parentComponent?.handleError(e)
-		throw e
-	}
+	run()
 
 	return kill
 }
