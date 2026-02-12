@@ -259,6 +259,20 @@ export class Comp<P extends IProps>
 			)
 		}
 	}
+
+	/**
+	 * Used to make a getter available to all descendant components.
+	 */
+	setContext<T>(key: symbol, value: T) {
+		;(this as any)[key] = value
+	}
+
+	/**
+	 * Retrieve a getter from self or ancestor components.
+	 */
+	getContext(key: symbol): unknown {
+		return key in this ? (this as any)[key] : this.parentComp?.getContext(key)
+	}
 }
 
 // Let Comp be the custom element for <c-mp>.
