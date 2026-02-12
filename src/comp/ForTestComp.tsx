@@ -13,11 +13,11 @@ export const ForTestComp = defineComponent<{}>('ForTestComp', (props, $) => {
 				debugName='arr'
 				each={() => state.arr}
 				getKey={(it) => it}
-				render={({ getItem, getIndex, getLength }) => (
+				render={({ get, getIndex, getLength }) => (
 					<div>
 						<label>
 							<input type='checkbox' />
-							<Slot get={getItem} />
+							<Slot get={get} />
 						</label>{' '}
 						<button
 							disabled={() => getIndex() === 0}

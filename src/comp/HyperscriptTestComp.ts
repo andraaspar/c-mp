@@ -14,13 +14,13 @@ export const HyperscriptTestComp = defineComponent<{}>(
 				debugName: 'arr',
 				each: () => state.arr,
 				getKey: (it) => it,
-				render: ({ getItem, getIndex, getLength }) =>
+				render: ({ get, getIndex, getLength }) =>
 					h('div', {
 						children: [
 							h('label', {
 								children: [
 									h('input', { type: 'checkbox' }),
-									$Slot({ get: getItem }),
+									$Slot({ get: get }),
 								],
 							}),
 							' ',

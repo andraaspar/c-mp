@@ -55,11 +55,11 @@ const LinksComp = defineComponent<{}>('LinksComp', (props, $) => {
 			<For
 				debugName='links'
 				each={() => pages}
-				render={({ getItem, getIndex }) => (
+				render={({ get, getIndex }) => (
 					<>
 						<Slot get={() => (getIndex() > 0 ? ' | ' : '')} />
-						<a href={() => page__hash.get(getItem()) ?? ''}>
-							<Slot debugName='page' get={() => page__title.get(getItem())} />
+						<a href={() => page__hash.get(get()) ?? ''}>
+							<Slot debugName='page' get={() => page__title.get(get())} />
 						</a>
 					</>
 				)}

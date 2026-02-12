@@ -17,7 +17,7 @@ export interface IForState<T> {
 	index: number
 }
 export interface IForItemProps<T> extends IProps {
-	getItem: () => T
+	get: () => T
 	getIndex: () => number
 	getLength: () => number
 }
@@ -128,7 +128,7 @@ export const For = defineComponent(
 							// Create a component for each item to allow effects to work.
 							const elem = h(props.render, {
 								debugName: props.debugName,
-								getItem: () => itemState.item,
+								get: () => itemState.item,
 								getIndex: () => itemState.index,
 								getLength: getLength,
 							})

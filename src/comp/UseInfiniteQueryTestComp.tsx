@@ -26,7 +26,7 @@ export const UseInfiniteQueryTestComp = defineComponent<{}>(
 				<For
 					debugName='content pages'
 					each={() => content.data?.pages}
-					render={({ getItem, getIndex }) => (
+					render={({ get, getIndex }) => (
 						<fieldset>
 							<legend>Page #{getIndex() + ''}</legend>
 							<div>
@@ -36,7 +36,7 @@ export const UseInfiniteQueryTestComp = defineComponent<{}>(
 								Error: <Slot get={() => content.error} />
 							</div>
 							<div>
-								Data: <Slot get={() => JSON.stringify(getItem().value)} />
+								Data: <Slot get={() => JSON.stringify(get().value)} />
 							</div>
 							<div>
 								Loaded at:{' '}
