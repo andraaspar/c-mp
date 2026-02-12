@@ -2,7 +2,7 @@ import { arrayWrap } from '../fun/arrayWrap'
 import { Comp, defineComponent } from '../fun/defineComponent'
 import { h } from '../fun/h'
 import { stripStack } from '../fun/stripStack'
-import { unchain, useEffect } from '../fun/useEffect'
+import { unchain, untrack, useEffect } from '../fun/useEffect'
 import { mutateState, useState } from '../fun/useState'
 import { type IProps } from '../model/IProps'
 import { TChildren } from '../model/TChildren'
@@ -48,27 +48,30 @@ export const ErrorBoundary = defineComponent<{
 	useEffect('error effect [taca9z]', () => {
 		innerComponent?.remove()
 
-		// Create ad-hoc component for try & catch callbacks.
-		if (state.error) {
-			const { error, stack } = state
-			innerComponent = h(ErrorBoundaryCatch, {
-				debugName: $.debugName,
-				fn: () =>
-					props.catch({
-						debugName: $.debugName,
-						error,
-						stack: stack ?? error,
-						reset,
-					}),
-			})
-		} else {
-			innerComponent = h(ErrorBoundaryTry, {
-				debugName: props.debugName,
-				fn: props.try,
-			})
-		}
+		const { error, stack } = state
 
-		$.append(innerComponent)
+		untrack('error effect [taca9z]', () => {
+			// Create ad-hoc component for try & catch callbacks.
+			if (error) {
+				innerComponent = h(ErrorBoundaryCatch, {
+					debugName: $.debugName,
+					fn: () =>
+						props.catch({
+							debugName: $.debugName,
+							error,
+							stack: stack ?? error,
+							reset,
+						}),
+				})
+			} else {
+				innerComponent = h(ErrorBoundaryTry, {
+					debugName: props.debugName,
+					fn: props.try,
+				})
+			}
+
+			$.append(innerComponent)
+		})
 	})
 
 	return $
