@@ -13,13 +13,13 @@ const debugNameByInit = new Map<IComponentInit<any>, string>()
  * itself is not used in any way.
  */
 export interface IComponentInit<P extends IProps = IProps> {
-	(props: P, $: Comp<P>): JSX.Element
+	(props: P, $: Comp): JSX.Element
 }
 
 /**
  * The list of c-mp web components currently executing their init function.
  */
-export const activeComps: Comp<any>[] = []
+export const activeComps: Comp[] = []
 
 export interface ICompProps<P extends IProps = IProps> {
 	/**
@@ -38,21 +38,18 @@ export interface ICompProps<P extends IProps = IProps> {
 /**
  * The c-mp web component.
  */
-export class Comp<P extends IProps>
-	extends HTMLElement
-	implements ICompProps<P>
-{
+export class Comp extends HTMLElement {
 	/**
 	 * The props passed to this instance at init time. This field is set directly
 	 * on the instance after it is constructed.
 	 */
-	props: P | undefined
+	props: IProps | undefined
 
 	/**
 	 * The init function used to set up this component. This field is set directly
 	 * on the instance after it is constructed.
 	 */
-	init: IComponentInit<P> | undefined
+	init: IComponentInit<any> | undefined
 
 	/**
 	 * The name of this component as used in debug messages.
@@ -64,7 +61,7 @@ export class Comp<P extends IProps>
 	 * [tack9d] on moveBefore, but I see no reason at this time to make this a
 	 * state.
 	 */
-	parentComp: Comp<any> | null | undefined
+	parentComp: Comp | null | undefined
 
 	/**
 	 * Callbacks to call when this c-mp instance is disconnected.
@@ -93,7 +90,7 @@ export class Comp<P extends IProps>
 	 */
 	connectedCallback() {
 		this.parentComp =
-			activeComps.at(-1) ?? this.parentElement?.closest<Comp<any>>('c-mp')
+			activeComps.at(-1) ?? this.parentElement?.closest<Comp>('c-mp')
 
 		this.level = (this.parentComp?.level ?? -1) + 1
 
@@ -159,7 +156,7 @@ export class Comp<P extends IProps>
 	 */
 	connectedMoveCallback() {
 		// [tack9d]
-		this.parentComp = this.parentElement?.closest<Comp<any>>('c-mp')
+		this.parentComp = this.parentElement?.closest<Comp>('c-mp')
 
 		// [tack9d]
 		this.level = (this.parentComp?.level ?? -1) + 1

@@ -22,7 +22,7 @@ declare const mustUse$when: unique symbol
 export interface IShowCondition {
 	/** @internal */ readonly [mustUse$when]: true
 	readonly when: () => unknown
-	readonly then: IComponentInit<IShowThenProps<any>>
+	readonly then: IComponentInit<{}>
 }
 
 /**
@@ -42,54 +42,51 @@ export interface IShowProps extends IProps {
 	else?: IComponentInit
 }
 
-export const Show = defineComponent(
-	'Show',
-	(props: IShowProps, $: Comp<IShowProps>) => {
-		// Remember the last index to be able to decide if we need to recreate the
-		// content.
-		let conditionIndex = NaN
+export const Show = defineComponent('Show', (props: IShowProps, $: Comp) => {
+	// Remember the last index to be able to decide if we need to recreate the
+	// content.
+	let conditionIndex = NaN
 
-		// Last inner component is stored here, because it can survive multiple
-		// effect reruns.
-		let lastComp: Comp<any> | undefined
+	// Last inner component is stored here, because it can survive multiple
+	// effect reruns.
+	let lastComp: Comp | undefined
 
-		useEffect('condition changed [t6e02g]', () => {
-			const lastConditionIndex = conditionIndex
-			const conditions = Array.isArray(props.it) ? props.it : [props.it]
-			conditionIndex = conditions.findIndex((it) => it.when())
-			if (logLevel >= 2) {
-				console.debug(
-					`💫 ${$.debugName} condition:`,
-					lastConditionIndex,
-					`✏️`,
-					conditionIndex,
-				)
-			}
-			if (conditionIndex === lastConditionIndex) return
+	useEffect('condition changed [t6e02g]', () => {
+		const lastConditionIndex = conditionIndex
+		const conditions = Array.isArray(props.it) ? props.it : [props.it]
+		conditionIndex = conditions.findIndex((it) => it.when())
+		if (logLevel >= 2) {
+			console.debug(
+				`💫 ${$.debugName} condition:`,
+				lastConditionIndex,
+				`✏️`,
+				conditionIndex,
+			)
+		}
+		if (conditionIndex === lastConditionIndex) return
 
-			untrack('update comp [t6e02l]', () => {
-				lastComp?.remove()
-				lastComp = undefined
+		untrack('update comp [t6e02l]', () => {
+			lastComp?.remove()
+			lastComp = undefined
 
-				// Create a component, so inner effects will be cleaned up properly, when
-				// the shown branch changes.
-				const condition = conditions[conditionIndex]
-				if (condition) {
-					lastComp = h(condition.then, {
+			// Create a component, so inner effects will be cleaned up properly, when
+			// the shown branch changes.
+			const condition = conditions[conditionIndex]
+			if (condition) {
+				lastComp = h(condition.then, {
+					debugName: $.debugName,
+					get: condition.when,
+				})
+			} else {
+				if (props.else) {
+					lastComp = h(props.else, {
 						debugName: $.debugName,
-						get: condition.when,
 					})
-				} else {
-					if (props.else) {
-						lastComp = h(props.else, {
-							debugName: $.debugName,
-						})
-					}
 				}
-				if (lastComp) $.append(lastComp)
-			})
+			}
+			if (lastComp) $.append(lastComp)
 		})
+	})
 
-		return EMPTY_FRAGMENT
-	},
-)
+	return EMPTY_FRAGMENT
+})

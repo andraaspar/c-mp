@@ -48,7 +48,7 @@ export const ErrorBoundary = defineComponent<IErrorBoundaryProps>(
 			state.stack = undefined
 		}
 
-		let innerComponent: Comp<any> | undefined
+		let innerComponent: Comp | undefined
 
 		// Render try content.
 		useEffect('error effect [taca9z]', () => {

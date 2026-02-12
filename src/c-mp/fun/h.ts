@@ -14,7 +14,7 @@ export function h(
 export function h<C extends IComponentInit<any>, P extends Parameters<C>[0]>(
 	name: C,
 	attrs: P,
-): Comp<P>
+): Comp
 export function h<
 	N extends keyof HTMLElementTagNameMap,
 	E extends HTMLElementTagNameMap[N],
