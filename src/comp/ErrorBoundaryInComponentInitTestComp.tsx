@@ -8,7 +8,7 @@ export const ErrorBoundaryInComponentInitTestComp = defineComponent<{}>(
 		return (
 			<ErrorBoundary
 				debugName='InComponentInit'
-				try={() => <ErroringComponent />}
+				try={ErroringComponent}
 				catch={(p) => (
 					<div>
 						Error caught: <Slot get={() => p.error} />

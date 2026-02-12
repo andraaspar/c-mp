@@ -10,7 +10,7 @@ export const ErrorBoundaryInComponentEffectTestComp = defineComponent<{}>(
 		return (
 			<ErrorBoundary
 				debugName='InComponentEffect'
-				try={() => <ErroringComponent />}
+				try={ErroringComponent}
 				catch={(p) => (
 					<div>
 						Error caught: <Slot get={() => p.error} />

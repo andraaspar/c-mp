@@ -1,4 +1,4 @@
-import { Comp, defineComponent } from '../fun/defineComponent'
+import { Comp, defineComponent, IComponentInit } from '../fun/defineComponent'
 import { h } from '../fun/h'
 import { logLevel } from '../fun/log'
 import { untrack, useEffect } from '../fun/useEffect'
@@ -12,20 +12,22 @@ export interface IForState<T> {
 	item: T
 	index: number
 }
-export interface IForElemProps<T> {
-	state: IForState<T>
+export interface IForItemProps<T> extends IProps {
+	getItem: () => T
+	getIndex: () => number
+	getLength: () => number
 }
 
 export interface IForProps<T> extends IProps {
 	debugName: string
 	each: () => T[] | undefined
 	getKey?: (item: T, index: number) => TKey
-	render: (state: IForState<T>) => JSX.Element
-	empty?: () => JSX.Element
+	render: IComponentInit<IForItemProps<T>>
+	empty?: IComponentInit<IProps>
 }
 
 export interface IForItemData<T> {
-	elem: Element
+	elem: Comp<any>
 	state: IForState<T>
 }
 
@@ -36,6 +38,14 @@ export const For = defineComponent(
 
 		// Store item data here to let items survive multiple effect runs.
 		const key__itemData = new Map<TKey, IForItemData<T>>()
+
+		// Store length and its getter, so all items can get it.
+		const state = useState('state', {
+			length: 0,
+		})
+		function getLength() {
+			return state.length
+		}
 
 		useEffect('update items [t6e00f]', () => {
 			const items = props.each() ?? []
@@ -72,9 +82,8 @@ export const For = defineComponent(
 
 			if (items.length === 0) {
 				if (!emptyElem && props.empty) {
-					emptyElem = h(ForEmpty, {
+					emptyElem = h(props.empty, {
 						debugName: props.debugName,
-						empty: props.empty,
 					})
 					$.append(emptyElem)
 				}
@@ -84,6 +93,10 @@ export const For = defineComponent(
 					emptyElem = undefined
 				}
 			}
+
+			mutateState($.debugName, 'set length [tacjxi]', () => {
+				state.length = items.length
+			})
 
 			untrack('update [t6e01d]', () => {
 				// Store last element for inserting next element.
@@ -100,7 +113,7 @@ export const For = defineComponent(
 							itemData.state.item = item
 						} else {
 							// Initialize new item.
-							const state = useState<IForState<T>>(
+							const itemState = useState<IForState<T>>(
 								`${$.debugName} → itemState`,
 								{
 									index,
@@ -108,29 +121,40 @@ export const For = defineComponent(
 								},
 							)
 
-							// Create a context for each item to allow effects to work. This will
-							// run outside the For context, so it must be disposed of manually.
-							// Hence, we store the kill function.
-							const elem = h(ForItem<T>, {
+							// Create a component for each item to allow effects to work.
+							const elem = h(props.render, {
 								debugName: props.debugName,
-								state,
-								render: props.render,
+								getItem: () => itemState.item,
+								getIndex: () => itemState.index,
+								getLength: getLength,
 							})
-							itemData = { elem, state }
+							itemData = { elem, state: itemState }
 							key__itemData.set(key, itemData)
 						}
 
-						// Move element to its correct position in the DOM. Moving a component
-						// will trigger disconnect & connect, so avoid doing this if possible.
+						// Move element to its correct position in the DOM. Moving a
+						// component will trigger disconnect & connect, so avoid doing this
+						// – using moveBefore if possible.
 						if (lastElem) {
 							if (lastElem.nextElementSibling !== itemData.elem) {
-								lastElem.after(itemData.elem)
+								if (($ as any).moveBefore && itemData.elem.isConnected) {
+									;($ as any).moveBefore(
+										itemData.elem,
+										lastElem.nextElementSibling,
+									)
+								} else {
+									lastElem.after(itemData.elem)
+								}
 							}
 						} else {
 							if (
 								itemData.elem.parentElement?.firstElementChild !== itemData.elem
 							) {
-								$.prepend(itemData.elem)
+								if (($ as any).moveBefore && itemData.elem.isConnected) {
+									;($ as any).moveBefore(itemData.elem, $.firstElementChild)
+								} else {
+									$.prepend(itemData.elem)
+								}
 							}
 						}
 						lastElem = itemData.elem
@@ -140,28 +164,5 @@ export const For = defineComponent(
 		})
 
 		return EMPTY_FRAGMENT
-	},
-)
-
-export interface IForItemProps<T> extends IProps {
-	state: IForState<T>
-	render: (state: IForState<T>) => JSX.Element
-}
-
-const ForItem = defineComponent(
-	'ForItem',
-	<T>({ state, render }: IForItemProps<T>, $: Comp<IForItemProps<T>>) => {
-		return render(state)
-	},
-)
-
-export interface IForEmptyProps<T> extends IProps {
-	empty: () => JSX.Element
-}
-
-const ForEmpty = defineComponent(
-	'ForEmpty',
-	<T>(props: IForEmptyProps<T>, $: Comp<IForEmptyProps<T>>) => {
-		return props.empty()
 	},
 )

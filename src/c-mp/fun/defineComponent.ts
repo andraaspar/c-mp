@@ -60,7 +60,9 @@ export class Comp<P extends IProps>
 	debugName = 'c-mp'
 
 	/**
-	 * The parent c-mp instance this belongs to.
+	 * The parent c-mp instance this belongs to. This may theoretically change
+	 * [tack9d] on moveBefore, but I see no reason at this time to make this a
+	 * state.
 	 */
 	parentComp: Comp<any> | null | undefined
 
@@ -80,7 +82,9 @@ export class Comp<P extends IProps>
 	wasConnected = false
 
 	/**
-	 * How deeply this component is nested within the component tree.
+	 * How deeply this component is nested within the component tree. This may
+	 * theoretically change [tack9d] on moveBefore, but I see no reason at this
+	 * time to make this a state.
 	 */
 	level = 0
 
@@ -147,6 +151,18 @@ export class Comp<P extends IProps>
 				)
 			}
 		}
+	}
+
+	/**
+	 * When this is defined, it will execute on moveBefore, rather than
+	 * disconnectedCallback & connectedCallback, preserving state.
+	 */
+	connectedMoveCallback() {
+		// [tack9d]
+		this.parentComp = this.parentElement?.closest<Comp<any>>('c-mp')
+
+		// [tack9d]
+		this.level = (this.parentComp?.level ?? -1) + 1
 	}
 
 	/**

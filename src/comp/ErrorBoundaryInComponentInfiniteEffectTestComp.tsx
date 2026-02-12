@@ -11,7 +11,7 @@ export const ErrorBoundaryInComponentInfiniteEffectTestComp =
 			return (
 				<ErrorBoundary
 					debugName='InComponentInfiniteEffect'
-					try={() => <ErroringComponent />}
+					try={ErroringComponent}
 					catch={(p) => (
 						<div>
 							Error caught: <Slot debugName='errorName' get={() => p.error} />

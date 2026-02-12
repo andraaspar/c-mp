@@ -1,0 +1,27 @@
+import { ErrorBoundary, IErrorBoundaryProps } from '../comp/ErrorBoundary'
+import { For, IForProps } from '../comp/For'
+import { Fragment } from '../comp/Fragment'
+import { IShowProps, Show } from '../comp/Show'
+import { ISlotProps, Slot } from '../comp/Slot'
+import { TChild } from '../model/TChildren'
+import { h } from './h'
+
+export function $Fragment(...children: TChild[]) {
+	return h(Fragment, { children })
+}
+
+export function $For<T>(props: IForProps<T>) {
+	return h(For<T>, props)
+}
+
+export function $Slot(props: ISlotProps) {
+	return h(Slot, props)
+}
+
+export function $Show(props: IShowProps) {
+	return h(Show, props)
+}
+
+export function $ErrorBoundary(props: IErrorBoundaryProps) {
+	return h(ErrorBoundary, props)
+}

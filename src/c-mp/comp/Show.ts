@@ -1,4 +1,4 @@
-import { Comp, defineComponent } from '../fun/defineComponent'
+import { Comp, defineComponent, IComponentInit } from '../fun/defineComponent'
 import { h } from '../fun/h'
 import { logLevel } from '../fun/log'
 import { untrack, useEffect } from '../fun/useEffect'
@@ -6,21 +6,24 @@ import { EMPTY_FRAGMENT } from '../model/EMPTY_FRAGMENT'
 import { type IProps } from '../model/IProps'
 
 export type TThenValue<T> = Exclude<T, false | null | undefined | 0 | '' | 0n>
-export type TThenValueGetter<T> = () => TThenValue<T>
+
+export interface IShowThenProps<T> extends IProps {
+	get: () => TThenValue<T>
+}
 
 export interface IShowCondition<T> {
 	when: () => T
-	then: (get: TThenValueGetter<T>) => JSX.Element
+	then: IComponentInit<IShowThenProps<T>>
 }
 
 export interface IShowProps extends IProps {
 	it: IShowCondition<any>[] | IShowCondition<any>
-	else?: () => JSX.Element
+	else?: IComponentInit
 }
 
 export const Show = defineComponent(
 	'Show',
-	<T>(props: IShowProps, $: Comp<IShowProps>) => {
+	(props: IShowProps, $: Comp<IShowProps>) => {
 		// Remember the last index to be able to decide if we need to recreate the
 		// content.
 		let conditionIndex = NaN
@@ -51,13 +54,14 @@ export const Show = defineComponent(
 				// the shown branch changes.
 				const condition = conditions[conditionIndex]
 				if (condition) {
-					lastComp = h(ShowThen<T>, {
-						fn: () => condition.then(condition.when),
+					lastComp = h(condition.then, {
+						debugName: $.debugName,
+						get: condition.when,
 					})
 				} else {
 					if (props.else) {
-						lastComp = h(ShowElse, {
-							fn: props.else,
+						lastComp = h(props.else, {
+							debugName: $.debugName,
 						})
 					}
 				}
@@ -66,21 +70,5 @@ export const Show = defineComponent(
 		})
 
 		return EMPTY_FRAGMENT
-	},
-)
-
-interface IShowInnerProps extends IProps {
-	fn: () => JSX.Element
-}
-const ShowThen = defineComponent(
-	'ShowThen',
-	<T>(props: IShowInnerProps, $: Comp<IShowInnerProps>) => {
-		return props.fn()
-	},
-)
-const ShowElse = defineComponent(
-	'ShowElse',
-	<T>(props: IShowInnerProps, $: Comp<IShowInnerProps>) => {
-		return props.fn()
 	},
 )

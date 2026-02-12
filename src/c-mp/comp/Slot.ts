@@ -3,10 +3,7 @@ import { untrack, useEffect } from '../fun/useEffect'
 import { EMPTY_FRAGMENT } from '../model/EMPTY_FRAGMENT'
 import { type TSlotValue } from '../model/TChildren'
 
-/**
- * Displays JSX or a string. If the string is trusted, shows it unescaped.
- */
-export const Slot = defineComponent<{
+export interface ISlotProps {
 	/**
 	 * Get the value to display.
 	 */
@@ -17,7 +14,12 @@ export const Slot = defineComponent<{
 	 * rendered without escaping.
 	 */
 	isTrustedHtml?: boolean
-}>('Slot', (props, $) => {
+}
+
+/**
+ * Displays JSX or a string. If the string is trusted, shows it unescaped.
+ */
+export const Slot = defineComponent<ISlotProps>('Slot', (props, $) => {
 	useEffect('value changed [t6e03o]', () => {
 		// Get the new value.
 		let value = props.get?.()

@@ -13,7 +13,7 @@ export const ShowTestComp = defineComponent<{}>('ShowTestComp', (props, $) => {
 			<Show
 				it={{
 					when: () => state.flag1,
-					then: (getFlag1) => (
+					then: ({ get: getFlag1 }) => (
 						<div>
 							TRUE (<Slot get={() => JSON.stringify(getFlag1())} />)
 						</div>

@@ -5,22 +5,46 @@ import { defineComponent } from '../c-mp/fun/defineComponent'
 import { mutateState, useState } from '../c-mp/fun/useState'
 
 export const ForTestComp = defineComponent<{}>('ForTestComp', (props, $) => {
-	const state = useState('state', { arr: ['foo', 'bar', 'baz', 'quux'] })
+	const state = useState('state', { arr: [] as string[] })
 
 	return (
 		<>
 			<For
 				debugName='arr'
 				each={() => state.arr}
-				render={(it) => (
+				getKey={(it) => it}
+				render={({ getItem, getIndex, getLength }) => (
 					<div>
-						<span>
-							<Slot get={() => it.item} />
-						</span>{' '}
+						<label>
+							<input type='checkbox' />
+							<Slot get={getItem} />
+						</label>{' '}
+						<button
+							disabled={() => getIndex() === 0}
+							onclick={() => {
+								mutateState($.debugName, 'move item up [tacirg]', () => {
+									const it = state.arr.splice(getIndex(), 1)[0]
+									if (it != null) state.arr.splice(getIndex() - 1, 0, it)
+								})
+							}}
+						>
+							↑
+						</button>{' '}
+						<button
+							disabled={() => getIndex() === getLength() - 1}
+							onclick={() => {
+								mutateState($.debugName, 'move item down [tacjlt]', () => {
+									const it = state.arr.splice(getIndex(), 1)[0]
+									if (it != null) state.arr.splice(getIndex() + 1, 0, it)
+								})
+							}}
+						>
+							↓
+						</button>{' '}
 						<button
 							onclick={() => {
 								mutateState($.debugName, 'remove item [t59lu9]', () => {
-									state.arr.splice(it.index, 1)
+									state.arr.splice(getIndex(), 1)
 								})
 							}}
 						>
@@ -28,6 +52,7 @@ export const ForTestComp = defineComponent<{}>('ForTestComp', (props, $) => {
 						</button>
 					</div>
 				)}
+				empty={() => <div>– No items. –</div>}
 			/>
 			<button
 				onclick={() => {
