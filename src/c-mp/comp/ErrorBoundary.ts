@@ -2,7 +2,8 @@ import { arrayWrap } from '../fun/arrayWrap'
 import { Comp, defineComponent } from '../fun/defineComponent'
 import { h } from '../fun/h'
 import { stripStack } from '../fun/stripStack'
-import { unchain } from '../fun/useEffect'
+import { unchain, useEffect } from '../fun/useEffect'
+import { mutateState, useState } from '../fun/useState'
 import { type IProps } from '../model/IProps'
 import { TChildren } from '../model/TChildren'
 
@@ -17,28 +18,39 @@ export const ErrorBoundary = defineComponent<{
 	try: () => TChildren
 	catch: (p: IErrorBoundaryCatchParams) => TChildren
 }>('ErrorBoundary', (props, $) => {
+	const state = useState('state', {
+		error: undefined as string | undefined,
+		stack: undefined as string | undefined,
+	})
+
 	// Add error handler to c-mp.
 	$.onError = (e) => {
 		// Remove c-mp parts from stack trace.
 		stripStack(e)
 		console.error(`${$.debugName}:`, e)
 		unchain('unChainErrorRender', () => {
-			render(e + '', e instanceof Error ? e.stack : e + '')
+			mutateState($.debugName, 'set error [taca6g]', () => {
+				state.error = e + ''
+				state.stack = e instanceof Error ? e.stack : e + ''
+			})
 		})
 	}
 
 	function reset() {
 		// Render no error.
-		render()
+		state.error = undefined
+		state.stack = undefined
 	}
 
 	let innerComponent: Comp<any> | undefined
 
-	function render(error?: string, stack?: string) {
+	// Render try content.
+	useEffect('error effect [taca9z]', () => {
 		innerComponent?.remove()
 
 		// Create ad-hoc component for try & catch callbacks.
-		if (error) {
+		if (state.error) {
+			const { error, stack } = state
 			innerComponent = h(ErrorBoundaryCatch, {
 				debugName: $.debugName,
 				fn: () =>
@@ -57,10 +69,7 @@ export const ErrorBoundary = defineComponent<{
 		}
 
 		$.append(innerComponent)
-	}
-
-	// Render try content.
-	render()
+	})
 
 	return $
 })
