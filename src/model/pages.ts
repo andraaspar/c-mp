@@ -1,4 +1,4 @@
-import { IComponentInit } from '../c-mp/fun/defineComponent'
+import type { IComponentInit } from '../c-mp/fun/defineComponent'
 import { ClassTestComp } from '../comp/ClassTestComp'
 import { EffectSequenceTestComp } from '../comp/EffectSequenceTestComp'
 import { ErrorBoundaryImmediateTestComp } from '../comp/ErrorBoundaryImmediateTestComp'

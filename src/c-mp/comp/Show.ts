@@ -1,4 +1,8 @@
-import { Comp, defineComponent, IComponentInit } from '../fun/defineComponent'
+import {
+	Comp,
+	defineComponent,
+	type IComponentInit,
+} from '../fun/defineComponent'
 import { h } from '../fun/h'
 import { logLevel } from '../fun/log'
 import { untrack, useEffect } from '../fun/useEffect'
@@ -11,13 +15,30 @@ export interface IShowThenProps<T> extends IProps {
 	get: () => TThenValue<T>
 }
 
-export interface IShowCondition<T> {
-	when: () => T
-	then: IComponentInit<IShowThenProps<T>>
+/** Used to brand IShowCondition to prevent creating without $when. */
+declare const mustUse$when: unique symbol
+
+/** A single condition and component. Must be created using $when. */
+export interface IShowCondition {
+	/** @internal */ readonly [mustUse$when]: true
+	readonly when: () => unknown
+	readonly then: IComponentInit<IShowThenProps<any>>
+}
+
+/**
+ * Creates a condition in a type-safe manner. This is required because otherwise
+ * TypeScript cannot infer T for a single IShowCondition instance, so then
+ * receives any in place of T.
+ */
+export function $when<T>(
+	when: () => T,
+	then: IComponentInit<IShowThenProps<T>>,
+): IShowCondition {
+	return { when, then } as IShowCondition
 }
 
 export interface IShowProps extends IProps {
-	it: IShowCondition<any>[] | IShowCondition<any>
+	it: IShowCondition[] | IShowCondition
 	else?: IComponentInit
 }
 

@@ -5,7 +5,7 @@ import { defineComponent } from '../c-mp/fun/defineComponent'
 import { h } from '../c-mp/fun/h'
 import { useEffect } from '../c-mp/fun/useEffect'
 import { mutateState, useState } from '../c-mp/fun/useState'
-import { TSlotValue } from '../c-mp/model/TChildren'
+import type { TSlotValue } from '../c-mp/model/TChildren'
 import { hash__page, page__hash, page__title, pages } from '../model/pages'
 import { NoTestComp } from './NoTestComp'
 

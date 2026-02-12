@@ -1,4 +1,8 @@
-import { Comp, defineComponent, IComponentInit } from '../fun/defineComponent'
+import {
+	Comp,
+	defineComponent,
+	type IComponentInit,
+} from '../fun/defineComponent'
 import { h } from '../fun/h'
 import { stripStack } from '../fun/stripStack'
 import { unchain, untrack, useEffect } from '../fun/useEffect'

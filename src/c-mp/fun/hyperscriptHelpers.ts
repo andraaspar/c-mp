@@ -1,9 +1,9 @@
-import { ErrorBoundary, IErrorBoundaryProps } from '../comp/ErrorBoundary'
-import { For, IForProps } from '../comp/For'
+import { ErrorBoundary, type IErrorBoundaryProps } from '../comp/ErrorBoundary'
+import { For, type IForProps } from '../comp/For'
 import { Fragment } from '../comp/Fragment'
-import { IShowProps, Show } from '../comp/Show'
-import { ISlotProps, Slot } from '../comp/Slot'
-import { TChild } from '../model/TChildren'
+import { type IShowProps, Show } from '../comp/Show'
+import { type ISlotProps, Slot } from '../comp/Slot'
+import type { TChild } from '../model/TChildren'
 import { h } from './h'
 
 export function $Fragment(...children: TChild[]) {

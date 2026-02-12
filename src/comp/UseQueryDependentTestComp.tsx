@@ -1,6 +1,10 @@
 import { Slot } from '../c-mp/comp/Slot'
 import { defineComponent } from '../c-mp/fun/defineComponent'
-import { IUseQueryState, reloadQueries, useQuery } from '../c-mp/fun/useQuery'
+import {
+	type IUseQueryState,
+	reloadQueries,
+	useQuery,
+} from '../c-mp/fun/useQuery'
 
 export const UseQueryDependentTestComp = defineComponent<{}>(
 	'UseQueryDependentTestComp',

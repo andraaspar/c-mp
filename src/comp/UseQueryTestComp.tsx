@@ -1,4 +1,4 @@
-import { Show } from '../c-mp/comp/Show'
+import { $when, Show } from '../c-mp/comp/Show'
 import { Slot } from '../c-mp/comp/Slot'
 import { defineComponent } from '../c-mp/fun/defineComponent'
 import { seconds } from '../c-mp/fun/seconds'
@@ -13,18 +13,20 @@ export const UseQueryTestComp = defineComponent<{}>(
 		return (
 			<>
 				<Show
-					it={{
-						when: () => state.showOne,
-						then: () => <UseQueryTestInnerComp debugName='One' />,
-					}}
+					it={$when(
+						() => state.showOne,
+						() => (
+							<UseQueryTestInnerComp debugName='One' />
+						),
+					)}
 				/>
 				<Show
-					it={{
-						when: () => state.showTwo,
-						then: () => (
+					it={$when(
+						() => state.showTwo,
+						() => (
 							<UseQueryTestInnerComp debugName='Two' enabledByDefault />
 						),
-					}}
+					)}
 				/>
 				<button
 					onclick={() => {

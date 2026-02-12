@@ -1,4 +1,4 @@
-import { Show } from '../c-mp/comp/Show'
+import { $when, Show } from '../c-mp/comp/Show'
 import { Slot } from '../c-mp/comp/Slot'
 import { defineComponent } from '../c-mp/fun/defineComponent'
 import { useEffect } from '../c-mp/fun/useEffect'
@@ -26,15 +26,12 @@ export const EffectSequenceTestComp = defineComponent<{}>(
 					State B:{' '}
 					<Show
 						debugName='stateB.value'
-						it={{
-							when: () => stateB.value,
-							then: () => (
-								<Slot
-									debugName='stateB.value!.count'
-									get={() => stateB.value!.count + ''}
-								/>
+						it={$when(
+							() => stateB.value,
+							({ get }) => (
+								<Slot debugName='get().count' get={() => get().count + ''} />
 							),
-						}}
+						)}
 						else={() => <>–</>}
 					/>
 				</div>

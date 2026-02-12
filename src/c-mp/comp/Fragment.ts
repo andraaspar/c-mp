@@ -1,5 +1,5 @@
 import { EMPTY_FRAGMENT } from '../model/EMPTY_FRAGMENT'
-import { TChildren } from '../model/TChildren'
+import type { TChildren } from '../model/TChildren'
 
 /**
  * Placeholder. The real implementation is in h(), because it is entirely

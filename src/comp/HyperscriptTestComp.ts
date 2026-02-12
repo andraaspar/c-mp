@@ -1,3 +1,4 @@
+import { $when } from '../c-mp/comp/Show'
 import { defineComponent } from '../c-mp/fun/defineComponent'
 import { h } from '../c-mp/fun/h'
 import { $For, $Fragment, $Show, $Slot } from '../c-mp/fun/hyperscriptHelpers'
@@ -71,14 +72,14 @@ export const HyperscriptTestComp = defineComponent<{}>(
 			}),
 			' ',
 			$Show({
-				it: {
-					when: () => state.arr.length % 2 === 0,
-					then: () =>
+				it: $when(
+					() => state.arr.length % 2 === 0,
+					() =>
 						$Fragment(
 							'The number of elements is: ',
 							h('b', { children: 'EVEN' }),
 						),
-				},
+				),
 			}),
 		)
 	},

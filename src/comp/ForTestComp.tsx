@@ -1,5 +1,5 @@
 import { For } from '../c-mp/comp/For'
-import { Show } from '../c-mp/comp/Show'
+import { $when, Show } from '../c-mp/comp/Show'
 import { Slot } from '../c-mp/comp/Slot'
 import { defineComponent } from '../c-mp/fun/defineComponent'
 import { mutateState, useState } from '../c-mp/fun/useState'
@@ -64,14 +64,14 @@ export const ForTestComp = defineComponent<{}>('ForTestComp', (props, $) => {
 				<b>Add</b> <i>item</i>
 			</button>{' '}
 			<Show
-				it={{
-					when: () => state.arr.length % 2 === 0,
-					then: () => (
+				it={$when(
+					() => state.arr.length % 2 === 0,
+					() => (
 						<>
 							The number of elements is: <b>EVEN</b>
 						</>
 					),
-				}}
+				)}
 			/>
 		</>
 	)
