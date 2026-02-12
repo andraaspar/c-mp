@@ -10,23 +10,6 @@ import { hash__page, page__hash, page__title, pages } from '../model/pages'
 import { NoTestComp } from './NoTestComp'
 
 export const TestsComp = defineComponent<{}>('TestsComp', (props, $) => {
-	$.append(
-		<>
-			<LinksComp />
-			<hr />
-			<h1>
-				<Slot get={() => state.title} />
-			</h1>
-			<ErrorBoundary
-				debugName='t2ua2s'
-				catch={(it) => <div>{it.error}</div>}
-				try={() => <Slot get={() => state.test} />}
-			/>
-			<hr />
-			<LinksComp />
-		</>,
-	)
-
 	const state = useState('state', {
 		test: undefined as TSlotValue,
 		title: 'Pick a test',
@@ -48,11 +31,26 @@ export const TestsComp = defineComponent<{}>('TestsComp', (props, $) => {
 		}
 	})
 
-	return $
+	return (
+		<>
+			<LinksComp />
+			<hr />
+			<h1>
+				<Slot get={() => state.title} />
+			</h1>
+			<ErrorBoundary
+				debugName='t2ua2s'
+				catch={(it) => <div>{it.error}</div>}
+				try={() => <Slot get={() => state.test} />}
+			/>
+			<hr />
+			<LinksComp />
+		</>
+	)
 })
 
 const LinksComp = defineComponent<{}>('LinksComp', (props, $) => {
-	$.append(
+	return (
 		<div>
 			<For
 				debugName='links'
@@ -66,8 +64,6 @@ const LinksComp = defineComponent<{}>('LinksComp', (props, $) => {
 					</>
 				)}
 			/>
-		</div>,
+		</div>
 	)
-
-	return $
 })

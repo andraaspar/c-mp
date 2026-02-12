@@ -21,7 +21,7 @@ export const UseInfiniteQueryTestComp = defineComponent<{}>(
 
 		useReloadOnVisible()
 
-		$.append(
+		return (
 			<>
 				<For
 					debugName='content pages'
@@ -77,9 +77,7 @@ export const UseInfiniteQueryTestComp = defineComponent<{}>(
 				>
 					Reload
 				</button>
-			</>,
+			</>
 		)
-
-		return $
 	},
 )

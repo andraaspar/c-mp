@@ -1,11 +1,10 @@
-import { arrayWrap } from '../fun/arrayWrap'
 import { Comp, defineComponent } from '../fun/defineComponent'
 import { h } from '../fun/h'
 import { logLevel } from '../fun/log'
 import { untrack, useEffect } from '../fun/useEffect'
 import { mutateState, useState } from '../fun/useState'
+import { EMPTY_FRAGMENT } from '../model/EMPTY_FRAGMENT'
 import { type IProps } from '../model/IProps'
-import { TChildren } from '../model/TChildren'
 
 export type TKey = string | number | bigint | symbol | boolean
 
@@ -21,8 +20,8 @@ export interface IForProps<T> extends IProps {
 	debugName: string
 	each: () => T[] | undefined
 	getKey?: (item: T, index: number) => TKey
-	render: (state: IForState<T>) => TChildren
-	empty?: () => TChildren
+	render: (state: IForState<T>) => JSX.Element
+	empty?: () => JSX.Element
 }
 
 export interface IForItemData<T> {
@@ -139,31 +138,30 @@ export const For = defineComponent(
 				})
 			})
 		})
-		return $
+
+		return EMPTY_FRAGMENT
 	},
 )
 
 export interface IForItemProps<T> extends IProps {
 	state: IForState<T>
-	render: (state: IForState<T>) => TChildren
+	render: (state: IForState<T>) => JSX.Element
 }
 
 const ForItem = defineComponent(
 	'ForItem',
 	<T>({ state, render }: IForItemProps<T>, $: Comp<IForItemProps<T>>) => {
-		$.append(...arrayWrap(render(state)))
-		return $
+		return render(state)
 	},
 )
 
 export interface IForEmptyProps<T> extends IProps {
-	empty: () => TChildren
+	empty: () => JSX.Element
 }
 
 const ForEmpty = defineComponent(
 	'ForEmpty',
 	<T>(props: IForEmptyProps<T>, $: Comp<IForEmptyProps<T>>) => {
-		$.append(...arrayWrap(props.empty()))
-		return $
+		return props.empty()
 	},
 )

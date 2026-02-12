@@ -1,5 +1,6 @@
 import { defineComponent } from '../fun/defineComponent'
 import { untrack, useEffect } from '../fun/useEffect'
+import { EMPTY_FRAGMENT } from '../model/EMPTY_FRAGMENT'
 import { type TSlotValue } from '../model/TChildren'
 
 /**
@@ -40,5 +41,5 @@ export const Slot = defineComponent<{
 		})
 	})
 
-	return $
+	return EMPTY_FRAGMENT
 })

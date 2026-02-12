@@ -20,7 +20,7 @@ export const EffectSequenceTestComp = defineComponent<{}>(
 			})
 		})
 
-		$.append(
+		return (
 			<>
 				<div>
 					State B:{' '}
@@ -47,9 +47,7 @@ export const EffectSequenceTestComp = defineComponent<{}>(
 				>
 					Increment State A
 				</button>
-			</>,
+			</>
 		)
-
-		return $
 	},
 )

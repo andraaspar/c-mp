@@ -7,7 +7,7 @@ import { mutateState, useState } from '../c-mp/fun/useState'
 export const ErrorBoundaryInComponentEffectTestComp = defineComponent<{}>(
 	'ErrorBoundaryInComponentEffectTestComp',
 	(props, $) => {
-		$.append(
+		return (
 			<ErrorBoundary
 				debugName='InComponentEffect'
 				try={() => <ErroringComponent />}
@@ -18,10 +18,8 @@ export const ErrorBoundaryInComponentEffectTestComp = defineComponent<{}>(
 						<button onclick={p.reset}>Reset</button>
 					</div>
 				)}
-			/>,
+			/>
 		)
-
-		return $
 	},
 )
 
@@ -36,7 +34,7 @@ export const ErroringComponent = defineComponent<{}>(
 			}
 		})
 
-		$.append(
+		return (
 			<div>
 				<button
 					onclick={() => {
@@ -47,9 +45,7 @@ export const ErroringComponent = defineComponent<{}>(
 				>
 					Throw
 				</button>
-			</div>,
+			</div>
 		)
-
-		return $
 	},
 )

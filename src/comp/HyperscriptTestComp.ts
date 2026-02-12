@@ -2,6 +2,7 @@ import { For } from '../c-mp/comp/For'
 import { Show } from '../c-mp/comp/Show'
 import { Slot } from '../c-mp/comp/Slot'
 import { defineComponent } from '../c-mp/fun/defineComponent'
+import { fragment } from '../c-mp/fun/fragment'
 import { h } from '../c-mp/fun/h'
 import { mutateState, useState } from '../c-mp/fun/useState'
 
@@ -10,7 +11,7 @@ export const HyperscriptTestComp = defineComponent<{}>(
 	(props, $) => {
 		const state = useState('state', { arr: ['foo', 'bar', 'baz', 'quux'] })
 
-		$.append(
+		return fragment(
 			h(For<string>, {
 				debugName: 'arr',
 				each: () => state.arr,
@@ -46,14 +47,13 @@ export const HyperscriptTestComp = defineComponent<{}>(
 			h(Show<boolean>, {
 				it: {
 					when: () => state.arr.length % 2 === 0,
-					then: () => [
-						'The number of elements is: ',
-						h('b', { children: 'EVEN' }),
-					],
+					then: () =>
+						fragment(
+							'The number of elements is: ',
+							h('b', { children: 'EVEN' }),
+						),
 				},
 			}),
 		)
-
-		return $
 	},
 )

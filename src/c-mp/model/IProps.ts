@@ -6,5 +6,5 @@ import { Comp } from '../fun/defineComponent'
 export interface IProps {
 	debugName?: string
 	ref?: (it: Comp<any>) => void
-	// children?: TChildrenIn
+	// children?: TChildren
 }

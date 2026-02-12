@@ -56,9 +56,7 @@ document.body.append(<MyAppComp />)
 import { defineComponent } from './c-mp/fun/defineComponent'
 
 export const MyAppComp = defineComponent<{}>('MyAppComp', (props, $) => {
-  $.append(<div>Hello World!</div>)
-
-  return $
+  return <div>Hello World!</div>
 })
 ```
 
@@ -67,10 +65,6 @@ The component function runs only once. To update the DOM later, you use state, e
 `props` never change.
 
 `$` is the web component itself, a `<c-mp>` element in the DOM.
-
-`$.append(...)` is a DOM API for adding children.
-
-`return $` is funny, and it keeps TSX happy.
 
 ## State, effect and mutation
 
@@ -89,7 +83,7 @@ export const MyAppComp = defineComponent<{}>('MyAppComp', (props, $) => {
   // Declare ref, to be populated when the $.append() call finishes:
   let input: HTMLInputElement
 
-  $.append(
+  return (
     <>
       <input
         ref={(it) => {
@@ -107,10 +101,6 @@ export const MyAppComp = defineComponent<{}>('MyAppComp', (props, $) => {
       <div>Hello {() => inputState.value}!</div>
     </>
   )
-
-  // `input` is now defined. Any useEffect calls go here.
-
-  return $
 })
 ```
 

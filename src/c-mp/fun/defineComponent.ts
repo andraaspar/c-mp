@@ -131,7 +131,7 @@ export class Comp<P extends IProps>
 		activeComps.push(this)
 
 		try {
-			this.init?.(this.props!, this)
+			this.append(this.init!(this.props!, this))
 		} catch (e) {
 			this.handleError(e)
 		} finally {

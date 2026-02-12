@@ -17,7 +17,7 @@ export const UseQueryDependentTestComp = defineComponent<{}>(
 			isEnabled: !!main.data,
 		}))
 
-		$.append(
+		return (
 			<>
 				<UseQueryDependentInnerComp debugName='main' query={main} />
 				<UseQueryDependentInnerComp debugName='sub' query={sub} />
@@ -28,10 +28,8 @@ export const UseQueryDependentTestComp = defineComponent<{}>(
 				>
 					Reload
 				</button>
-			</>,
+			</>
 		)
-
-		return $
 	},
 )
 
@@ -51,7 +49,7 @@ const UseQueryDependentInnerComp = defineComponent<{
 	query: IUseQueryState<any>
 	disabledByDefault?: boolean
 }>('UseQueryTestInnerComp', (props, $) => {
-	$.append(
+	return (
 		<fieldset>
 			<legend>{props.debugName}</legend>
 			<div>
@@ -73,8 +71,6 @@ const UseQueryDependentInnerComp = defineComponent<{
 					}
 				/>
 			</div>
-		</fieldset>,
+		</fieldset>
 	)
-
-	return $
 })

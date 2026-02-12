@@ -10,7 +10,7 @@ export const UseQueryTestComp = defineComponent<{}>(
 	(props, $) => {
 		const state = useState('state', { showOne: false, showTwo: false })
 
-		$.append(
+		return (
 			<>
 				<Show
 					it={{
@@ -51,10 +51,8 @@ export const UseQueryTestComp = defineComponent<{}>(
 				>
 					Reload
 				</button>
-			</>,
+			</>
 		)
-
-		return $
 	},
 )
 
@@ -74,7 +72,7 @@ const UseQueryTestInnerComp = defineComponent<{
 		deleteAfter: seconds(3),
 	}))
 
-	$.append(
+	return (
 		<fieldset>
 			<legend>{props.debugName}</legend>
 			<div>
@@ -105,10 +103,8 @@ const UseQueryTestInnerComp = defineComponent<{
 			>
 				<Slot get={() => (state.isEnabled ? 'Disable' : 'Enable')} />
 			</button>
-		</fieldset>,
+		</fieldset>
 	)
-
-	return $
 })
 
 async function loadString(params: { foo: boolean }) {

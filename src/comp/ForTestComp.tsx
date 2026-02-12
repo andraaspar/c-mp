@@ -7,7 +7,7 @@ import { mutateState, useState } from '../c-mp/fun/useState'
 export const ForTestComp = defineComponent<{}>('ForTestComp', (props, $) => {
 	const state = useState('state', { arr: ['foo', 'bar', 'baz', 'quux'] })
 
-	$.append(
+	return (
 		<>
 			<For
 				debugName='arr'
@@ -48,8 +48,6 @@ export const ForTestComp = defineComponent<{}>('ForTestComp', (props, $) => {
 					),
 				}}
 			/>
-		</>,
+		</>
 	)
-
-	return $
 })

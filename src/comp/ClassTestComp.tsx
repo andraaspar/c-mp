@@ -8,7 +8,7 @@ export const ClassTestComp = defineComponent<{}>(
 	(props, $) => {
 		const state = useState('state', { isSky: false })
 
-		$.append(
+		return (
 			<>
 				<div class='sky bold'>String SKY</div>
 				<div class='crimson bold'>String CRIMSON</div>
@@ -36,9 +36,7 @@ export const ClassTestComp = defineComponent<{}>(
 				>
 					Toggle reactive
 				</button>
-			</>,
+			</>
 		)
-
-		return $
 	},
 )

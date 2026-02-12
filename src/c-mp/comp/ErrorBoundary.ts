@@ -1,11 +1,10 @@
-import { arrayWrap } from '../fun/arrayWrap'
 import { Comp, defineComponent } from '../fun/defineComponent'
 import { h } from '../fun/h'
 import { stripStack } from '../fun/stripStack'
 import { unchain, untrack, useEffect } from '../fun/useEffect'
 import { mutateState, useState } from '../fun/useState'
+import { EMPTY_FRAGMENT } from '../model/EMPTY_FRAGMENT'
 import { type IProps } from '../model/IProps'
-import { TChildren } from '../model/TChildren'
 
 export interface IErrorBoundaryCatchParams {
 	debugName: string
@@ -15,8 +14,8 @@ export interface IErrorBoundaryCatchParams {
 }
 
 export const ErrorBoundary = defineComponent<{
-	try: () => TChildren
-	catch: (p: IErrorBoundaryCatchParams) => TChildren
+	try: () => JSX.Element
+	catch: (p: IErrorBoundaryCatchParams) => JSX.Element
 }>('ErrorBoundary', (props, $) => {
 	const state = useState('state', {
 		error: undefined as string | undefined,
@@ -74,29 +73,27 @@ export const ErrorBoundary = defineComponent<{
 		})
 	})
 
-	return $
+	return EMPTY_FRAGMENT
 })
 
 export interface IErrorBoundaryTryProps extends IProps {
-	fn: () => TChildren
+	fn: () => JSX.Element
 }
 
 const ErrorBoundaryTry = defineComponent<IErrorBoundaryTryProps>(
 	'ErrorBoundaryTry',
 	(props, $) => {
-		$.append(...arrayWrap(props.fn()))
-		return $
+		return props.fn()
 	},
 )
 
 export interface IErrorBoundaryCatchProps extends IProps {
-	fn: () => TChildren
+	fn: () => JSX.Element
 }
 
 const ErrorBoundaryCatch = defineComponent<IErrorBoundaryCatchProps>(
 	'ErrorBoundaryCatch',
 	(props, $) => {
-		$.append(...arrayWrap(props.fn()))
-		return $
+		return props.fn()
 	},
 )

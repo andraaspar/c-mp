@@ -5,7 +5,7 @@ import { defineComponent } from '../c-mp/fun/defineComponent'
 export const ErrorBoundaryInComponentInitTestComp = defineComponent<{}>(
 	'ErrorBoundaryInComponentInitTestComp',
 	(props, $) => {
-		$.append(
+		return (
 			<ErrorBoundary
 				debugName='InComponentInit'
 				try={() => <ErroringComponent />}
@@ -14,10 +14,8 @@ export const ErrorBoundaryInComponentInitTestComp = defineComponent<{}>(
 						Error caught: <Slot get={() => p.error} />
 					</div>
 				)}
-			/>,
+			/>
 		)
-
-		return $
 	},
 )
 

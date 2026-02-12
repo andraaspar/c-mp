@@ -7,7 +7,7 @@ export const SlotTestComp = defineComponent<{}>('SlotTestComp', (props, $) => {
 		value: 0,
 	})
 
-	$.append(
+	return (
 		<>
 			<div>
 				<Slot get={() => state.value + ''} />
@@ -21,8 +21,6 @@ export const SlotTestComp = defineComponent<{}>('SlotTestComp', (props, $) => {
 			>
 				Increment
 			</button>
-		</>,
+		</>
 	)
-
-	return $
 })

@@ -5,7 +5,7 @@ import { defineComponent } from '../c-mp/fun/defineComponent'
 export const ErrorBoundaryImmediateTestComp = defineComponent<{}>(
 	'ErrorBoundaryImmediateTestComp',
 	(props, $) => {
-		$.append(
+		return (
 			<div>
 				<ErrorBoundary
 					debugName='Immediate'
@@ -18,9 +18,7 @@ export const ErrorBoundaryImmediateTestComp = defineComponent<{}>(
 						</>
 					)}
 				/>
-			</div>,
+			</div>
 		)
-
-		return $
 	},
 )

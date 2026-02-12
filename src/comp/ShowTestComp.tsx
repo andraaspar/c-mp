@@ -8,7 +8,7 @@ export const ShowTestComp = defineComponent<{}>('ShowTestComp', (props, $) => {
 		flag1: false as boolean | {},
 	})
 
-	$.append(
+	return (
 		<>
 			<Show
 				it={{
@@ -48,8 +48,6 @@ export const ShowTestComp = defineComponent<{}>('ShowTestComp', (props, $) => {
 			>
 				{`{id: 'yay'}`}
 			</button>
-		</>,
+		</>
 	)
-
-	return $
 })

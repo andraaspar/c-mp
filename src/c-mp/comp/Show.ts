@@ -1,22 +1,21 @@
-import { arrayWrap } from '../fun/arrayWrap'
 import { Comp, defineComponent } from '../fun/defineComponent'
 import { h } from '../fun/h'
 import { logLevel } from '../fun/log'
 import { untrack, useEffect } from '../fun/useEffect'
+import { EMPTY_FRAGMENT } from '../model/EMPTY_FRAGMENT'
 import { type IProps } from '../model/IProps'
-import { TChildren } from '../model/TChildren'
 
 export type TThenValue<T> = Exclude<T, false | null | undefined | 0 | '' | 0n>
 export type TThenValueGetter<T> = () => TThenValue<T>
 
 export interface IShowCondition<T> {
 	when: () => T
-	then: (get: TThenValueGetter<T>) => TChildren
+	then: (get: TThenValueGetter<T>) => JSX.Element
 }
 
 export interface IShowProps extends IProps {
 	it: IShowCondition<any>[] | IShowCondition<any>
-	else?: () => TChildren
+	else?: () => JSX.Element
 }
 
 export const Show = defineComponent(
@@ -66,24 +65,22 @@ export const Show = defineComponent(
 			})
 		})
 
-		return $
+		return EMPTY_FRAGMENT
 	},
 )
 
 interface IShowInnerProps extends IProps {
-	fn: () => TChildren
+	fn: () => JSX.Element
 }
 const ShowThen = defineComponent(
 	'ShowThen',
 	<T>(props: IShowInnerProps, $: Comp<IShowInnerProps>) => {
-		$.append(...arrayWrap(props.fn()))
-		return $
+		return props.fn()
 	},
 )
 const ShowElse = defineComponent(
 	'ShowElse',
 	<T>(props: IShowInnerProps, $: Comp<IShowInnerProps>) => {
-		$.append(...arrayWrap(props.fn()))
-		return $
+		return props.fn()
 	},
 )

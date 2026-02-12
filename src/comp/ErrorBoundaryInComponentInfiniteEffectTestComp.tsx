@@ -8,7 +8,7 @@ export const ErrorBoundaryInComponentInfiniteEffectTestComp =
 	defineComponent<{}>(
 		'ErrorBoundaryInComponentInfiniteEffectTestComp',
 		(props, $) => {
-			$.append(
+			return (
 				<ErrorBoundary
 					debugName='InComponentInfiniteEffect'
 					try={() => <ErroringComponent />}
@@ -19,10 +19,8 @@ export const ErrorBoundaryInComponentInfiniteEffectTestComp =
 							<button onclick={p.reset}>Reset</button>
 						</div>
 					)}
-				/>,
+				/>
 			)
-
-			return $
 		},
 	)
 
@@ -39,7 +37,7 @@ export const ErroringComponent = defineComponent<{}>(
 			}
 		})
 
-		$.append(
+		return (
 			<div>
 				<button
 					onclick={() => {
@@ -50,9 +48,7 @@ export const ErroringComponent = defineComponent<{}>(
 				>
 					Throw
 				</button>
-			</div>,
+			</div>
 		)
-
-		return $
 	},
 )

@@ -1,4 +1,5 @@
 import { Fragment } from '../comp/Fragment'
+import { EMPTY_FRAGMENT } from '../model/EMPTY_FRAGMENT'
 import type { IExtraAttributes } from '../model/IExtraAttributes'
 import type { IProps } from '../model/IProps'
 import type { TAttributes } from '../model/TAttributes'
@@ -6,6 +7,10 @@ import type { TChild } from '../model/TChildren'
 import { Comp, type IComponentInit, type ICompProps } from './defineComponent'
 import { useEffect } from './useEffect'
 
+export function h(
+	name: typeof Fragment,
+	attrs: Parameters<typeof Fragment>[0],
+): DocumentFragment
 export function h<C extends IComponentInit<any>, P extends Parameters<C>[0]>(
 	name: C,
 	attrs: P,
@@ -28,6 +33,8 @@ export function h(
 	if (attrs.children != null) {
 		if (Array.isArray(attrs.children)) {
 			attrs.children = attrs.children
+		} else if (attrs.children === EMPTY_FRAGMENT) {
+			attrs.children = undefined
 		} else {
 			attrs.children = [attrs.children]
 		}
@@ -36,12 +43,17 @@ export function h(
 	if (typeof name === 'function') {
 		// This is a component.
 		if (name === Fragment) {
-			const elem = new DocumentFragment()
+			// A fragment. No need to create a full component. A DocumentFragment
+			// suffices.
 			if (attrs.children) {
-				elem.append(...(attrs.children as TChild[]))
+				const frag = new DocumentFragment()
+				frag.append(...(attrs.children as TChild[]))
+				return frag
+			} else {
+				return EMPTY_FRAGMENT
 			}
-			return elem
 		} else {
+			// A regular component.
 			const elem = h('c-mp', {
 				init: name as IComponentInit<any>,
 				props: attrs,
