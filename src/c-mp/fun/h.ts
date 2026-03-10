@@ -95,11 +95,15 @@ export function h(
 					useEffect(`${name} → ${k}`, () => {
 						const it = v()
 						if (it && typeof it === 'object') {
-							Object.assign(elem.style, it)
+							for (const [key, value] of Object.entries(it)) {
+								elem.style.setProperty(key, value as string | null)
+							}
 						}
 					})
 				} else if (v && typeof v === 'object') {
-					Object.assign(elem.style, v)
+					for (const [key, value] of Object.entries(v)) {
+						elem.style.setProperty(key, value)
+					}
 				}
 			} else if (
 				k !== 'children' &&

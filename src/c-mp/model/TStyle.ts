@@ -1,3 +1,5 @@
-export type TStyle =
-	| Partial<CSSStyleDeclaration>
-	| (() => Partial<CSSStyleDeclaration>)
+export type TStyle = TStyleValue | (() => TStyleValue)
+
+export type TStyleValue = Partial<CSSStyleDeclaration> & {
+	[k: `--${string}`]: string
+}
