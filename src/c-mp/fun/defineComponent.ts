@@ -1,4 +1,4 @@
-import { getCmpTagName, incrementCmpTagName } from '../model/getCmpTagName'
+import { getCmpTagName } from '../model/getCmpTagName'
 import { HIGHLIGHT } from '../model/HIGHLIGHT'
 import type { IProps } from '../model/IProps'
 import { logLevel } from './log'
@@ -274,10 +274,6 @@ export class Comp extends HTMLElement {
 	}
 }
 
-// Ensure the tag name does not conflict with an existing instance of c-mp.
-while (customElements.get(getCmpTagName())) {
-	incrementCmpTagName()
-}
 // Let Comp be the custom element for <c-mp>.
 customElements.define(getCmpTagName(), Comp)
 
