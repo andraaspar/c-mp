@@ -2,7 +2,9 @@ import { Slot } from '../c-mp/comp/Slot'
 import { defineComponent } from '../c-mp/fun/defineComponent'
 import {
 	type IUseQueryState,
+	maybeReloadQueriesOnVisible,
 	reloadQueries,
+	resetQueries,
 	useQuery,
 } from '../c-mp/fun/useQuery'
 
@@ -10,13 +12,13 @@ export const UseQueryDependentTestComp = defineComponent<{}>(
 	'UseQueryDependentTestComp',
 	(props, $) => {
 		const main = useQuery('main', () => ({
-			key: 't57hck',
-			load: loadString,
+			key: 'main',
+			load: loadMain,
 			params: {},
 		}))
 		const sub = useQuery('sub', () => ({
-			key: 't57hcm',
-			load: loadString2,
+			key: 'sub',
+			load: loadSub,
 			params: { value: main.data! },
 			isEnabled: !!main.data,
 		}))
@@ -27,23 +29,42 @@ export const UseQueryDependentTestComp = defineComponent<{}>(
 				<UseQueryDependentInnerComp debugName='sub' query={sub} />
 				<button
 					onclick={() => {
-						reloadQueries()
+						maybeReloadQueriesOnVisible('main')
+						maybeReloadQueriesOnVisible('sub')
+					}}
+				>
+					Maybe reload
+				</button>
+				<button
+					onclick={() => {
+						reloadQueries('main')
+						reloadQueries('sub')
 					}}
 				>
 					Reload
+				</button>
+				<button
+					onclick={() => {
+						resetQueries('main')
+						resetQueries('sub')
+					}}
+				>
+					Reset
 				</button>
 			</>
 		)
 	},
 )
 
-async function loadString(o: any) {
+async function loadMain(o: any) {
+	console.log('loadMain', o)
 	return new Promise<string>((resolve) => {
 		setTimeout(() => resolve(Date.now().toString(36)), 1000)
 	})
 }
 
-async function loadString2(o: { value: string }) {
+async function loadSub(o: { value: string }) {
+	console.log('loadSub', o)
 	return new Promise<string>((resolve) => {
 		setTimeout(() => resolve(o.value + '_sub'), 1000)
 	})

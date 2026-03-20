@@ -1,5 +1,6 @@
 import { HIGHLIGHT } from '../model/HIGHLIGHT'
 import { activeComps } from './defineComponent'
+import { json } from './json'
 import { logLevel } from './log'
 
 export type TEffectFn = () => void | (() => void)
@@ -8,6 +9,7 @@ export interface IEffectProxyTracker {
 	name: string
 	rerun?: () => void
 	chain: string[]
+	isTracking: boolean
 }
 
 export interface IQueueItem {
@@ -69,7 +71,12 @@ export function useEffect(
 	parentName = activeComps.at(-1)?.debugName,
 ) {
 	name = `${parentName} → ${name}`
-	let proxyTracker: IEffectProxyTracker = { name, rerun: run, chain: [] }
+	let proxyTracker: IEffectProxyTracker = {
+		name,
+		rerun: run,
+		chain: [],
+		isTracking: true,
+	}
 	let lastCleanup: (() => void) | void
 	let isScheduled = false
 	let isKilled = false
@@ -122,11 +129,10 @@ export function useEffect(
 						isScheduled = false
 						runLastCleanup()
 						try {
-							proxyTracker = { name, rerun: run, chain }
+							proxyTracker = { name, rerun: run, chain, isTracking: true }
 							if (logLevel >= 2) {
 								console.debug(`🔰 ▶️ Effect run: %c${name}`, HIGHLIGHT)
 							}
-							// console.debug(`Effect run:`, name)
 							activeEffects.push(proxyTracker)
 							// Async functions may not have run just yet... they may add
 							// additional effect runs, not tracked by scheduledEffects. Could be
@@ -136,7 +142,6 @@ export function useEffect(
 							parentComponent!.handleError(e)
 						} finally {
 							activeEffects.pop()
-							// console.debug(`Effect run end:`, name)
 							if (logLevel >= 2) {
 								console.debug(`🛑 ▶️ Effect run: %c${name}`, HIGHLIGHT)
 							}
@@ -176,35 +181,40 @@ export function untrack<T>(
 ) {
 	name = `${parentName} → ${name}`
 	try {
-		// if (logLevel >= 3) {
-		// 	console.debug(`🔰 🚧 Untrack: %c${name}`, HIGHLIGHT)
-		// }
+		if (logLevel >= 3) {
+			console.debug(`🔰 🚧 Untrack: %c${name}`, HIGHLIGHT)
+		}
 		activeEffects.push({
 			name: `${name} (untrack)`,
 			chain: getEffectChain(name),
+			isTracking: false,
 		})
 		return fn()
 	} finally {
 		activeEffects.pop()
-		// if (logLevel >= 3) {
-		// 	console.debug(`🛑 🚧 Untrack: %c${name}`, HIGHLIGHT)
-		// }
+		if (logLevel >= 3) {
+			console.debug(`🛑 🚧 Untrack: %c${name}`, HIGHLIGHT)
+		}
 	}
 }
 
 /** Allows effects to run while handling an infinite recursion error. */
 export function unchain<T>(name: string, fn: () => T) {
 	try {
-		// if (logLevel >= 3) {
-		// 	console.debug(`🔰 ✂️ Unchain: %c${name}`, HIGHLIGHT)
-		// }
-		activeEffects.push({ name: `${name} (unchain)`, chain: [] })
+		if (logLevel >= 3) {
+			console.debug(`🔰 ✂️ Unchain: %c${name}`, HIGHLIGHT)
+		}
+		activeEffects.push({
+			name: `${name} (unchain)`,
+			chain: [],
+			isTracking: false,
+		})
 		return fn()
 	} finally {
 		activeEffects.pop()
-		// if (logLevel >= 3) {
-		// 	console.debug(`🛑 ✂️ Unchain: %c${name}`, HIGHLIGHT)
-		// }
+		if (logLevel >= 3) {
+			console.debug(`🛑 ✂️ Unchain: %c${name}`, HIGHLIGHT)
+		}
 	}
 }
 
@@ -213,4 +223,12 @@ export function allEffectsDone() {
 		if (queue.length === 0) resolve()
 		else noScheduledEffectsCallbacks.push(resolve)
 	})
+}
+
+export function assertNotTrackedEffect(name: string) {
+	if (activeEffects.at(-1)?.isTracking) {
+		throw new Error(
+			json`${name} must not be used in tracked effect: ${activeEffects.at(-1)?.name}`,
+		)
+	}
 }

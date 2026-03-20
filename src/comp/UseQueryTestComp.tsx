@@ -2,7 +2,12 @@ import { $when, Show } from '../c-mp/comp/Show'
 import { Slot } from '../c-mp/comp/Slot'
 import { defineComponent } from '../c-mp/fun/defineComponent'
 import { seconds } from '../c-mp/fun/seconds'
-import { reloadQueries, useQuery } from '../c-mp/fun/useQuery'
+import {
+	maybeReloadQueriesOnVisible,
+	reloadQueries,
+	resetQueries,
+	useQuery,
+} from '../c-mp/fun/useQuery'
 import { mutateState, useState } from '../c-mp/fun/useState'
 
 export const UseQueryTestComp = defineComponent<{}>(
@@ -48,10 +53,24 @@ export const UseQueryTestComp = defineComponent<{}>(
 				</button>
 				<button
 					onclick={() => {
+						maybeReloadQueriesOnVisible()
+					}}
+				>
+					Maybe reload
+				</button>
+				<button
+					onclick={() => {
 						reloadQueries()
 					}}
 				>
 					Reload
+				</button>
+				<button
+					onclick={() => {
+						resetQueries()
+					}}
+				>
+					Reset
 				</button>
 			</>
 		)

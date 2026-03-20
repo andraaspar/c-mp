@@ -2,7 +2,11 @@ import { For } from '../c-mp/comp/For'
 import { Slot } from '../c-mp/comp/Slot'
 import { defineComponent } from '../c-mp/fun/defineComponent'
 import { useInfiniteQuery } from '../c-mp/fun/useInfiniteQuery'
-import { reloadQueries } from '../c-mp/fun/useQuery'
+import {
+	maybeReloadQueriesOnVisible,
+	reloadQueries,
+	resetQueries,
+} from '../c-mp/fun/useQuery'
 import { useReloadOnVisible } from '../c-mp/fun/useReloadOnVisible'
 import { loadPage } from '../fun/loadPage'
 
@@ -72,10 +76,24 @@ export const UseInfiniteQueryTestComp = defineComponent<{}>(
 				</button>
 				<button
 					onclick={() => {
+						maybeReloadQueriesOnVisible('loadPage')
+					}}
+				>
+					Maybe reload
+				</button>
+				<button
+					onclick={() => {
 						reloadQueries('loadPage')
 					}}
 				>
 					Reload
+				</button>
+				<button
+					onclick={() => {
+						resetQueries('loadPage')
+					}}
+				>
+					Reset
 				</button>
 			</>
 		)

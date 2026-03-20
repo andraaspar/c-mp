@@ -52,7 +52,7 @@ function runEffects(
 
 function trackEffect(name: string, target: object, prop: string | symbol) {
 	const activeEffect = activeEffects.at(-1)
-	if (!activeEffect) return
+	if (!activeEffect?.isTracking) return
 	if (logLevel >= 3) {
 		console.debug(`🔌 State GET: %c${name}.${prop.toString()}`, HIGHLIGHT)
 	}

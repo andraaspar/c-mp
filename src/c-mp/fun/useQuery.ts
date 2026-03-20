@@ -8,7 +8,7 @@ import { minutes } from './minutes'
 import { mirror } from './mirror'
 import { seconds } from './seconds'
 import { sleep } from './sleep'
-import { untrack, useEffect } from './useEffect'
+import { assertNotTrackedEffect, untrack, useEffect } from './useEffect'
 import { mutateState, useState } from './useState'
 
 export type TLoadFn<T, P> = (params: P) => Promise<T>
@@ -211,6 +211,8 @@ export class CacheEntry<T, P> {
 	}
 
 	private updateState(state: IUseQueryState<T>, dataChanged = true) {
+		// Calling mirror is invalid in a tracked effect. Checking here warns early.
+		assertNotTrackedEffect(`[tc7ah0] updateState`)
 		mutateState('☁️ ' + this.key, `👉 ${state.name} (${this.status})`, () => {
 			state.status = this.status
 			// state.data = data
@@ -374,12 +376,15 @@ export function useQuery<T, P>(
 		'entry changed [t6e0as]',
 		() => {
 			const entry = innerState.entryRef
+			const isEnabled = innerState.isEnabled
 			if (entry != null) {
-				entry.addState(state, innerState.isEnabled)
+				return untrack('[tc56eh]', () => {
+					entry.addState(state, isEnabled)
 
-				return () => {
-					entry.deleteState(state, innerState.isEnabled)
-				}
+					return () => {
+						entry.deleteState(state, isEnabled)
+					}
+				})
 			}
 		},
 		debugName,
@@ -422,8 +427,8 @@ export function getEntries<T, P>(
 				paramsPredicateString
 					? paramsPredicateString === entry.paramsString
 					: paramsPredicateFn
-					? paramsPredicateFn(entry.params)
-					: paramsPredicate
+						? paramsPredicateFn(entry.params)
+						: paramsPredicate
 			) {
 				result.push(entry)
 			}
@@ -452,15 +457,16 @@ export function resetQueries<T, P>(
 	key?: string,
 	paramsPredicate?: (params: P) => boolean,
 ) {
-	console.debug(`🔰 ☁️ reload`, key, paramsPredicate)
+	console.debug(`🔰 ☁️ reset`, key, paramsPredicate)
 	let result = 0
 	const entries = getEntries(key, paramsPredicate)
 	for (const entry of entries) {
-		if (entry.makeStaleOrNever() && entry.maybeReloadOnVisible()) {
+		entry.makeStaleOrNever()
+		if (entry.maybeReloadOnVisible()) {
 			result++
 		}
 	}
-	console.debug(`🛑 ☁️ reload`, key, paramsPredicate, result)
+	console.debug(`🛑 ☁️ reset`, key, paramsPredicate, result)
 	return result
 }
 

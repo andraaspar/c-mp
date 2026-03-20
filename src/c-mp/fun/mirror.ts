@@ -1,6 +1,6 @@
 import { HIGHLIGHT } from '../model/HIGHLIGHT'
 import { logLevel } from './log'
-import { unproxify } from './proxify'
+import { assertNotTrackedEffect } from './useEffect'
 
 /**
  * Mirrors all field values of the source to the target proxy, so that the
@@ -12,10 +12,9 @@ export function mirror(
 	target: any,
 	getId = getIdFromObject,
 ) {
+	assertNotTrackedEffect(`[tc7asn] mirror`)
 	const sourceType = getType(source)
-	// Unproxify the target so that we do not track it accidentally.
-	const targetRaw = unproxify(target)
-	const targetType = getType(targetRaw)
+	const targetType = getType(target)
 	if (logLevel >= 2) {
 		console.debug(`🔰 🪞 Mirror: %c${field}(${sourceType})`, HIGHLIGHT)
 	}
@@ -29,8 +28,8 @@ export function mirror(
 		const id__targetItem = new Map<string | number, any>()
 
 		// Collect target items by ID
-		for (let i = 0; i < targetRaw.length; i++) {
-			const item = targetRaw[i]
+		for (let i = 0; i < target.length; i++) {
+			const item = target[i]
 			if (isObject(item)) {
 				const id = getId(item)
 				if (id != null) {
@@ -64,8 +63,8 @@ export function mirror(
 		if (logLevel >= 3) {
 			console.debug(`🔰 ➖ Removing object items with no ID match`)
 		}
-		for (let i = targetRaw.length - 1; i >= 0; i--) {
-			const item = targetRaw[i]
+		for (let i = target.length - 1; i >= 0; i--) {
+			const item = target[i]
 			if (isObject(item)) {
 				const id = getId(item)
 				if (id == null || !sourceIds.has(id)) {
@@ -95,9 +94,9 @@ export function mirror(
 					}
 				} else {
 					const targetItem = id__targetItem.get(id)
-					const targetItemMaybe = targetRaw[i]
+					const targetItemMaybe = target[i]
 					if (targetItem !== targetItemMaybe) {
-						const oldIndex = targetRaw.indexOf(targetItem, i + 1)
+						const oldIndex = target.indexOf(targetItem, i + 1)
 						if (logLevel >= 3) {
 							console.debug(
 								`🔰 ✔️ Insert existing item earlier: ${i} ← ${oldIndex}`,
@@ -130,7 +129,7 @@ export function mirror(
 		}
 
 		// Crop the target array
-		if (targetRaw.length > source.length) {
+		if (target.length > source.length) {
 			if (logLevel >= 3) {
 				console.debug(`🔰 🪓 Cropping array`)
 			}
@@ -141,7 +140,7 @@ export function mirror(
 			}
 		}
 	} else if (sourceType === 'object') {
-		const t = targetRaw
+		const t = target
 		const sourceKeys = new Set<string>()
 
 		// Copy source values to target

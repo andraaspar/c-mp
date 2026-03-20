@@ -11,6 +11,7 @@ import { ShowTestComp } from '../comp/ShowTestComp'
 import { SlotTestComp } from '../comp/SlotTestComp'
 import { UseInfiniteQueryTestComp } from '../comp/UseInfiniteQueryTestComp'
 import { UseQueryDependentTestComp } from '../comp/UseQueryDependentTestComp'
+import { UseQueryMirrorTestComp } from '../comp/UseQueryMirrorTestComp'
 import { UseQueryTestComp } from '../comp/UseQueryTestComp'
 
 // prettier-ignore
@@ -21,6 +22,7 @@ const data = [
 	['#show', ShowTestComp, 'Show'],
 	['#hyperscript', HyperscriptTestComp, 'Hyperscript'],
 	['#use-query', UseQueryTestComp, 'UseQuery'],
+	['#use-query-mirror', UseQueryMirrorTestComp, 'UseQueryMirror'],
 	['#use-query-dependent', UseQueryDependentTestComp, 'UseQueryDependent'],
 	['#use-infinite-query', UseInfiniteQueryTestComp, 'UseInfiniteQuery'],
 	['#error-boundary-immediate', ErrorBoundaryImmediateTestComp, 'ErrorBoundaryImmediate'],
