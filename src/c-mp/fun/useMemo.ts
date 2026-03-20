@@ -36,6 +36,7 @@ export function useMemo<T>(name: string, getValue: () => T): () => T {
 						)
 						proxyTracker!.rerun = undefined
 					},
+					isTracking: true,
 				}
 				activeEffects.push(proxyTracker)
 				mutateState(
