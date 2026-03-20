@@ -2,11 +2,7 @@ import { HIGHLIGHT } from '../model/HIGHLIGHT'
 import { activeComps } from './defineComponent'
 import { logLevel } from './log'
 import { type IProxifyCallbacks, proxify } from './proxify'
-import {
-	activeEffects,
-	allEffectsDone,
-	type IEffectProxyTracker,
-} from './useEffect'
+import { activeEffects, type IEffectProxyTracker } from './useEffect'
 
 const target__props__effects: WeakMap<
 	object,
@@ -112,22 +108,12 @@ export function useState<T>(
 /**
  * Labels mutations for debugging.
  */
-export async function mutateState(
-	parent: string,
-	name: string,
-	fn: () => void,
-) {
-	const start = performance.now()
+export function mutateState(parent: string, name: string, fn: () => void) {
 	try {
-		console.log(logLevel >= 1 ? '🔰 👾' : '👾', parent, name)
+		console.debug('👾', parent, name)
 		allowMutation++
 		fn()
 	} finally {
 		allowMutation--
-	}
-	if (logLevel >= 1) {
-		await allEffectsDone()
-		effectsCleanedThisMutation = new WeakMap()
-		console.debug(`🛑 👾`, parent, name, performance.now() - start)
 	}
 }
