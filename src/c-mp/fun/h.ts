@@ -1,5 +1,6 @@
 import { Fragment } from '../comp/Fragment'
 import { EMPTY_FRAGMENT } from '../model/EMPTY_FRAGMENT'
+import { getCmpTagName } from '../model/getCmpTagName'
 import type { IExtraAttributes } from '../model/IExtraAttributes'
 import type { IProps } from '../model/IProps'
 import type { TAttributes } from '../model/TAttributes'
@@ -54,7 +55,7 @@ export function h(
 			}
 		} else {
 			// A regular component.
-			const elem = h('c-mp', {
+			const elem = h(getCmpTagName(), {
 				init: name as IComponentInit<any>,
 				props: attrs,
 			} satisfies ICompProps)

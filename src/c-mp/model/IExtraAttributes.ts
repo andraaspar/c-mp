@@ -28,7 +28,7 @@ export interface IExtraAttributes<T> {
 	ref?: (elem: T) => void
 
 	/**
-	 * This declaration is here for "c-mp" and other unknown tags.
+	 * This declaration is here for c-mp components and other unknown tags.
 	 */
 	[k: string]: unknown
 

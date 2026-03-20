@@ -1,3 +1,4 @@
+import { getCmpTagName, incrementCmpTagName } from '../model/getCmpTagName'
 import { HIGHLIGHT } from '../model/HIGHLIGHT'
 import type { IProps } from '../model/IProps'
 import { logLevel } from './log'
@@ -54,7 +55,7 @@ export class Comp extends HTMLElement {
 	/**
 	 * The name of this component as used in debug messages.
 	 */
-	debugName = 'c-mp'
+	debugName = getCmpTagName()
 
 	/**
 	 * The parent c-mp instance this belongs to. This may theoretically change
@@ -90,12 +91,12 @@ export class Comp extends HTMLElement {
 	 */
 	connectedCallback() {
 		this.parentComp =
-			activeComps.at(-1) ?? this.parentElement?.closest<Comp>('c-mp')
+			activeComps.at(-1) ?? this.parentElement?.closest<Comp>(getCmpTagName())
 
 		this.level = (this.parentComp?.level ?? -1) + 1
 
 		this.debugName =
-			((this.init && debugNameByInit.get(this.init)) ?? 'c-mp') +
+			((this.init && debugNameByInit.get(this.init)) ?? getCmpTagName()) +
 			(this.props?.debugName ? `(${this.props.debugName})` : '')
 
 		if (this.wasConnected) {
@@ -127,6 +128,7 @@ export class Comp extends HTMLElement {
 		}
 
 		this.setAttribute('is', this.debugName)
+		this.setAttribute('c-mp', '')
 		// this.setAttribute('level', this.level + '')
 
 		activeComps.push(this)
@@ -156,7 +158,7 @@ export class Comp extends HTMLElement {
 	 */
 	connectedMoveCallback() {
 		// [tack9d]
-		this.parentComp = this.parentElement?.closest<Comp>('c-mp')
+		this.parentComp = this.parentElement?.closest<Comp>(getCmpTagName())
 
 		// [tack9d]
 		this.level = (this.parentComp?.level ?? -1) + 1
@@ -272,8 +274,12 @@ export class Comp extends HTMLElement {
 	}
 }
 
+// Ensure the tag name does not conflict with an existing instance of c-mp.
+while (customElements.get(getCmpTagName())) {
+	incrementCmpTagName()
+}
 // Let Comp be the custom element for <c-mp>.
-customElements.define('c-mp', Comp)
+customElements.define(getCmpTagName(), Comp)
 
 /**
  * Define a new init function that can be used in a useComponent call. This
