@@ -44,8 +44,10 @@ export const ErrorBoundary = defineComponent<IErrorBoundaryProps>(
 
 		function reset() {
 			// Render no error.
-			state.error = undefined
-			state.stack = undefined
+			mutateState($.debugName, 'reset [tc3xny]', () => {
+				state.error = undefined
+				state.stack = undefined
+			})
 		}
 
 		let innerComponent: Comp | undefined
