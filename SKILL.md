@@ -5,24 +5,27 @@ description: Write or modify UI code using the c-mp frontend library (defineComp
 
 # Working with c-mp
 
-c-mp is a dependency-free, Web-Component-based reactive UI library (Svelte/Solid-like): proxy state, JSX compiled to real DOM (no virtual DOM), effects that auto-track their dependencies. It is distributed by **copying** `c-mp` into a project, so every import is a **relative path** to that folder — there is no npm package.
+c-mp is a dependency-free, Web-Component-based reactive UI library: proxy state, JSX compiled to real DOM (no virtual DOM), effects that auto-track their dependencies. It is distributed by **copying** `c-mp` into a project, so every import is a **relative path** to that folder — there is no npm package.
 
 Before non-trivial work, read the library's `README.md` (the authoritative reference, usually at the repo root) and skim a couple of existing components to match local conventions. Locate the library with a glob like `**/c-mp/fun/defineComponent.ts`; imports in this skill use `./c-mp/...` as a placeholder — adjust the relative depth to the file you're editing.
 
+## The core mental model
+
+**Components do not re-render.** The setup function runs exactly once. There is no re-render cycle, no `setState`-triggered re-run, no rules-of-hooks, no dependency arrays. Everything dynamic happens through the proxy state and effects after that single run. Most of the mistakes below come from writing code as if the component re-runs — it does not, so anything that should update must be wired to reactivity explicitly (a `Slot`, a getter attribute, a `Show`/`For`, or an effect).
+
 ## The rules that are easy to get wrong
 
-These are the mistakes to avoid — they are not how React/Solid/Svelte work:
+If you come from React, these are the habits that silently fail here — usually by rendering once and never updating, with no error:
 
-1. **All state writes go through `mutateState(parent, name, fn)` — three arguments.**
-   `mutateState($.debugName, 'short description', () => { state.x = ... })`. Inside a component the parent is `$.debugName`; at module scope use the function name. Writing state outside `mutateState` logs `👾 Unlabeled mutation!`.
+1. **Display reactive values with `<Slot get={() => x} />`, not inline JSX.** A bare `{x}` is read once and goes stale; a bare `{() => x}` appends the function object and renders nothing. (One-time static content like `Hello` or a `{props.name}` you never expect to change is fine inline.)
 
-2. **There is no `{() => x}` text interpolation.** A bare function in JSX children is appended as-is, not called. To show a reactive value use `<Slot get={() => x} />`. (Static text like `Hello` or `{props.name}` read once is fine; anything that changes over time needs `Slot`.)
+2. **Reactive control flow uses components, not inline expressions.** `{cond && <X/>}`, `{cond ? <A/> : <B/>}`, and `{list.map(...)}` run once at setup and never update. Use `<Show it={$when(() => cond, ThenComp)} else={ElseComp} />` for conditionals (build conditions with `$when` — you cannot pass a raw `() => jsx`; `it` takes one `$when(...)` or an array), and `<For each={() => list} getKey={...} render={({get, getIndex, getLength}) => ...} empty={...} />` for dynamic lists. A plain `.map()` is fine only for a truly static list.
 
-3. **`props` never change.** A component's setup function runs exactly once. To pass something reactive across a component boundary, pass a **getter**: `getPerson: () => IPerson`, not `person: IPerson`. The child calls `props.getPerson()` inside `Slot`/`class`/effects.
+3. **Pass getters across component boundaries, not values.** `props` never change (setup runs once), so anything reactive must be a getter: `getPerson={() => state.person}`, read as `props.getPerson()` inside `Slot`/`class`/effects. A plain value prop is captured once and won't update — and the type system won't catch it.
 
-4. **`Show` conditions must be built with `$when`.** You cannot pass a raw `() => jsx`. Use `$when(() => cond, ThenComp)`; `it` takes one `$when(...)` or an array of them; optional `else`.
+4. **Reactive attributes are getters.** `class={() => [...]}`, `value={() => state.x}`, `disabled={() => state.busy}`. A plain value is set once; a function becomes an effect. (Exception: don't pass functions as reactive props to nested custom elements — they're passed through.)
 
-5. **Reactive attributes are getters.** `class={() => [...]}`, `value={() => state.x}`, `disabled={() => state.busy}`. A plain value is set once; a function becomes an effect. (Exception: don't pass functions as reactive props to nested custom elements — they're passed through.)
+5. **Wrap state writes in `mutateState(parent, name, fn)`.** `mutateState($.debugName, 'short description', () => { state.x = ... })` — parent is `$.debugName` in a component, or the function name at module scope. This is a debugging convention, not enforced: an unwrapped write still applies and still triggers effects, it just logs `👾 Unlabeled mutation!`. Follow the convention to match the codebase.
 
 ## Cheat sheet
 
@@ -106,6 +109,10 @@ Pick the narrowest that fits — global is not required:
 1. **Props** (getter props) — parent → specific children.
 2. **Context** — `$.setContext(symbolKey, value)` on an ancestor, `$.getContext(symbolKey)` on a descendant (walks up `parentComp`). Usually store a getter.
 3. **Module-scope `useState`** — `export const appState = useState('appState', {...})` for genuinely app-wide state (auth, route, dataset). Mutate via `mutateState`.
+
+## Writing CSS
+
+Every component is a real `<c-mp>` element in the DOM, hidden from layout by `display: contents` but still present in the tree. So **CSS selectors that cross a component boundary break** even though the layout looks right: a `<c-mp>` sits between a component's rendered output and its parent. Avoid `>` (direct child), `+`/`~` (sibling), and `:first-child`/`:nth-child` across that boundary — they won't match. Prefer class-based selectors, or apply the rule to a real element the component renders rather than relying on tree position.
 
 ## Conventions to match, not invent
 
