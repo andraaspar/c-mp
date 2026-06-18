@@ -57,9 +57,24 @@ export const For = defineComponent('For', <T>(props: IForProps<T>, $: Comp) => {
 
 		// Gather keys for each item. Remove found keys from redundant keys.
 		const keys: TKey[] = []
+		const seenKeys = new Set<TKey>()
 		for (let index = 0, n = items.length; index < n; index++) {
 			const item = items[index]!
-			const key = props.getKey?.(item, index) ?? index
+			let key = props.getKey?.(item, index) ?? index
+			if (seenKeys.has(key)) {
+				// Duplicate key: keys must be unique, otherwise multiple items would
+				// alias the same component and DOM element. Warn and derive a unique
+				// key from the duplicate so this item still renders as its own element.
+				console.error(
+					`[tgtlcr] Duplicate key in For ${$.debugName}:`,
+					key,
+					`– deriving a unique key. Make getKey return unique keys.`,
+				)
+				do {
+					key = `${String(key)} [dup]`
+				} while (seenKeys.has(key))
+			}
+			seenKeys.add(key)
 			keys.push(key)
 			redundantKeys.delete(key)
 		}
