@@ -25,6 +25,7 @@ c-mp is a small, dependency-free frontend library for building reactive user int
   - [State and mutations](#state-and-mutations)
   - [Effects](#effects)
   - [Displaying values: Slot](#displaying-values-slot)
+    - [Building a fragment of UI inside one Slot](#building-a-fragment-of-ui-inside-one-slot)
   - [Conditional rendering: Show](#conditional-rendering-show)
   - [Lists: For](#lists-for)
   - [Element attributes](#element-attributes)
@@ -61,6 +62,7 @@ A few ideas underpin everything else:
 - **State is a proxy.** `useState` wraps a plain object so that reading a property registers a dependency and writing one triggers the effects that depend on it.
 - **Effects track their own dependencies.** When an effect runs, every state property it reads is recorded. When any of those properties later changes, the effect re-runs. Re-runs are batched on a microtask, so several synchronous mutations cause a single update.
 - **Everything has a debug name.** Components, state, effects, and mutations all take a name. These names appear in console logs and error messages, which is how you debug a running app.
+- **Client-side only — no SSR.** Components are real custom elements created and mounted in the browser DOM, so c-mp does not support server-side rendering or pre-rendering to HTML. It runs entirely on the client.
 
 ## Getting started
 
@@ -220,6 +222,33 @@ import { html } from './c-mp/fun/html'
 
 <Slot isTrustedHtml get={() => html`<b>Bold</b> and ${userInput}`.toString()} />
 ```
+
+### Building a fragment of UI inside one Slot
+
+When a piece of UI is assembled from several values that always change *together* — and the result is mostly formatted, presentational markup — it can be cleaner to build the whole fragment in one place and render it through a single `Slot`, rather than splitting it across many small nested slots. The `get` recomputes the entire block whenever any of its inputs change.
+
+A common case is a formatted name or label: a helper returns a JSX fragment built from many fields of the same object, and one `Slot` renders it.
+
+```tsx
+function formatPersonName(person: IPerson) {
+  return (
+    <>
+      {person.honorific ? <small>{person.honorific}</small> : ''}{' '}
+      <span class='last-name'>{person.lastName ?? ''}</span>{' '}
+      <b>{person.firstName ?? ''}</b>{' '}
+      {person.nickname ? <small>({person.nickname})</small> : ''}{' '}
+      {person.isDead ? '†' : ''}
+    </>
+  )
+}
+
+// Re-renders the whole formatted name whenever the person changes:
+<Slot get={() => formatPersonName(getPerson())} />
+```
+
+Because `get` may return a JSX element (or array of elements), the fragment can include nested elements and classes without `isTrustedHtml`. If the source is instead a pre-formatted HTML string, use `isTrustedHtml` with the `html` template tag as shown above.
+
+This trades fine-grained updates for simpler markup, so it suits read-only, display-oriented chunks (formatted names, dates, summaries) where the values are coupled. For interactive elements, or pieces that update independently, prefer separate slots, attributes, or child components.
 
 ## Conditional rendering: Show
 
