@@ -68,6 +68,12 @@ export function proxify<T>(name: string, o: T, cbs?: IProxifyCallbacks): T {
 			let oldValue = (target as any)[p]
 			newValue = unproxify(newValue)
 
+			// When an array is truncated via `arr.length = n`, the engine drops the
+			// removed elements without firing a trap for each, so their index
+			// subscribers would go stale. Capture the old length to notify them.
+			const oldLength =
+				Array.isArray(target) && p === 'length' ? oldValue : undefined
+
 			if (!Object.is(oldValue, newValue)) {
 				// Value changed.
 				result = Reflect.set(target, p, newValue, receiver)
@@ -87,6 +93,12 @@ export function proxify<T>(name: string, o: T, cbs?: IProxifyCallbacks): T {
 				// Array length changed. It is a computed property, so the callback must
 				// be called explicitly.
 				cbs?.set?.(name, target, 'length', target.length)
+			}
+			if (oldLength !== undefined && newValue < oldLength) {
+				// Array was truncated: notify subscribers of each removed index.
+				for (let i = newValue; i < oldLength; i++) {
+					cbs?.delete?.(name, target, i + '')
+				}
 			}
 			return result
 		},
