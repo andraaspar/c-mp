@@ -1,6 +1,6 @@
 # c-mp
 
-c-mp is a small, dependency-free frontend library for building reactive user interfaces, similar in scope to Svelte or Solid. It is built on native Web Components and uses proxy-based state for granular, fine-grained DOM updates. JSX compiles directly to real DOM elements — there is no virtual DOM.
+c-mp is a small, dependency-free frontend library for building reactive user interfaces. It is built on native Web Components and uses proxy-based state for granular, fine-grained DOM updates. JSX compiles directly to real DOM elements — there is no virtual DOM.
 
 ## Features
 
@@ -17,6 +17,7 @@ c-mp is a small, dependency-free frontend library for building reactive user int
   - [Features](#features)
   - [Table of contents](#table-of-contents)
   - [Core concepts](#core-concepts)
+  - [Tradeoffs](#tradeoffs)
   - [Getting started](#getting-started)
     - [package.json](#packagejson)
     - [tsconfig.json](#tsconfigjson)
@@ -62,7 +63,26 @@ A few ideas underpin everything else:
 - **State is a proxy.** `useState` wraps a plain object so that reading a property registers a dependency and writing one triggers the effects that depend on it.
 - **Effects track their own dependencies.** When an effect runs, every state property it reads is recorded. When any of those properties later changes, the effect re-runs. Re-runs are batched on a microtask, so several synchronous mutations cause a single update.
 - **Everything has a debug name.** Components, state, effects, and mutations all take a name. These names appear in console logs and error messages, which is how you debug a running app.
-- **Client-side only — no SSR.** Components are real custom elements created and mounted in the browser DOM, so c-mp does not support server-side rendering or pre-rendering to HTML. It runs entirely on the client.
+
+## Tradeoffs
+
+Read this before adopting c-mp.
+
+- **Web Components have a cost.** Every component is a real `<c-mp>` element in the DOM, kept out of layout by `display: contents`. This aids debugging but adds per-component element overhead, and the whole approach depends on that one CSS rule being present. The wrapper also stays in the DOM tree even though it is invisible to layout, so CSS selectors that cross a component boundary break: a `<c-mp>` sits between a component's output and its parent, so direct-child (`>`), sibling (`+`, `~`), and positional selectors (`:first-child`, `:nth-child`) no longer match as written.
+- **Verbose interpolation in JSX.** Displaying a reactive value requires `<Slot get={() => x} />` instead of `{x}` — so the most common operation in markup is both more verbose and prone to silent failure if you forget the `Slot`.
+- **Getter props instead of reactive props.** Because setup runs once and props never change, anything reactive must be passed as a getter (`getPerson={() => state.person}`). This convention is not enforced by the type system — pass a plain value by mistake and it simply won't update.
+- **Control flow uses components, not plain JSX.** Familiar inline patterns do not react to change: `{cond && <X />}` and `{ternary ? <A /> : <B />}` are evaluated once at setup and never update, and `{list.map(...)}` renders a static list. Reactive conditionals need `<Show it={$when(...)} />` and reactive lists need `<For each={...} />`. Inline JSX expressions still work for one-time content, but using them where you expect updates is a silent staleness trap.
+- **Components do not re-render.** A component's setup function runs exactly once; there is no re-render cycle. Updates come entirely from the proxy state and effects, not from re-invoking the component. There is no `setState`-triggered re-run, no rules-of-hooks, no dependency arrays, and no need for `useCallback`/memoized identity. This is the largest mental-model shift coming from React, and most of the surprises above follow from it.
+- **Manual mutation labeling.** State writes are wrapped in `mutateState(parent, name, fn)` by convention. This helps with debugging but is cumbersome to write. Forgetting it costs nothing but a console warning — the app still works — so the convention rests on discipline rather than enforcement.
+- **No SSR or hydration.** c-mp is client-only by design. For SEO-sensitive pages, content sites, or fast first-paint requirements, this is disqualifying.
+- **Minimal ecosystem and maturity.** There is no published package, no router, no component ecosystem, and no automated test suite (the example pages are exercised manually). You hand-roll routing and own any edge cases you hit in proxy tracking, effect scheduling, or list reconciliation.
+
+Some things cut the other way:
+
+- **You own the whole stack.** The library is roughly fifty small, readable files. There is no build magic beyond JSX, no dependency surface, and you can read or modify the framework itself when you hit a limitation.
+- **Batteries included for data.** `useQuery` and `useInfiniteQuery` provide caching and staleness out of the box, where many frameworks leave data fetching to a separate library.
+
+**When c-mp is a reasonable choice:** small-to-medium, client-only apps where you value owning and fully understanding your stack, and you (or a small team) can absorb the verbosity and the silent-failure footguns.
 
 ## Getting started
 
@@ -135,7 +155,7 @@ export const GreetingComp = defineComponent<{ name: string }>(
 
 `useState` creates a reactive proxy from a plain object (or array). Reading a property inside an effect tracks it; writing a property triggers the dependent effects.
 
-Every write must happen inside `mutateState(parent, name, fn)`, which labels the change for debugging. The signature takes three arguments: the parent name (use `$.debugName` inside a component), a short description of the mutation, and the function that performs the writes.
+By convention, writes are wrapped in `mutateState(parent, name, fn)`, which labels the change for debugging. The signature takes three arguments: the parent name (use `$.debugName` inside a component), a short description of the mutation, and the function that performs the writes. Wrapping is not required for correctness — an unwrapped write still applies and still triggers its effects — but an unwrapped write logs `👾 Unlabeled mutation!` to the console so you can spot it.
 
 ```tsx
 import { defineComponent } from './c-mp/fun/defineComponent'
@@ -175,7 +195,7 @@ export const NameComp = defineComponent<{}>('NameComp', (props, $) => {
 Notes:
 
 - `value={() => inputState.value}` is a reactive attribute: c-mp sets up an effect that updates `input.value` whenever `inputState.value` changes (see [Element attributes](#element-attributes)).
-- Writing to state outside of `mutateState` logs `👾 Unlabeled mutation!` to the console.
+- Wrapping writes in `mutateState` is a debugging convention, not a hard requirement: a write outside `mutateState` still applies and still triggers its effects — it only logs `👾 Unlabeled mutation!` to the console.
 - Nested objects and arrays are proxied automatically. Primitives and class instances pass through unchanged.
 
 ## Effects
