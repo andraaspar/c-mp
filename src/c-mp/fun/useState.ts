@@ -111,6 +111,9 @@ export function useState<T>(
 export function mutateState(parent: string, name: string, fn: () => void) {
 	try {
 		console.debug('👾', parent, name)
+		if (allowMutation === 0) {
+			effectsCleanedThisMutation = new WeakMap()
+		}
 		allowMutation++
 		fn()
 	} finally {
