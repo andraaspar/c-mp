@@ -1,6 +1,7 @@
 import { AbortError } from '../model/AbortError'
 import { activeComps } from './defineComponent'
 import { errorToMessage } from './errorToMessage'
+import { json } from './json'
 import { jsonClone } from './jsonClone'
 import { jsonStringify } from './jsonStringify'
 import { logLevel } from './log'
@@ -93,6 +94,31 @@ export class CacheEntry<T, P> {
 		this.staleAfter = o.staleAfter ?? DEFAULT_STALE_AFTER_MS
 		this.deleteAfter = o.deleteAfter ?? DEFAULT_DELETE_AFTER_MS
 		this.noReloadOnVisible = o.noReloadOnVisible || false
+	}
+
+	warnOnConflictingOptions(o: {
+		staleAfter?: number
+		deleteAfter?: number
+		noReloadOnVisible?: boolean
+	}) {
+		const conflicts: string[] = []
+		if ((o.staleAfter ?? DEFAULT_STALE_AFTER_MS) !== this.staleAfter) {
+			conflicts.push(`staleAfter (${this.staleAfter} vs ${o.staleAfter})`)
+		}
+		if ((o.deleteAfter ?? DEFAULT_DELETE_AFTER_MS) !== this.deleteAfter) {
+			conflicts.push(`deleteAfter (${this.deleteAfter} vs ${o.deleteAfter})`)
+		}
+		if ((o.noReloadOnVisible || false) !== this.noReloadOnVisible) {
+			conflicts.push(
+				`noReloadOnVisible (${this.noReloadOnVisible} vs ${o.noReloadOnVisible})`,
+			)
+		}
+		if (conflicts.length) {
+			console.error(
+				json`[t6e0b1] Conflicting options for shared query ${this.key} ${this.paramsString} – keeping the first caller's values. Conflicts:`,
+				conflicts.join(', '),
+			)
+		}
 	}
 
 	private setStatus(
@@ -345,9 +371,10 @@ export function useQuery<T, P>(
 				const paramsString = jsonStringify(options.params, { ordered: true })
 				// Look up the entry in the cache.
 				let entry = key__param__entry.get(options.key)?.get(paramsString)
-				// If not found:
-				if (!entry) {
-					// Create new entry.
+				if (entry) {
+					entry.warnOnConflictingOptions(options)
+				} else {
+					// If not found: create new entry.
 					entry = new CacheEntry({
 						key: options.key,
 						load: options.load,
